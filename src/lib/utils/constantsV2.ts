@@ -75,6 +75,7 @@ export const assetConstants = {
   share: iconsPath + "share.svg",
   sort: iconsPath + "sort.svg",
   trash: iconsPath + "trash.svg",
+  trashV2: iconsPath + "trashV2.svg",
   upload: iconsPath + "upload.svg",
   uploadV2: iconsPath + "uploadV2.svg",
   userCheck: iconsPath + "user-check.svg",
