@@ -282,9 +282,22 @@ export default function CareerFormV2({
             </div>
           </div>
 
-          <div className={styles.stepFieldGroup}>
-            {/* TODO: tips */}
-            Tips
+          <div>
+            <div className={styles.stepFieldsContainer}>
+              <div>
+                <h2 className={styles.tipsTitle}>
+                  <img src="/iconsV3/lightbulbV2.svg" alt="Tips icon" style={{ width: "19px", height: "19px" }} />
+                  Tips
+                </h2>
+              </div>
+
+              {/* FIXME: should be alterable */}
+              <div className={styles.fieldsWrapper}>
+                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vero eligendi maiores aut voluptas obcaecati
+                voluptatem asperiores animi tenetur laboriosam eius dignissimos assumenda harum nisi dolor incidunt labore,
+                blanditiis repudiandae iste!
+              </div>
+            </div>
           </div>
         </div>
       </div>
