@@ -25,6 +25,7 @@ export const assetConstants = {
   // icons
   account: iconsPath + "account.svg",
   alert: iconsPath + "alert.svg",
+  alertTriangle: iconsPath + "alert-triangle.svg",
   archive: iconsPath + "archive.svg",
   archiveV2: iconsPath + "archiveV2.svg",
   arrow: iconsPath + "arrow.svg",

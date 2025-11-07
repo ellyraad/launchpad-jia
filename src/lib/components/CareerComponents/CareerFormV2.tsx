@@ -19,7 +19,7 @@ export default function CareerFormV2({
   formType,
   setShowEditModal,
 }: CareerFormProps) {
-  const newFormSteps: { title: string; content?: React.ReactNode }[] = [
+  const formSteps: { title: string; content?: React.ReactNode }[] = [
     {
       title: "Career Details & Team Access",
       content: (
@@ -121,15 +121,61 @@ export default function CareerFormV2({
 
   const [isSalaryNegotiable, setIsSalaryNegotiable] = useState<boolean>(false);
   const [isVideoInterviewRequired, setIsVideoInterviewRequired] = useState<boolean>(true);
+  const [showStep1Validation, setShowStep1Validation] = useState<boolean>(false);
 
-  const getStepStatus = (stepIndex: number): "completed" | "in_progress" | "pending" => {
+  const validateStep1 = (): boolean => {
+    const requiredFields = [
+      jobTitle.trim(),
+      employmentType,
+      workArrangement,
+      province,
+      city,
+      description.trim(),
+    ];
+    
+    // Check all required fields are filled
+    if (requiredFields.some(field => !field)) return false;
+    
+    // Check salary fields only if not negotiable
+    if (!isSalaryNegotiable) {
+      if (!minSalary.trim() || !maxSalary.trim()) return false;
+      
+      // Validate that min salary is not greater than max salary
+      const min = parseFloat(minSalary.replace(/,/g, ''));
+      const max = parseFloat(maxSalary.replace(/,/g, ''));
+      if (!isNaN(min) && !isNaN(max) && min > max) return false;
+    }
+    
+    return true;
+  };
+
+  const isStepValid = (stepIndex: number): boolean => {
+    if (stepIndex === 0) {
+      return validateStep1();
+    }
+
+    return true;
+  };
+
+  const getStepStatus = (stepIndex: number): "completed" | "in_progress" | "pending" | "invalid" => {
     if (stepIndex < currentStep) return "completed";
-    if (stepIndex === currentStep) return "in_progress";
+    if (stepIndex === currentStep) {
+      if (stepIndex === 0 && showStep1Validation && !isStepValid(stepIndex)) return "invalid";
+      return "in_progress";
+    }
     return "pending";
   };
 
   const handleSaveAndContinue = () => {
-    if (currentStep < newFormSteps.length - 1) {
+    if (currentStep === 0) {
+      if (!validateStep1()) {
+        setShowStep1Validation(true);
+        return;
+      }
+      setShowStep1Validation(false);
+    }
+    
+    if (currentStep < formSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -137,6 +183,11 @@ export default function CareerFormV2({
   const handleStepClick = (stepIndex: number) => {
     if (stepIndex <= currentStep) {
       setCurrentStep(stepIndex);
+
+      // Reset when going back to step 1
+      if (stepIndex === 0) {
+        setShowStep1Validation(false);
+      }
     }
   };
 
@@ -166,7 +217,7 @@ export default function CareerFormV2({
       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
         <div className={styles.topContainer}>
           <div className={styles.applicationStepContainer}>
-            {newFormSteps.map((step, index) => {
+            {formSteps.map((step, index) => {
               const stepStatus = getStepStatus(index);
               const isClickable = index <= currentStep;
               
@@ -177,10 +228,13 @@ export default function CareerFormV2({
                     onClick={() => handleStepClick(index)}
                     style={{ cursor: isClickable ? 'pointer' : 'default' }}
                   >
-                    {/* FIXME: change to warning icon when the current form is invalid */}
-                    <img alt="" src={stepStatus === "completed" ? assetConstants.completed : assetConstants.in_progress} />
-                    {index < newFormSteps.length - 1 && (
-                      <hr className={`webView ${styles[stepStatus]}`} />
+                    {stepStatus === "invalid" ? (
+                      <img alt="warning" src={assetConstants.alertTriangle} />
+                    ) : (
+                      <img alt="in progress icon" src={stepStatus === "completed" ? assetConstants.completed : assetConstants.in_progress} />
+                    )}
+                    {index < formSteps.length - 1 && (
+                      <hr className={`webView ${styles[stepStatus === "invalid" ? "in_progress" : stepStatus]}`} />
                     )}
                   </div>
 
@@ -189,7 +243,7 @@ export default function CareerFormV2({
                     onClick={() => handleStepClick(index)}
                     style={{ cursor: isClickable ? 'pointer' : 'default' }}
                   >
-                    <div className={`webView ${styles.stepDescription} ${styles[stepStatus]}`}>{step.title}</div>
+                    <div className={`webView ${styles.stepDescription} ${styles[stepStatus === "invalid" ? "in_progress" : stepStatus]}`}>{step.title}</div>
                   </div>
                 </div>
               );
@@ -197,7 +251,7 @@ export default function CareerFormV2({
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: currentStep === newFormSteps.length - 1 ? "86.1%" : "2fr 1fr", gap: "24px", width: "100%", paddingBottom: "40px", justifyContent: currentStep === newFormSteps.length - 1 ? "center" : "initial" }}>
+        <div style={{ display: "grid", gridTemplateColumns: currentStep === formSteps.length - 1 ? "86.1%" : "2fr 1fr", gap: "24px", width: "100%", paddingBottom: "40px", justifyContent: currentStep === formSteps.length - 1 ? "center" : "initial" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {currentStep === 0 && (
               <>
@@ -216,6 +270,11 @@ export default function CareerFormV2({
                           style={{ padding: "10px 14px" }}
                           onChange={(e) => setJobTitle(e.target.value)}
                         />
+                        {showStep1Validation && !jobTitle.trim() && (
+                          <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                            Job title is required
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -230,6 +289,11 @@ export default function CareerFormV2({
                             options={employmentTypeOptions}
                             onValueChange={setEmploymentType}
                           />
+                          {showStep1Validation && !employmentType && (
+                            <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                              Employment type is required
+                            </span>
+                          )}
                         </div>
 
                         <div className={styles.field}>
@@ -240,6 +304,11 @@ export default function CareerFormV2({
                             options={workArrangementOptions}
                             onValueChange={setWorkArrangement}
                           />
+                          {showStep1Validation && !workArrangement && (
+                            <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                              Work arrangement is required
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -265,6 +334,11 @@ export default function CareerFormV2({
                             options={[{ name: "Metro Manila" }]} // FIXME
                             onValueChange={setProvince}
                           />
+                          {showStep1Validation && !province && (
+                            <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                              State / Province is required
+                            </span>
+                          )}
                         </div>
 
                         <div className={styles.field}>
@@ -275,6 +349,11 @@ export default function CareerFormV2({
                             options={[{ name: "Quezon City" }]} // FIXME
                             onValueChange={setCity}
                           />
+                          {showStep1Validation && !city && (
+                            <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                              City is required
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -298,8 +377,6 @@ export default function CareerFormV2({
 
 
                       <div style={{ display: "flex", gap: "16px" }}>
-                        {/* FIXME: there should be a guard if min salary is greater that maximum salary */}
-
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Minimum Salary</span>
                           <SalaryInput
@@ -309,6 +386,11 @@ export default function CareerFormV2({
                             onValueChange={setMinSalary}
                             onCurrencyChange={setSalaryCurrency}
                           />
+                          {showStep1Validation && !isSalaryNegotiable && !minSalary.trim() && (
+                            <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                              Minimum salary is required
+                            </span>
+                          )}
                         </div>
 
                         <div className={styles.field}>
@@ -320,6 +402,17 @@ export default function CareerFormV2({
                             onValueChange={setMaxSalary}
                             onCurrencyChange={setSalaryCurrency}
                           />
+                          {showStep1Validation && !isSalaryNegotiable && !maxSalary.trim() && (
+                            <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                              Maximum salary is required
+                            </span>
+                          )}
+                          {showStep1Validation && !isSalaryNegotiable && minSalary.trim() && maxSalary.trim() && 
+                           parseFloat(minSalary.replace(/,/g, '')) > parseFloat(maxSalary.replace(/,/g, '')) && (
+                            <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                              Maximum salary must be greater than minimum salary
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -331,6 +424,11 @@ export default function CareerFormV2({
 
                   <div className={styles.fieldsWrapper}>
                     <RichTextEditor setText={setDescription} text={description} />
+                    {showStep1Validation && !description.trim() && (
+                      <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                        Job description is required
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -357,7 +455,7 @@ export default function CareerFormV2({
 
                       <hr className={styles.divider} />
 
-                      {/* added members list */}
+                      {/* TODO: added members list */}
                       <div style={{ display: "flex", gap: "16px", flexDirection: "column" }}>
                         {/* TODO: should provide an error if there's no at least one job owner */}
 
@@ -653,9 +751,9 @@ export default function CareerFormV2({
             )}
           </div>
 
-          {currentStep !== newFormSteps.length - 1 && (
+          {currentStep !== formSteps.length - 1 && (
             <TipsBox>
-              {newFormSteps[currentStep].content}
+              {formSteps[currentStep].content}
             </TipsBox>
           )}
         </div>
