@@ -58,6 +58,7 @@ export default function CareerFormV2({
   const [province, setProvince] = useState<string>(""); 
   const [city, setCity] = useState<string>("");
 
+  const [jobTitle, setJobTitle] = useState<string>("");
   const [employmentType, setEmploymentType] = useState<string>("Full-Time");
   const [workArrangement, setWorkArrangement] = useState<string>("");
   const [minSalary, setMinSalary] = useState<string>("");
@@ -94,8 +95,11 @@ export default function CareerFormV2({
     <div style={{ width: "100%" }}>
       <div style={{ marginBottom: "35px", display: "flex", justifyContent: "space-between" }}>
         <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#181D27" }}>
-          {/* FIXME: should change to `[Draft] ${Job Title}` */}
-          Add new career
+          {currentStep > 0 ? (
+            <>
+              <span style={{ color: "#717680" }}>[Draft]</span> {jobTitle}
+            </>
+          ) : <>Add new career</>}
         </h1>
 
         <div className={styles.buttonContainer}>
@@ -157,8 +161,10 @@ export default function CareerFormV2({
                         <span className={styles.fieldLabel}>Job Title</span>
                         <input
                           type="text"
+                          value={jobTitle}
                           placeholder="Enter job title"
                           style={{ padding: "10px 14px" }}
+                          onChange={(e) => setJobTitle(e.target.value)}
                         />
                       </div>
                     </div>
