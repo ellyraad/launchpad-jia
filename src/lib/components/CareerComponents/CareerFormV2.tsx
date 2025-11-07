@@ -69,6 +69,9 @@ export default function CareerFormV2({
   const [aiScreeningSetting, setAIScreeningSetting] = useState<string>(screeningSettingList[0].name);
   const [authorizedMember, setAuthorizedMember] = useState<string>("");
 
+  const [isSalaryNegotiable, setIsSalaryNegotiable] = useState<boolean>(false);
+  const [isVideoInterviewRequired, setIsVideoInterviewRequired] = useState<boolean>(true);
+
   const getStepStatus = (stepIndex: number): "completed" | "in_progress" | "pending" => {
     if (stepIndex < currentStep) return "completed";
     if (stepIndex === currentStep) return "in_progress";
@@ -225,7 +228,15 @@ export default function CareerFormV2({
                         <h3>Salary</h3>
 
                         <div>
-                          <span style={{ color: "#414651" }}>Negotiate</span>
+                          <label className="switch">
+                            <input
+                              type="checkbox"
+                              checked={isSalaryNegotiable}
+                              onChange={() => setIsSalaryNegotiable(!isSalaryNegotiable)}
+                            />
+                            <span className="slider round"></span>
+                          </label>{" "}
+                          <span style={{ color: "#414651" }}>Negotiable</span>
                         </div>
                       </div>
 
@@ -236,6 +247,7 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Minimum Salary</span>
                           <SalaryInput
+                            disabled={isSalaryNegotiable}
                             value={minSalary}
                             currency={salaryCurrency}
                             onValueChange={setMinSalary}
@@ -246,6 +258,7 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Maximum Salary</span>
                           <SalaryInput
+                            disabled={isSalaryNegotiable}
                             value={maxSalary}
                             currency={salaryCurrency}
                             onValueChange={setMaxSalary}
@@ -432,7 +445,15 @@ export default function CareerFormV2({
                         </div>
 
                         <div className={styles.fieldGroupDesc} style={{ fontSize: "16px" }}>
-                          Yes
+                          <label className="switch">
+                            <input
+                              type="checkbox"
+                              checked={isVideoInterviewRequired}
+                              onChange={() => setIsVideoInterviewRequired(!isVideoInterviewRequired)}
+                            />
+                            <span className="slider round"></span>
+                          </label>{" "}
+                          <span>Yes</span>
                         </div>
                       </div>
                     </div>
