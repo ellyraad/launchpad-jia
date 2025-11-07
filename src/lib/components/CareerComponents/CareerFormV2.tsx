@@ -377,9 +377,80 @@ export default function CareerFormV2({
             )}
 
             {currentStep === 2 && (
-              <div className={styles.stepFieldsContainer}>
-                <h2>AI Interview Setup</h2>
-                <div className={styles.fieldsWrapper}></div>
+              <div style={{ display: "flex", gap: "24px", flexDirection: "column" }}>
+                <div className={styles.stepFieldsContainer}>
+                  <h2>1. AI Interview Screening</h2>
+
+                  <div className={styles.fieldsWrapper} style={{ gap: "12px" }}>
+                    <div className={styles.fieldGroup} style={{ gap: "16px" }}>
+                      <div>
+                        <div style={{ fontSize: "16px", fontWeight: "bold", color: "#181d27", marginBottom: "4px" }}>AI Interview Screening</div>
+                        <span className={styles.fieldGroupDesc}>Jia automatically endorses candidates who meet the chosen criteria.</span>
+                      </div>
+
+                      <CustomDropdownV2
+                        value="Good Fit and Above"
+                        options={["Good Fit and Above"]}
+                        onValueChange={(value: string) => console.log(value)}
+                        fullWidth={false}
+                      />
+                    </div>
+
+                    <hr className={styles.divider} />
+
+                    <div className={styles.feildGroup} style={{ gap: "16px" }}>
+                      <div>
+                        <div style={{ fontSize: "16px", fontWeight: "bold", color: "#181d27", marginBottom: "4px" }}>
+                          Require Video on Interview
+                        </div>
+                        <span className={styles.fieldGroupDesc}>
+                          Require candidates to keep their camera on. Recordings will appear on their analysis page.
+                        </span>
+                      </div>
+
+                      <div style={{ display: "flex", gap: "12px", justifyContent: "space-between", alignItems: "center", marginTop: "12px" }}>
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                          <img src="/icons/videocam.svg" alt="" />
+                          <span className={styles.fieldGroupDesc} style={{ fontSize: "16px" }}>
+                            Require Video Interview
+                          </span>
+                        </div>
+
+                        <div className={styles.fieldGroupDesc} style={{ fontSize: "16px" }}>
+                          Yes
+                        </div>
+                      </div>
+                    </div>
+
+                    <hr className={styles.divider} />
+
+                    <div className={styles.fieldGroup} style={{ gap: "12px" }}>
+                      <div>
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                          <img src="/icons/spark.svg" alt="Tips icon" style={{ width: "19px", height: "19px", marginBottom: "5px" }} />
+                          <div style={{ fontSize: "16px", fontWeight: "bold", color: "#181d27", marginBottom: "4px" }}>
+                            AI Interview Secret Prompt{" "}
+                            <span style={{ color: "#717680", fontWeight: "normal" }}>(optional)</span>{" "}
+                            <img
+                              alt="help-icon"
+                              src="/icons/help-icon.svg"
+                              style={{ marginBottom: "3px" }}
+                              data-tooltip-id="ai-int-secret-prompt-tooltip"
+                              data-tooltip-delay-show={0}
+                              data-tooltip-html={secretPromptTooltip}
+                            />
+
+                          </div>
+                        </div>
+
+                        <span className={styles.fieldGroupDesc}>Secret Prompts give you extra control over Jia’s evaluation style, complementing her accurate assessment of requirements from the job description.</span>
+                      </div>
+
+                      <textarea placeholder="Enter a secret prompt (e.g. Treat candidates who speak in Taglish, English, or Tagalog equally. Focus on clarity, coherence, and confidence rather than language preference or accent.)">
+                      </textarea>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
