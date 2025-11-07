@@ -287,6 +287,12 @@
   }
 }
 
+.tipsTitle {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
 @media (max-width: 768px) {
   .bottomContainer {
     padding: 16px;
