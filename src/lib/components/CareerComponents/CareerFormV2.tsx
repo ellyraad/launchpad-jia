@@ -6,6 +6,7 @@ import { assetConstants } from "@/lib/utils/constantsV2";
 import styles from "@/lib/styles/screens/careerForm.module.scss";
 import { CareerFormProps } from "./CareerForm";
 import { useState } from "react";
+import { Tooltip } from "react-tooltip";
 import CustomDropdownV2 from "@/lib/components/Dropdown/CustomDropdownV2";
 import SalaryInput from "@/lib/components/CareerComponents/SalaryInput";
 import RichTextEditor from "./RichTextEditor";
@@ -319,9 +320,57 @@ export default function CareerFormV2({
             )}
 
             {currentStep === 1 && (
-              <div className={styles.stepFieldsContainer}>
-                <h2>CV Review & Pre-screening</h2>
-                <div className={styles.fieldsWrapper}></div>
+              <div style={{ display: "flex", gap: "24px", flexDirection: "column" }}>
+                <div className={styles.stepFieldsContainer}>
+                  <h2>1. CV Review &amp; Pre-screening</h2>
+
+                  <div className={styles.fieldsWrapper} style={{ gap: "12px" }}>
+                    <div className={styles.fieldGroup} style={{ gap: "16px" }}>
+                      <div>
+                        <div style={{ fontSize: "16px", fontWeight: "bold", color: "#181d27", marginBottom: "4px" }}>CV Screening</div>
+                        <span className={styles.fieldGroupDesc}>Jia automatically endorses candidates who meet the chosen criteria</span>
+                      </div>
+
+                      <CustomDropdownV2
+                        value="Good Fit and Above"
+                        options={["Good Fit and Above"]}
+                        onValueChange={(value: string) => console.log(value)}
+                        fullWidth={false}
+                      />
+                    </div>
+
+                    <hr className={styles.divider} />
+
+                    <div className={styles.fieldGroup} style={{ gap: "12px" }}>
+                      <div>
+                        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                          <img src="/icons/spark.svg" alt="Tips icon" style={{ width: "19px", height: "19px", marginBottom: "5px" }} />
+                          <div style={{ fontSize: "16px", fontWeight: "bold", color: "#181d27", marginBottom: "4px" }}>
+                            CV Secret Prompt{" "}
+                            <span style={{ color: "#717680", fontWeight: "normal" }}>(optional)</span>{" "}
+                            <img
+                              alt="help-icon"
+                              src="/icons/help-icon.svg"
+                              style={{ marginBottom: "3px" }}
+                              data-tooltip-id="cv-secret-prompt-tooltip"
+                              data-tooltip-delay-show={0}
+                              data-tooltip-html="These prompts remain hidden from candidates and the public job portal.<br>Additionally, only Admins and the Job Owner can view the secret prompt."
+                            />
+                          </div>
+                        </div>
+
+                        <span className={styles.fieldGroupDesc}>Secret Prompts give you extra control over Jia’s evaluation style, complementing her accurate assessment of requirements from the job description.</span>
+                      </div>
+
+                      <textarea placeholder="Enter a secret prompt (e.g. Give higher fit scores to candidates who participate in hackathons or competitions.)">
+                      </textarea>
+                    </div>
+                  </div>
+                </div>
+
+                {/* TODO: Pre-screening questions */}
+                {/* <div className={styles.stepFieldsContainer}> */}
+                {/* </div> */}
               </div>
             )}
 
@@ -366,6 +415,12 @@ export default function CareerFormV2({
           </div>
         </div>
       </div>
+
+      <Tooltip
+        className="cv-secret-prompt-tooltip"
+        id="cv-secret-prompt-tooltip"
+        style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
+      />
     </div>
   );
 }
