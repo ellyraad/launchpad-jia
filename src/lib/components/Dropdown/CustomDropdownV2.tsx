@@ -6,7 +6,7 @@ import styles from "../../styles/commonV2/dropdownV2.module.scss";
 interface DropdownProps {
   value?: string;
   placeholder?: string;
-  options: string[];
+  options: { name: string; icon?: string }[];
   onValueChange(value: string): void;
   disabled?: boolean;
   fullWidth?: boolean;
@@ -21,9 +21,11 @@ export default function CustomDropdownV2({
   fullWidth = true,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [icon, setIcon] = useState(options[0].icon);
 
-  const handleSelect = (option: string) => {
-    onValueChange?.(option);
+  const handleSelect = (option: {name: string, icon?: string}) => {
+    onValueChange?.(option.name);
+    setIcon(option.icon);
     setIsOpen(false);
   };
 
@@ -44,7 +46,7 @@ export default function CustomDropdownV2({
         disabled={disabled}
       >
         <span className={value ? styles.value : styles.placeholder}>
-          {value || placeholder}
+          <span className={icon} /> {value || placeholder}
         </span>
         <svg
           width="20"
@@ -70,11 +72,13 @@ export default function CustomDropdownV2({
             <div
               key={index}
               className={`${styles.dropdownItem} ${
-                option === value ? styles.selected : ""
+                option.name === value ? styles.selected : ""
               }`}
               onClick={() => handleSelect(option)}
+              style={{ display: "flex", gap: "12px", alignItems: "center" }}
             >
-              {option}
+              <span className={option.icon || ""} />
+              <span>{option.name}</span>
             </div>
           ))}
         </div>
