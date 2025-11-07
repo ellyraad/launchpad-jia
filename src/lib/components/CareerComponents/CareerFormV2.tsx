@@ -813,7 +813,7 @@ export default function CareerFormV2({
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>CV Screening</div>
-                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type="Good Fit" /> and above</div>
+                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type={cvScreeningSetting} /> and above</div>
                     </div>
                   </div>
                 </div>
@@ -827,7 +827,7 @@ export default function CareerFormV2({
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>AI Interview Screening</div>
-                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type="Good Fit" /> and above</div>
+                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type={aiScreeningSetting} /> and above</div>
                     </div>
 
                     <hr className={styles.groupDivider} />
