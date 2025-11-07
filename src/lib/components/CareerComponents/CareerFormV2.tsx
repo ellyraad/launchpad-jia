@@ -398,7 +398,7 @@ export default function CareerFormV2({
 
                     <hr className={styles.divider} />
 
-                    <div className={styles.feildGroup} style={{ gap: "16px" }}>
+                     <div className={styles.fieldGroup} style={{ gap: "16px" }}>
                       <div>
                         <div style={{ fontSize: "16px", fontWeight: "bold", color: "#181d27", marginBottom: "4px" }}>
                           Require Video on Interview
@@ -462,8 +462,8 @@ export default function CareerFormV2({
             )}
           </div>
 
-          <div>
-            <div className={styles.stepFieldsContainer}>
+          {currentStep !== formSteps.length - 1 && (
+            <div className={styles.stepFieldsContainer} style={{ height: "fit-content" }}>
               <div>
                 <h2 className={styles.tipsTitle}>
                   <img src="/iconsV3/lightbulbV2.svg" alt="Tips icon" style={{ width: "19px", height: "19px" }} />
@@ -478,7 +478,7 @@ export default function CareerFormV2({
                 blanditiis repudiandae iste!
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
