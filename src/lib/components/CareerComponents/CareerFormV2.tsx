@@ -26,20 +26,47 @@ export default function CareerFormV2({
     "Review Center"
   ] as const;
 
+  const screeningSettingList = [
+    { name: "Good Fit and above", icon: "la la-check" },
+    { name: "Only Strong Fit", icon: "la la-check-double" },
+    { name: "No Automatic Promotion", icon: "la la-times" },
+  ];
+
+  const employmentTypeOptions = [
+    { name: "Full-Time" },
+    { name: "Part-Time" },
+  ];
+
+  const workArrangementOptions = [
+    { name: "Fully Remote" },
+    { name: "Onsite" },
+    { name: "Hybrid" },
+  ];
+
+  const accessRolesOptions = [
+    { name: "Job Owner" },
+    { name: "Reviewer" },
+    { name: "Contributor" },
+  ];
+
   const secretPromptTooltip = "These prompts remain hidden from candidates and the public job portal.<br>Additionally, only Admins and the Job Owner can view the secret prompt.";
 
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   // FIXME: should use the provided geo data
+  const [country, setCountry] = useState<string>("Philippines"); // FIXME
   const [province, setProvince] = useState<string>(""); 
   const [city, setCity] = useState<string>("");
 
-  const [employmentType, setEmploymentType] = useState<string>("");
+  const [employmentType, setEmploymentType] = useState<string>("Full-Time");
   const [workArrangement, setWorkArrangement] = useState<string>("");
   const [minSalary, setMinSalary] = useState<string>("");
   const [maxSalary, setMaxSalary] = useState<string>("");
   const [salaryCurrency, setSalaryCurrency] = useState<string>("PHP");
   const [description, setDescription] = useState<string>("");
+  const [accessRole, setAccessRole] = useState<string>();
+  const [cvScreeningSetting, setCVScreeningSetting] = useState<string>(screeningSettingList[0].name);
+  const [aiScreeningSetting, setAIScreeningSetting] = useState<string>(screeningSettingList[0].name);
   const [authorizedMember, setAuthorizedMember] = useState<string>("");
 
   const getStepStatus = (stepIndex: number): "completed" | "in_progress" | "pending" => {
@@ -59,19 +86,6 @@ export default function CareerFormV2({
       setCurrentStep(stepIndex);
     }
   };
-
-  const employmentTypeOptions = [
-    "Full-time",
-    "Part-time",
-    "Contract",
-    "Internship",
-  ];
-
-  const workArrangementOptions = [
-    "On-site",
-    "Hybrid",
-    "Remote",
-  ];
 
   return (
     <div style={{ width: "100%" }}>
@@ -178,9 +192,9 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Country</span>
                           <CustomDropdownV2
-                            value="Philippines"
-                            options={["Philippines"]}
-                            onValueChange={(value: string) => console.log(value)}
+                            value={country}
+                            options={[{ name: "Philippines" }]} // FIXME
+                            onValueChange={setCountry}
                           />
                         </div>
 
@@ -189,7 +203,7 @@ export default function CareerFormV2({
                           <CustomDropdownV2
                             value={province}
                             placeholder="Choose state / province"
-                            options={["Philippines"]}
+                            options={[{ name: "Metro Manila" }]} // FIXME
                             onValueChange={setProvince}
                           />
                         </div>
@@ -199,7 +213,7 @@ export default function CareerFormV2({
                           <CustomDropdownV2
                             value={city}
                             placeholder="Choose city"
-                            options={["Philippines"]}
+                            options={[{ name: "Quezon City" }]} // FIXME
                             onValueChange={setCity}
                           />
                         </div>
@@ -266,7 +280,7 @@ export default function CareerFormV2({
                           <CustomDropdownV2
                             value={authorizedMember}
                             placeholder="Add member"
-                            options={["John Doe"]}
+                            options={[{ name:"John Doe" }]}
                             onValueChange={setAuthorizedMember}
                           />
                         </div>
@@ -290,9 +304,9 @@ export default function CareerFormV2({
 
                           <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
                             <CustomDropdownV2
-                              value="Job Owner" // FIXME: should only be the default for the currently logged-in (super)admin
-                              options={["Job Owner"]}
-                              onValueChange={(value: string) => console.log(value)}
+                              value={accessRole} // FIXME: should only be the default for the currently logged-in (super)admin
+                              options={accessRolesOptions}
+                              onValueChange={setAccessRole}
                             />
 
                             <button
@@ -335,9 +349,9 @@ export default function CareerFormV2({
                       </div>
 
                       <CustomDropdownV2
-                        value="Good Fit and Above"
-                        options={["Good Fit and Above"]}
-                        onValueChange={(value: string) => console.log(value)}
+                        value={cvScreeningSetting}
+                        options={screeningSettingList}
+                        onValueChange={setCVScreeningSetting}
                         fullWidth={false}
                       />
                     </div>
@@ -390,9 +404,9 @@ export default function CareerFormV2({
                       </div>
 
                       <CustomDropdownV2
-                        value="Good Fit and Above"
-                        options={["Good Fit and Above"]}
-                        onValueChange={(value: string) => console.log(value)}
+                        value={aiScreeningSetting}
+                        options={screeningSettingList}
+                        onValueChange={setAIScreeningSetting}
                         fullWidth={false}
                       />
                     </div>
