@@ -12,19 +12,68 @@ import SalaryInput from "@/lib/components/CareerComponents/SalaryInput";
 import RichTextEditor from "./RichTextEditor";
 import AvatarImage from "../AvatarImage/AvatarImage";
 import AssessmentBadge from "./AssessmentBadge";
+import TipsBox from "./TipsBox";
 
 export default function CareerFormV2({
   career,
   formType,
   setShowEditModal,
 }: CareerFormProps) {
-  const formSteps = [
-    "Career Details & Team Access",
-    "CV Review & Pre-screening",
-    "AI Interview Setup",
-    // "Pipeline Stages",
-    "Review Center"
-  ] as const;
+  const newFormSteps: { title: string; content?: React.ReactNode }[] = [
+    {
+      title: "Career Details & Team Access",
+      content: (
+        <>
+          <p>
+            <strong>Use clear, standard job titles</strong> for better searchability{" "}
+            (e.g., “Software Engineer” instead of “Code Ninja” or “Tech Rockstar”).
+          </p>
+          <p>
+            <strong>Avoid abbreviations</strong> or internal role codes that applicants may not{" "}
+            understand (e.g., use “QA Engineer” instead of “QE II” or “QA-TL”).
+          </p>
+          <p>
+            <strong>Keep it concise</strong> – job titles should be no more than a few words (2–4 max),{" "}
+            avoiding fluff or marketing terms.
+          </p>
+        </>
+      )
+    },
+
+    {
+      title: "CV Review & Pre-screening",
+      content: (
+        <>
+          <p>
+            <strong>Add a secret prompt</strong> to fine-tune how Jia scores and evaluates submitted CV.
+          </p>
+          <p>
+            <strong>Add pre-screening questions</strong> to collect key details such as notice period, work{" "}
+            setup, or salary expectations to guide your review and candidate discussions.
+          </p>
+        </>
+      )
+    },
+
+    {
+      title: "AI Interview Setup",
+      content: (
+        <>
+          <p>
+            <strong>Add a secret prompt</strong> to fine-tune how Jia scores and evaluates the interview responses.
+          </p>
+          <p>
+            <strong>Use &ldquo;Generate Questions&rdquo;</strong>to quickly create tailored interview questions,{" "}
+            then refine or mix them with your own for balanced results. 
+          </p>
+        </>
+      )
+    },
+
+    {
+      title: "Review Center"
+    }
+  ];
 
   const screeningSettingList = [
     { name: "Good Fit and above", icon: "la la-check" },
@@ -80,7 +129,7 @@ export default function CareerFormV2({
   };
 
   const handleSaveAndContinue = () => {
-    if (currentStep < formSteps.length - 1) {
+    if (currentStep < newFormSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -117,7 +166,7 @@ export default function CareerFormV2({
       <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
         <div className={styles.topContainer}>
           <div className={styles.applicationStepContainer}>
-            {formSteps.map((step, index) => {
+            {newFormSteps.map((step, index) => {
               const stepStatus = getStepStatus(index);
               const isClickable = index <= currentStep;
               
@@ -128,8 +177,9 @@ export default function CareerFormV2({
                     onClick={() => handleStepClick(index)}
                     style={{ cursor: isClickable ? 'pointer' : 'default' }}
                   >
+                    {/* FIXME: change to warning icon when the current form is invalid */}
                     <img alt="" src={stepStatus === "completed" ? assetConstants.completed : assetConstants.in_progress} />
-                    {index < formSteps.length - 1 && (
+                    {index < newFormSteps.length - 1 && (
                       <hr className={`webView ${styles[stepStatus]}`} />
                     )}
                   </div>
@@ -139,7 +189,7 @@ export default function CareerFormV2({
                     onClick={() => handleStepClick(index)}
                     style={{ cursor: isClickable ? 'pointer' : 'default' }}
                   >
-                    <div className={`webView ${styles.stepDescription} ${styles[stepStatus]}`}>{step}</div>
+                    <div className={`webView ${styles.stepDescription} ${styles[stepStatus]}`}>{step.title}</div>
                   </div>
                 </div>
               );
@@ -147,7 +197,7 @@ export default function CareerFormV2({
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: currentStep === formSteps.length - 1 ? "86.1%" : "2fr 1fr", gap: "24px", width: "100%", paddingBottom: "40px", justifyContent: currentStep === formSteps.length - 1 ? "center" : "initial" }}>
+        <div style={{ display: "grid", gridTemplateColumns: currentStep === newFormSteps.length - 1 ? "86.1%" : "2fr 1fr", gap: "24px", width: "100%", paddingBottom: "40px", justifyContent: currentStep === newFormSteps.length - 1 ? "center" : "initial" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {currentStep === 0 && (
               <>
@@ -603,22 +653,10 @@ export default function CareerFormV2({
             )}
           </div>
 
-          {currentStep !== formSteps.length - 1 && (
-            <div className={styles.stepFieldsContainer} style={{ height: "fit-content" }}>
-              <div>
-                <h2 className={styles.tipsTitle}>
-                  <img src="/iconsV3/lightbulbV2.svg" alt="Tips icon" style={{ width: "19px", height: "19px" }} />
-                  Tips
-                </h2>
-              </div>
-
-              {/* FIXME: should be alterable */}
-              <div className={styles.fieldsWrapper}>
-                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Vero eligendi maiores aut voluptas obcaecati
-                voluptatem asperiores animi tenetur laboriosam eius dignissimos assumenda harum nisi dolor incidunt labore,
-                blanditiis repudiandae iste!
-              </div>
-            </div>
+          {currentStep !== newFormSteps.length - 1 && (
+            <TipsBox>
+              {newFormSteps[currentStep].content}
+            </TipsBox>
           )}
         </div>
       </div>

@@ -114,6 +114,21 @@
     }
   }
 
+  .tipsContent {
+    gap: 12px !important;
+    color: var(--Text-text-tertiary, #717680);
+
+    strong {
+      color: var(--Text-text-primary, #181D27);
+      font-weight: bold;
+    }
+
+    p {
+      margin: 0;
+      font-weight: 500;
+    }
+  }
+
   .reviewFieldsGroup {
     gap: 0 !important;
 
