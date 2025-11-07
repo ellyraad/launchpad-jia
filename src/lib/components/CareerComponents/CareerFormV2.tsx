@@ -25,6 +25,8 @@ export default function CareerFormV2({
     "Review Center"
   ] as const;
 
+  const secretPromptTooltip = "These prompts remain hidden from candidates and the public job portal.<br>Additionally, only Admins and the Job Owner can view the secret prompt.";
+
   const [currentStep, setCurrentStep] = useState<number>(0);
 
   // FIXME: should use the provided geo data
@@ -354,7 +356,7 @@ export default function CareerFormV2({
                               style={{ marginBottom: "3px" }}
                               data-tooltip-id="cv-secret-prompt-tooltip"
                               data-tooltip-delay-show={0}
-                              data-tooltip-html="These prompts remain hidden from candidates and the public job portal.<br>Additionally, only Admins and the Job Owner can view the secret prompt."
+                              data-tooltip-html={secretPromptTooltip}
                             />
                           </div>
                         </div>
@@ -417,8 +419,12 @@ export default function CareerFormV2({
       </div>
 
       <Tooltip
-        className="cv-secret-prompt-tooltip"
         id="cv-secret-prompt-tooltip"
+        style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
+      />
+
+      <Tooltip
+        id="ai-int-secret-prompt-tooltip"
         style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
       />
     </div>
