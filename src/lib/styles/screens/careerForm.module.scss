@@ -113,6 +113,41 @@
       margin: 16px 0 !important;
     }
   }
+
+  .reviewFieldsGroup {
+    gap: 0 !important;
+
+    .reviewField {
+      .fieldLabel {
+        color: var(--Text-text-primary, #181d27);
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+
+      .fieldValue {
+        color: var(--Text-text-secondary, #414651);
+        font-size: 16px;
+      }
+    }
+
+    .groupDivider {
+      width: 100%;
+      height: 1px;
+      background-color: #E9EAEB;
+      margin: 16px 0;
+    }
+  }
+
+}
+
+.countBadge {
+  font-size: 12px;
+  background-color: #f8f9fc;
+  color: #363f72;
+  border: 1px solid #d5d9eb;
+  padding: 2px 8px;
+  border-radius: 16px;
 }
 
 .buttonContainer {

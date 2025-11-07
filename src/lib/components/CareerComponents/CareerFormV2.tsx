@@ -11,6 +11,7 @@ import CustomDropdownV2 from "@/lib/components/Dropdown/CustomDropdownV2";
 import SalaryInput from "@/lib/components/CareerComponents/SalaryInput";
 import RichTextEditor from "./RichTextEditor";
 import AvatarImage from "../AvatarImage/AvatarImage";
+import AssessmentBadge from "./AssessmentBadge";
 
 export default function CareerFormV2({
   career,
@@ -125,7 +126,7 @@ export default function CareerFormV2({
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px", width: "100%", paddingBottom: "40px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: currentStep === formSteps.length - 1 ? "86.1%" : "2fr 1fr", gap: "24px", width: "100%", paddingBottom: "40px", justifyContent: currentStep === formSteps.length - 1 ? "center" : "initial" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
             {currentStep === 0 && (
               <>
@@ -455,9 +456,108 @@ export default function CareerFormV2({
             )}
 
             {currentStep === 3 && (
-              <div className={styles.stepFieldsContainer}>
-                <h2>Review Center</h2>
-                <div className={styles.fieldsWrapper}></div>
+              <div style={{ display: "flex", gap: "24px", flexDirection: "column" }}>
+                <div className={styles.stepFieldsContainer}>
+                  <h2 style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <img src="/iconsV3/chevronV2.svg" alt="chevron" style={{ width: "20px", height: "20px", transform: "rotate(90deg)", filter: "grayscale(100%) brightness(0.7) contrast(1.2)" }} />
+                    Career Details &amp; Team Access
+                  </h2>
+
+                  <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
+                    <div className={styles.reviewField}>
+                      <div className={styles.fieldLabel}>Job Title</div>
+                      <div className={styles.fieldValue}>Software Engineer - Java</div>
+                    </div>
+
+                    <hr className={styles.groupDivider} />
+
+                    <div style={{ display: "grid", gap: "16px", gridTemplateColumns: "1fr 1fr 1fr", width: "100%" }}>
+                      <div className={styles.reviewField} style={{ flex: "1" }}>
+                        <div className={styles.fieldLabel}>Country</div>
+                        <div className={styles.fieldValue}>Philippines</div>
+                      </div>
+
+                      <div className={styles.reviewField} style={{ flex: "1" }}>
+                        <div className={styles.fieldLabel}>State / Province</div>
+                        <div className={styles.fieldValue}>Metro Manila</div>
+                      </div>
+
+                      <div className={styles.reviewField} style={{ flex: "1" }}>
+                        <div className={styles.fieldLabel}>City</div>
+                        <div className={styles.fieldValue}>Pasig City</div>
+                      </div>
+                    </div>
+
+                    <hr className={styles.groupDivider} />
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", width: "100%" }}>
+                      <div className={styles.reviewField}>
+                        <div className={styles.fieldLabel}>Minimum Salary</div>
+                        <div className={styles.fieldValue}>Negotiable</div>
+                      </div>
+
+                      <div className={styles.reviewField} style={{ gridColumn: "span 2" }}>
+                        <div className={styles.fieldLabel}>Maximum Salary</div>
+                        <div className={styles.fieldValue}>Negotiable</div>
+                      </div>
+                    </div>
+
+                    <hr className={styles.groupDivider} />
+
+                    <div className={styles.reviewField}>
+                      <div className={styles.fieldLabel}>Job Description</div>
+                      <div className={styles.fieldValue}>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam error,
+                        quasi deserunt rerum repellat impedit asperiores placeat temporibus excepturi
+                        repellendus nam ullam saepe, tempore rem quis. Amet molestiae nisi atque.
+                      </div>
+                    </div>
+
+                    {/* TODO: Team access */}
+                  </div>
+                </div>
+
+                <div className={styles.stepFieldsContainer}>
+                  <h2 style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <img src="/iconsV3/chevronV2.svg" alt="chevron" style={{ width: "20px", height: "20px", transform: "rotate(90deg)", filter: "grayscale(100%) brightness(0.7) contrast(1.2)" }} />
+                    CV Review &amp; Pre-Screening Questions
+                  </h2>
+                  <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
+                    <div className={styles.reviewField}>
+                      <div className={styles.fieldLabel}>CV Screening</div>
+                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type="Good Fit" /> and above</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.stepFieldsContainer}>
+                  <h2 style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <img src="/iconsV3/chevronV2.svg" alt="chevron" style={{ width: "20px", height: "20px", transform: "rotate(90deg)", filter: "grayscale(100%) brightness(0.7) contrast(1.2)" }} />
+                    AI Interview Setup
+                  </h2>
+
+                  <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
+                    <div className={styles.reviewField}>
+                      <div className={styles.fieldLabel}>AI Interview Screening</div>
+                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type="Good Fit" /> and above</div>
+                    </div>
+
+                    <hr className={styles.groupDivider} />
+
+                    <div className={styles.reviewField} style={{ display: "flex", gap: "12px", justifyContent: "space-between" }}>
+                      <div className={styles.fieldLabel}>Require Video on Interview</div>
+                      <div className={styles.fieldValue}>Yes</div>
+                    </div>
+
+                    <hr className={styles.groupDivider} />
+
+                    <div className={styles.reviewField}>
+                      <div className={styles.fieldLabel}>
+                        Interview Questions <span className={styles.countBadge}>3</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
