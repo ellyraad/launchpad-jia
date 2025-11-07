@@ -13,6 +13,7 @@ import RichTextEditor from "./RichTextEditor";
 import AvatarImage from "../AvatarImage/AvatarImage";
 import AssessmentBadge from "./AssessmentBadge";
 import TipsBox from "./TipsBox";
+import InterviewQuestionGeneratorV2 from "./InterviewQuestionGeneratorV2";
 
 export default function CareerFormV2({
   career,
@@ -98,6 +99,39 @@ export default function CareerFormV2({
     { name: "Contributor" },
   ];
 
+  const [questions, setQuestions] = useState([
+    {
+      id: 1,
+      category: "CV Validation / Experience",
+      questionCountToAsk: null,
+      questions: [],
+    },
+    {
+      id: 2,
+      category: "Technical",
+      questionCountToAsk: null,
+      questions: [],
+    },
+    {
+      id: 3,
+      category: "Behavioral",
+      questionCountToAsk: null,
+      questions: [],
+    },
+    {
+      id: 4,
+      category: "Analytical",
+      questionCountToAsk: null,
+      questions: [],
+    },
+    {
+      id: 5,
+      category: "Others",
+      questionCountToAsk: null,
+      questions: [],
+    },
+  ]);
+
   const secretPromptTooltip = "These prompts remain hidden from candidates and the public job portal.<br>Additionally, only Admins and the Job Owner can view the secret prompt.";
 
   const [currentStep, setCurrentStep] = useState<number>(0);
@@ -122,6 +156,7 @@ export default function CareerFormV2({
   const [isSalaryNegotiable, setIsSalaryNegotiable] = useState<boolean>(false);
   const [isVideoInterviewRequired, setIsVideoInterviewRequired] = useState<boolean>(true);
   const [showStep1Validation, setShowStep1Validation] = useState<boolean>(false);
+  const [showStep2Validation, setShowStep2Validation] = useState<boolean>(false);
 
   const validateStep1 = (): boolean => {
     const requiredFields = [
@@ -149,9 +184,17 @@ export default function CareerFormV2({
     return true;
   };
 
+  const validateStep2 = (): boolean => {
+    const totalQuestions = questions.reduce((acc, group) => acc + group.questions.length, 0);
+    return totalQuestions >= 5;
+  };
+
   const isStepValid = (stepIndex: number): boolean => {
     if (stepIndex === 0) {
       return validateStep1();
+    }
+    if (stepIndex === 2) {
+      return validateStep2();
     }
 
     return true;
@@ -161,6 +204,7 @@ export default function CareerFormV2({
     if (stepIndex < currentStep) return "completed";
     if (stepIndex === currentStep) {
       if (stepIndex === 0 && showStep1Validation && !isStepValid(stepIndex)) return "invalid";
+      if (stepIndex === 2 && showStep2Validation && !isStepValid(stepIndex)) return "invalid";
       return "in_progress";
     }
     return "pending";
@@ -175,6 +219,14 @@ export default function CareerFormV2({
       setShowStep1Validation(false);
     }
     
+    if (currentStep === 2) {
+      if (!validateStep2()) {
+        setShowStep2Validation(true);
+        return;
+      }
+      setShowStep2Validation(false);
+    }
+    
     if (currentStep < formSteps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -184,9 +236,12 @@ export default function CareerFormV2({
     if (stepIndex <= currentStep) {
       setCurrentStep(stepIndex);
 
-      // Reset when going back to step 1
+      // Reset validation when navigating
       if (stepIndex === 0) {
         setShowStep1Validation(false);
+      }
+      if (stepIndex === 2) {
+        setShowStep2Validation(false);
       }
     }
   };
@@ -670,8 +725,21 @@ export default function CareerFormV2({
                       <textarea placeholder="Enter a secret prompt (e.g. Treat candidates who speak in Taglish, English, or Tagalog equally. Focus on clarity, coherence, and confidence rather than language preference or accent.)">
                       </textarea>
                     </div>
+
                   </div>
+
                 </div>
+
+                <InterviewQuestionGeneratorV2 
+                  questions={questions} 
+                  setQuestions={(questions) => {
+                    setQuestions(questions);
+                    setShowStep2Validation(false);
+                  }} 
+                  jobTitle={jobTitle} 
+                  description={description}
+                  showValidation={showStep2Validation}
+                />
               </div>
             )}
 

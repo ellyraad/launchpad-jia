@@ -11,7 +11,7 @@ import InterviewQuestionModal from "./InterviewQuestionModal";
 import FullScreenLoadingAnimation from "./FullScreenLoadingAnimation";
 
 export default function (props) {
-  const { questions, setQuestions, jobTitle, description } = props;
+  const { questions, setQuestions, jobTitle, description, showValidation } = props;
   const [questionGenPrompt, setQuestionGenPrompt] = useState("");
   const questionCount = 5;
   const [showQuestionModal, setShowQuestionModal] = useState("");
@@ -360,7 +360,17 @@ export default function (props) {
                 <i className="la la-bolt" style={{ fontSize: 20 }}></i> Generate All Questions
               </button>
           </div>
+          
+          
             <div className="layered-card-content">
+          {showValidation && questions.reduce((acc, group) => acc + group.questions.length, 0) < 5 && (
+            <div>
+              <img src="/iconsV3/alert-triangle.svg" alt="Alert" style={{ width: "18px", height: "18px", marginBottom: "5px" }} />{" "}
+              <span style={{ fontSize: "14px", color: "#B42318", fontWeight: 500 }}>
+                Please add at least 5 interview questions.
+              </span>
+            </div>
+          )}
               <div className="questions-set">
           {questions.map((group, index) => (
             <div
