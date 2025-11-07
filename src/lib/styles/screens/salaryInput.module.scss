@@ -20,6 +20,14 @@
   &:focus-within {
     outline: none;
   }
+
+  &.invalid {
+    border-color: #FDA29B;
+  }
+
+  &.invalid:focus-within {
+    border-color: #e9eaeb;
+  }
 }
 
 .currencySymbol {

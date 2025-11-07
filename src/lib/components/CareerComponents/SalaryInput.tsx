@@ -10,6 +10,7 @@ interface SalaryInputProps {
   onValueChange?(value: string): void;
   onCurrencyChange?(currency: string): void;
   disabled?: boolean;
+  invalid?: boolean;
 }
 
 export default function SalaryInput({
@@ -19,6 +20,7 @@ export default function SalaryInput({
   onValueChange,
   onCurrencyChange,
   disabled = false,
+  invalid = false,
 }: SalaryInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -73,7 +75,7 @@ export default function SalaryInput({
 
   return (
     <div className={styles.salaryInputContainer}>
-      <div className={styles.salaryInput}>
+      <div className={`${styles.salaryInput} ${invalid ? styles.invalid : ""}`}>
         <span className={styles.currencySymbol}>
           {currencySymbols[currency] || currency}
         </span><input

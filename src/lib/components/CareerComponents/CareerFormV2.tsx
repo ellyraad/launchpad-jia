@@ -269,9 +269,11 @@ export default function CareerFormV2({
                           placeholder="Enter job title"
                           style={{ padding: "10px 14px" }}
                           onChange={(e) => setJobTitle(e.target.value)}
+                          onFocus={() => setShowStep1Validation(false)}
+                          className={showStep1Validation && !jobTitle.trim() ? styles.invalid : ""}
                         />
                         {showStep1Validation && !jobTitle.trim() && (
-                          <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
+                          <span style={{ color: "#F04438", fontSize: "14px", marginTop: "2px" }}>
                             Job title is required
                           </span>
                         )}
@@ -287,7 +289,11 @@ export default function CareerFormV2({
                             value={employmentType}
                             placeholder="Choose employment type"
                             options={employmentTypeOptions}
-                            onValueChange={setEmploymentType}
+                            onValueChange={(value) => {
+                              setEmploymentType(value);
+                              setShowStep1Validation(false);
+                            }}
+                            invalid={showStep1Validation && !employmentType}
                           />
                           {showStep1Validation && !employmentType && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
@@ -302,7 +308,11 @@ export default function CareerFormV2({
                             value={workArrangement}
                             placeholder="Choose work arrangement"
                             options={workArrangementOptions}
-                            onValueChange={setWorkArrangement}
+                            onValueChange={(value) => {
+                              setWorkArrangement(value);
+                              setShowStep1Validation(false);
+                            }}
+                            invalid={showStep1Validation && !workArrangement}
                           />
                           {showStep1Validation && !workArrangement && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
@@ -332,7 +342,11 @@ export default function CareerFormV2({
                             value={province}
                             placeholder="Choose state / province"
                             options={[{ name: "Metro Manila" }]} // FIXME
-                            onValueChange={setProvince}
+                            onValueChange={(value) => {
+                              setProvince(value);
+                              setShowStep1Validation(false);
+                            }}
+                            invalid={showStep1Validation && !province}
                           />
                           {showStep1Validation && !province && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
@@ -347,7 +361,11 @@ export default function CareerFormV2({
                             value={city}
                             placeholder="Choose city"
                             options={[{ name: "Quezon City" }]} // FIXME
-                            onValueChange={setCity}
+                            onValueChange={(value) => {
+                              setCity(value);
+                              setShowStep1Validation(false);
+                            }}
+                            invalid={showStep1Validation && !city}
                           />
                           {showStep1Validation && !city && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
@@ -383,8 +401,12 @@ export default function CareerFormV2({
                             disabled={isSalaryNegotiable}
                             value={minSalary}
                             currency={salaryCurrency}
-                            onValueChange={setMinSalary}
+                            onValueChange={(value) => {
+                              setMinSalary(value);
+                              setShowStep1Validation(false);
+                            }}
                             onCurrencyChange={setSalaryCurrency}
+                            invalid={showStep1Validation && !isSalaryNegotiable && !minSalary.trim()}
                           />
                           {showStep1Validation && !isSalaryNegotiable && !minSalary.trim() && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
@@ -399,8 +421,12 @@ export default function CareerFormV2({
                             disabled={isSalaryNegotiable}
                             value={maxSalary}
                             currency={salaryCurrency}
-                            onValueChange={setMaxSalary}
+                            onValueChange={(value) => {
+                              setMaxSalary(value);
+                              setShowStep1Validation(false);
+                            }}
                             onCurrencyChange={setSalaryCurrency}
+                            invalid={showStep1Validation && !isSalaryNegotiable && !maxSalary.trim()}
                           />
                           {showStep1Validation && !isSalaryNegotiable && !maxSalary.trim() && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
@@ -423,7 +449,12 @@ export default function CareerFormV2({
                   <h2>2. Job Description</h2>
 
                   <div className={styles.fieldsWrapper}>
-                    <RichTextEditor setText={setDescription} text={description} />
+                    <RichTextEditor 
+                      setText={setDescription} 
+                      text={description} 
+                      invalid={showStep1Validation && !description.trim()}
+                      onFocus={() => setShowStep1Validation(false)}
+                    />
                     {showStep1Validation && !description.trim() && (
                       <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                         Job description is required

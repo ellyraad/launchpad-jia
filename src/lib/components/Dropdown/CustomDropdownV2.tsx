@@ -10,6 +10,7 @@ interface DropdownProps {
   onValueChange(value: string): void;
   disabled?: boolean;
   fullWidth?: boolean;
+  invalid?: boolean;
 }
 
 export default function CustomDropdownV2({
@@ -19,6 +20,7 @@ export default function CustomDropdownV2({
   onValueChange,
   disabled = false,
   fullWidth = true,
+  invalid = false,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [icon, setIcon] = useState(options[0].icon);
@@ -41,7 +43,7 @@ export default function CustomDropdownV2({
         type="button"
         className={`${styles.dropdownButton} ${isOpen ? styles.open : ""} ${
           disabled ? styles.disabled : ""
-        }`}
+        } ${invalid ? styles.invalid : ""}`}
         onClick={handleToggle}
         disabled={disabled}
       >
