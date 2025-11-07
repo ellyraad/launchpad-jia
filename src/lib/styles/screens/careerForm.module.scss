@@ -98,6 +98,16 @@
       .fieldLabel {
         font-size: 14px;
       }
+
+      input.invalid,
+      textarea.invalid {
+        border-color: #FDA29B;
+      }
+
+      input.invalid:focus,
+      textarea.invalid:focus {
+        border-color: #e9eaeb;
+      }
     }
 
     .fieldGroupRow {

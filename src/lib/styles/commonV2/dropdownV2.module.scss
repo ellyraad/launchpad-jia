@@ -47,6 +47,14 @@
     cursor: not-allowed;
     pointer-events: none;
   }
+
+  &.invalid {
+    border-color: #FDA29B;
+  }
+
+  &.invalid:focus {
+    border-color: #e9eaeb;
+  }
 }
 
 .value {
