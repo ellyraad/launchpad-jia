@@ -1103,22 +1103,24 @@ export default function CareerFormV2({
                       <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "12px" }}>
                         {(() => {
                           let cumulativeCount = 0;
-                          return formState.aiScreeningDetails.interviewQuestions.map((categ) => {
-                            const startNumber = cumulativeCount + 1;
-                            cumulativeCount += categ.questions.length;
-                            
-                            return (
-                              <div key={categ.id}>
-                                <div className={styles.questionCateg}>{categ.category}</div>
+                          return formState.aiScreeningDetails.interviewQuestions
+                            .filter((categ) => categ.questions.length > 0)
+                            .map((categ) => {
+                              const startNumber = cumulativeCount + 1;
+                              cumulativeCount += categ.questions.length;
+                              
+                              return (
+                                <div key={categ.id}>
+                                  <div className={styles.questionCateg}>{categ.category}</div>
 
-                                <ol className={styles.questionList} start={startNumber}>
-                                  {categ.questions.map(q => (
-                                    <li key={q.id}>{q.question}</li>
-                                  ))}
-                                </ol>
-                              </div>
-                            );
-                          });
+                                  <ol className={styles.questionList} start={startNumber}>
+                                    {categ.questions.map(q => (
+                                      <li key={q.id}>{q.question}</li>
+                                    ))}
+                                  </ol>
+                                </div>
+                              );
+                            });
                         })()}
                       </div>
                     </div>
