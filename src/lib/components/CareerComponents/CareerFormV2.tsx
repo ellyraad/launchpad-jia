@@ -1002,27 +1002,53 @@ export default function CareerFormV2({
                                 )}
 
                                 {psQuestion.questionType === "range" && (
-                                  <div style={{ display: "flex", gap: "16px" }}>
-                                    <div className={styles.field} style={{ flex: 1 }}>
-                                      <span className={styles.fieldLabel}>Minimum Salary</span>
-                                      <SalaryInput
-                                        value=""
-                                        currency="PHP"
-                                        onValueChange={(value) => console.log("Min salary:", value)}
-                                        onCurrencyChange={(currency) => console.log("Currency:", currency)}
-                                      />
-                                    </div>
+                                  <>
+                                    {psQuestion.id.includes("suggested-asking-salary") ? (
+                                      <div style={{ display: "flex", gap: "16px" }}>
+                                        <div className={styles.field} style={{ flex: 1 }}>
+                                          <span className={styles.fieldLabel}>Minimum Salary</span>
+                                          <SalaryInput
+                                            value=""
+                                            currency="PHP"
+                                            onValueChange={(value) => console.log("Min salary:", value)}
+                                            onCurrencyChange={(currency) => console.log("Currency:", currency)}
+                                          />
+                                        </div>
 
-                                    <div className={styles.field} style={{ flex: 1 }}>
-                                      <span className={styles.fieldLabel}>Maximum Salary</span>
-                                      <SalaryInput
-                                        value=""
-                                        currency="PHP"
-                                        onValueChange={(value) => console.log("Max salary:", value)}
-                                        onCurrencyChange={(currency) => console.log("Currency:", currency)}
-                                      />
-                                    </div>
-                                  </div>
+                                        <div className={styles.field} style={{ flex: 1 }}>
+                                          <span className={styles.fieldLabel}>Maximum Salary</span>
+                                          <SalaryInput
+                                            value=""
+                                            currency="PHP"
+                                            onValueChange={(value) => console.log("Max salary:", value)}
+                                            onCurrencyChange={(currency) => console.log("Currency:", currency)}
+                                          />
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div style={{ display: "flex", gap: "16px" }}>
+                                        <div className={styles.field} style={{ flex: 1 }}>
+                                          <span className={styles.fieldLabel}>Minimum</span>
+                                          <input
+                                            type="number"
+                                            placeholder="Enter minimum value"
+                                            style={{ padding: "10px 14px" }}
+                                            onChange={(e) => console.log("Min value:", e.target.value)}
+                                          />
+                                        </div>
+
+                                        <div className={styles.field} style={{ flex: 1 }}>
+                                          <span className={styles.fieldLabel}>Maximum</span>
+                                          <input
+                                            type="number"
+                                            placeholder="Enter maximum value"
+                                            style={{ padding: "10px 14px" }}
+                                            onChange={(e) => console.log("Max value:", e.target.value)}
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
                                 )}
 
                                 <hr className={styles.divider} />
