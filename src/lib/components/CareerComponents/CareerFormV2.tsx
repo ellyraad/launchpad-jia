@@ -1009,6 +1009,28 @@ export default function CareerFormV2({
                           {formState.aiScreeningDetails.interviewQuestions.reduce((acc, group) => acc + group.questions.length, 0)}
                         </span>
                       </div>
+
+                      <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                        {(() => {
+                          let cumulativeCount = 0;
+                          return formState.aiScreeningDetails.interviewQuestions.map((categ) => {
+                            const startNumber = cumulativeCount + 1;
+                            cumulativeCount += categ.questions.length;
+                            
+                            return (
+                              <div key={categ.id}>
+                                <div style={{ fontWeight: "bold", color: "#414651" }}>{categ.category}</div>
+
+                                <ol className={styles.questionList} start={startNumber}>
+                                  {categ.questions.map(q => (
+                                    <li key={q.id}>{q.question}</li>
+                                  ))}
+                                </ol>
+                              </div>
+                            );
+                          });
+                        })()}
+                      </div>
                     </div>
                   </div>
                 </div>
