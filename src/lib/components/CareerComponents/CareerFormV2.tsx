@@ -1019,7 +1019,7 @@ export default function CareerFormV2({
                             
                             return (
                               <div key={categ.id}>
-                                <div style={{ fontWeight: "bold", color: "#414651" }}>{categ.category}</div>
+                                <div className={styles.questionCateg}>{categ.category}</div>
 
                                 <ol className={styles.questionList} start={startNumber}>
                                   {categ.questions.map(q => (
