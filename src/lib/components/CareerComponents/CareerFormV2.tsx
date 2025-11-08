@@ -14,125 +14,23 @@ import AvatarImage from "../AvatarImage/AvatarImage";
 import AssessmentBadge from "./AssessmentBadge";
 import TipsBox from "./TipsBox";
 import InterviewQuestionGeneratorV2 from "./InterviewQuestionGeneratorV2";
+import type { AIInterviewQuestion } from "@/lib/definitions";
+import {
+  formSteps,
+  screeningSettingList,
+  employmentTypeOptions,
+  workArrangementOptions,
+  baseAIInterviewQuestion,
+  secretPromptTooltip,
+  accessRolesOptions
+} from "@/lib/CareerFormUtils";
 
 export default function CareerFormV2({
   career,
   formType,
   setShowEditModal,
 }: CareerFormProps) {
-  const formSteps: { title: string; content?: React.ReactNode }[] = [
-    {
-      title: "Career Details & Team Access",
-      content: (
-        <>
-          <p>
-            <strong>Use clear, standard job titles</strong> for better searchability{" "}
-            (e.g., “Software Engineer” instead of “Code Ninja” or “Tech Rockstar”).
-          </p>
-          <p>
-            <strong>Avoid abbreviations</strong> or internal role codes that applicants may not{" "}
-            understand (e.g., use “QA Engineer” instead of “QE II” or “QA-TL”).
-          </p>
-          <p>
-            <strong>Keep it concise</strong> – job titles should be no more than a few words (2–4 max),{" "}
-            avoiding fluff or marketing terms.
-          </p>
-        </>
-      )
-    },
-
-    {
-      title: "CV Review & Pre-screening",
-      content: (
-        <>
-          <p>
-            <strong>Add a secret prompt</strong> to fine-tune how Jia scores and evaluates submitted CV.
-          </p>
-          <p>
-            <strong>Add pre-screening questions</strong> to collect key details such as notice period, work{" "}
-            setup, or salary expectations to guide your review and candidate discussions.
-          </p>
-        </>
-      )
-    },
-
-    {
-      title: "AI Interview Setup",
-      content: (
-        <>
-          <p>
-            <strong>Add a secret prompt</strong> to fine-tune how Jia scores and evaluates the interview responses.
-          </p>
-          <p>
-            <strong>Use &ldquo;Generate Questions&rdquo;</strong>to quickly create tailored interview questions,{" "}
-            then refine or mix them with your own for balanced results. 
-          </p>
-        </>
-      )
-    },
-
-    {
-      title: "Review Center"
-    }
-  ];
-
-  const screeningSettingList = [
-    { name: "Good Fit and above", icon: "la la-check" },
-    { name: "Only Strong Fit", icon: "la la-check-double" },
-    { name: "No Automatic Promotion", icon: "la la-times" },
-  ];
-
-  const employmentTypeOptions = [
-    { name: "Full-Time" },
-    { name: "Part-Time" },
-  ];
-
-  const workArrangementOptions = [
-    { name: "Fully Remote" },
-    { name: "Onsite" },
-    { name: "Hybrid" },
-  ];
-
-  const accessRolesOptions = [
-    { name: "Job Owner" },
-    { name: "Reviewer" },
-    { name: "Contributor" },
-  ];
-
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      category: "CV Validation / Experience",
-      questionCountToAsk: null,
-      questions: [],
-    },
-    {
-      id: 2,
-      category: "Technical",
-      questionCountToAsk: null,
-      questions: [],
-    },
-    {
-      id: 3,
-      category: "Behavioral",
-      questionCountToAsk: null,
-      questions: [],
-    },
-    {
-      id: 4,
-      category: "Analytical",
-      questionCountToAsk: null,
-      questions: [],
-    },
-    {
-      id: 5,
-      category: "Others",
-      questionCountToAsk: null,
-      questions: [],
-    },
-  ]);
-
-  const secretPromptTooltip = "These prompts remain hidden from candidates and the public job portal.<br>Additionally, only Admins and the Job Owner can view the secret prompt.";
+  const [questions, setQuestions] = useState<AIInterviewQuestion[]>(baseAIInterviewQuestion);
 
   const [currentStep, setCurrentStep] = useState<number>(0);
 
@@ -849,9 +747,7 @@ export default function CareerFormV2({
           </div>
 
           {currentStep !== formSteps.length - 1 && (
-            <TipsBox>
-              {formSteps[currentStep].content}
-            </TipsBox>
+            <TipsBox tips={formSteps[currentStep].tooltips} />
           )}
         </div>
       </div>
