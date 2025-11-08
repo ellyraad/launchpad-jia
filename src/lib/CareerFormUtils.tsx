@@ -1,6 +1,36 @@
 import type { AIInterviewQuestion, DropdownOption, FormState, FormStep } from "./definitions";
 import { isSalaryRangeValid } from "./Utils";
 
+type UserInfo = { email: string; image: string; name: string; }
+export const flattenNewCareerData = (career: FormState, orgID: string, user: UserInfo, isDraft: boolean = true) => {
+  const userInfo = {
+    image: user.image,
+    name: user.name,
+    email: user.email
+  }
+
+  return {
+    jobTitle: career.careerDetails.jobTitle,
+    description: career.careerDetails.jobDescription,
+    workSetup: career.careerDetails.workArrangement,
+    workSetupRemarks: "",
+    questions: career.aiScreeningDetails.interviewQuestions,
+    lastEditedBy: userInfo,
+    createdBy: userInfo,
+    screeningSetting: career.cvScreeningDetails.cvScreeningSetting,
+    salaryNegotiable: career.careerDetails.isSalaryNegotiable,
+    minimumSalary: isNaN(Number(career.careerDetails.minSalary)) ? null : Number(career.careerDetails.minSalary),
+    maximumSalary: isNaN(Number(career.careerDetails.maxSalary)) ? null : Number(career.careerDetails.minSalary),
+    country: career.careerDetails.country,
+    province: career.careerDetails.state,
+    location: career.careerDetails.city,
+    status: "active", // this should be inactive when the career is saved as unpublished OR drafted
+    employmentType: career.careerDetails.employmentType,
+    orgID,
+    draft: isDraft,
+  }
+}
+
 export const formSteps: FormStep[] = [
   {
     title: "Career Details & Team Access",
