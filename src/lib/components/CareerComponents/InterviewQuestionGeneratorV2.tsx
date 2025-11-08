@@ -449,7 +449,7 @@ export default function (props) {
                 {group.questions.map((question, index) => (
                   <div
                     className="question-item"
-                    style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", height: "100%" }}
+                    style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", height: "100%", borderRadius: "16px", fontWeight: "500" }}
                     key={index}
                     draggable={true}
                     onDragStart={(e) => {
@@ -516,7 +516,7 @@ export default function (props) {
                   >
 
                     <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, height: "100%" }}>
-                      <i className="la la-grip-vertical" style={{ fontSize: 20, color: "#A4A7AE" }}></i>
+                      <img src="/icons/dragIcon.svg" alt="Grip Icon" style={{ width: "14px", height: "14px", margin: "0 7px" }} />
                       <span style={{ wordBreak: "break-word", whiteSpace: "pre-line" }}>
                         {question.question}
                       </span>
@@ -524,14 +524,14 @@ export default function (props) {
 
                     <div className="button-set" style={{ gap: 8, display: "flex", alignItems: "center", flexDirection: "row"}}>
                       <button
-                        style={{ background: "#fff", border: "1px solid #E9EAEB", borderRadius: "60px", cursor: "pointer", width: "82px", height: "36px" }}
+                        style={{ background: "#fff", color: "#535862", border: "1px solid #E9EAEB", borderRadius: "60px", cursor: "pointer", width: "82px", height: "36px" }}
                         onClick={() => {
                           setShowQuestionModal("edit");
                           setQuestionModalGroupId(group.id);
                           setQuestionModalQuestion(question);
                         }}
                       >
-                        <i className="la la-pencil-alt"></i>
+                        <i className="la la-pencil-alt" style={{ fontSize: "20px" }}></i>
                         <span>Edit</span>
                       </button>
 
@@ -603,8 +603,10 @@ export default function (props) {
                         max={group.questions.length}
                         min={0}
                         style={{
-                          maxWidth: "40px",
+                          width: "70px",
                           maxHeight: "40px",
+                          padding: "10px",
+                          textAlign: "center",
                         }}
                         onChange={(e) => {
                           let value = parseInt(e.target.value);

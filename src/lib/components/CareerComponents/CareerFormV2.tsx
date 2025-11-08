@@ -104,6 +104,24 @@ export default function CareerFormV2({
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [isSavingUnpublished, setIsSavingUnpublished] = useState<boolean>(false);
   const savingCareerRef = useRef<boolean>(false);
+  
+  // Collapsible sections state for Review Center
+  const [collapsedSections, setCollapsedSections] = useState<{
+    careerDetails: boolean;
+    cvScreening: boolean;
+    aiInterview: boolean;
+  }>({
+    careerDetails: false,
+    cvScreening: false,
+    aiInterview: false,
+  });
+
+  const toggleSection = (section: 'careerDetails' | 'cvScreening' | 'aiInterview') => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const handleSaveAndContinue = () => {
     if (currentStep === 0) {
@@ -277,8 +295,8 @@ export default function CareerFormV2({
               onClick={handlePublish}
               disabled={isPublishing || isSavingUnpublished}
             >
+              {!isPublishing && <img alt="check" src="/iconsV3/checkV7.svg" style={{ width: "19px", height: "19px" }} />}
               {isPublishing ? "Publishing..." : "Publish"}
-              {!isPublishing && <img alt="arrow" src={assetConstants.arrow} />}
             </button>
           ) : (
             <button className={styles.actionButton} onClick={handleSaveAndContinue}>
@@ -904,12 +922,26 @@ export default function CareerFormV2({
             {currentStep === 3 && (
               <div style={{ display: "flex", gap: "24px", flexDirection: "column" }}>
                 <div className={styles.stepFieldsContainer}>
-                  <h2 style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <img src="/iconsV3/chevronV2.svg" alt="chevron" style={{ width: "20px", height: "20px", transform: "rotate(90deg)", filter: "grayscale(100%) brightness(0.7) contrast(1.2)" }} />
+                  <h2 
+                    style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+                    onClick={() => toggleSection('careerDetails')}
+                  >
+                    <img 
+                      src="/iconsV3/chevronV2.svg" 
+                      alt="chevron" 
+                      style={{ 
+                        width: "20px", 
+                        height: "20px", 
+                        transform: collapsedSections.careerDetails ? "rotate(-90deg)" : "rotate(90deg)", 
+                        filter: "grayscale(100%) brightness(0.7) contrast(1.2)",
+                        transition: "transform 0.2s ease"
+                      }} 
+                    />
                     Career Details &amp; Team Access
                   </h2>
 
-                  <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
+                  {!collapsedSections.careerDetails && (
+                    <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>Job Title</div>
                       <div className={styles.fieldValue}>{formState.careerDetails.jobTitle}</div>
@@ -959,35 +991,86 @@ export default function CareerFormV2({
                     <hr className={styles.groupDivider} />
 
                     <div className={styles.reviewField}>
-                      <div className={styles.fieldLabel}>Job Description</div>
-                      <div className={styles.fieldValue}>
-                        {formState.careerDetails.jobDescription}
-                      </div>
+                      <div className={styles.fieldLabel} style={{ marginBottom: "8px" }}>Job Description</div>
+                      <div 
+                        className={styles.fieldValue}
+                        dangerouslySetInnerHTML={{ __html: formState.careerDetails.jobDescription }}
+                      />
                     </div>
 
                     {/* TODO: Team access */}
                   </div>
+                  )}
                 </div>
 
                 <div className={styles.stepFieldsContainer}>
-                  <h2 style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <img src="/iconsV3/chevronV2.svg" alt="chevron" style={{ width: "20px", height: "20px", transform: "rotate(90deg)", filter: "grayscale(100%) brightness(0.7) contrast(1.2)" }} />
+                  <h2 
+                    style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+                    onClick={() => toggleSection('cvScreening')}
+                  >
+                    <img 
+                      src="/iconsV3/chevronV2.svg" 
+                      alt="chevron" 
+                      style={{ 
+                        width: "20px", 
+                        height: "20px", 
+                        transform: collapsedSections.cvScreening ? "rotate(-90deg)" : "rotate(90deg)", 
+                        filter: "grayscale(100%) brightness(0.7) contrast(1.2)",
+                        transition: "transform 0.2s ease"
+                      }} 
+                    />
                     CV Review &amp; Pre-Screening Questions
                   </h2>
+                  {!collapsedSections.cvScreening && (
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>CV Screening</div>
                       <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type={formState.cvScreeningDetails.cvScreeningSetting} /> and above</div>
                     </div>
+
+                    {formState.cvScreeningDetails.cvSecretPrompt && (
+                      <>
+                        <hr className={styles.groupDivider} />
+
+                        <div className={styles.reviewField}>
+                          <div className={styles.fieldLabel} style={{ marginBottom: "8px" }}>
+                            <img src="/icons/spark.svg" alt="Tips icon" style={{ width: "19px", height: "19px", marginBottom: "5px" }} />
+                            <span style={{ marginLeft: "7px" }}>
+                              CV Secret Prompt
+                            </span>
+                          </div>
+
+
+                          <div className={styles.fieldValue}>
+                            {formState.cvScreeningDetails.cvSecretPrompt}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
+                  )}
                 </div>
 
                 <div className={styles.stepFieldsContainer}>
-                  <h2 style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <img src="/iconsV3/chevronV2.svg" alt="chevron" style={{ width: "20px", height: "20px", transform: "rotate(90deg)", filter: "grayscale(100%) brightness(0.7) contrast(1.2)" }} />
+                  <h2 
+                    style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+                    onClick={() => toggleSection('aiInterview')}
+                  >
+                    <img 
+                      src="/iconsV3/chevronV2.svg" 
+                      alt="chevron" 
+                      style={{ 
+                        width: "20px", 
+                        height: "20px", 
+                        transform: collapsedSections.aiInterview ? "rotate(-90deg)" : "rotate(90deg)", 
+                        filter: "grayscale(100%) brightness(0.7) contrast(1.2)",
+                        transition: "transform 0.2s ease"
+                      }} 
+                    />
                     AI Interview Setup
                   </h2>
 
+                  {!collapsedSections.aiInterview && (
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>AI Interview Screening</div>
@@ -998,7 +1081,14 @@ export default function CareerFormV2({
 
                     <div className={styles.reviewField} style={{ display: "flex", gap: "12px", justifyContent: "space-between" }}>
                       <div className={styles.fieldLabel}>Require Video on Interview</div>
-                      <div className={styles.fieldValue}>{formState.aiScreeningDetails.isVideoInterviewRequired ? "Yes" : "No"}</div>
+                      <div className={styles.fieldValue} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        {formState.aiScreeningDetails.isVideoInterviewRequired ? "Yes" : "No"}
+                        <img 
+                          src={formState.aiScreeningDetails.isVideoInterviewRequired ? "/icons/checkV3-green.svg" : "/icons/circle-x.svg"} 
+                          alt={formState.aiScreeningDetails.isVideoInterviewRequired ? "check" : "x"} 
+                          style={{ width: "18px", height: "18px" }} 
+                        />
+                      </div>
                     </div>
 
                     <hr className={styles.groupDivider} />
@@ -1009,8 +1099,33 @@ export default function CareerFormV2({
                           {formState.aiScreeningDetails.interviewQuestions.reduce((acc, group) => acc + group.questions.length, 0)}
                         </span>
                       </div>
+
+                      <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "12px" }}>
+                        {(() => {
+                          let cumulativeCount = 0;
+                          return formState.aiScreeningDetails.interviewQuestions
+                            .filter((categ) => categ.questions.length > 0)
+                            .map((categ) => {
+                              const startNumber = cumulativeCount + 1;
+                              cumulativeCount += categ.questions.length;
+                              
+                              return (
+                                <div key={categ.id}>
+                                  <div className={styles.questionCateg}>{categ.category}</div>
+
+                                  <ol className={styles.questionList} start={startNumber}>
+                                    {categ.questions.map(q => (
+                                      <li key={q.id}>{q.question}</li>
+                                    ))}
+                                  </ol>
+                                </div>
+                              );
+                            });
+                        })()}
+                      </div>
                     </div>
                   </div>
+                  )}
                 </div>
               </div>
             )}
