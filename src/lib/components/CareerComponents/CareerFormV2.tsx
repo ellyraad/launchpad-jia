@@ -979,6 +979,26 @@ export default function CareerFormV2({
                       <div className={styles.fieldLabel}>CV Screening</div>
                       <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type={formState.cvScreeningDetails.cvScreeningSetting} /> and above</div>
                     </div>
+
+                    {formState.cvScreeningDetails.cvSecretPrompt && (
+                      <>
+                        <hr className={styles.groupDivider} />
+
+                        <div className={styles.reviewField}>
+                          <div className={styles.fieldLabel} style={{ marginBottom: "8px" }}>
+                            <img src="/icons/spark.svg" alt="Tips icon" style={{ width: "19px", height: "19px", marginBottom: "5px" }} />
+                            <span style={{ marginLeft: "7px" }}>
+                              CV Secret Prompt
+                            </span>
+                          </div>
+
+
+                          <div className={styles.fieldValue}>
+                            {formState.cvScreeningDetails.cvSecretPrompt}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
