@@ -51,6 +51,8 @@ export default function CareerFormV2({
   const [aiScreeningSetting, setAIScreeningSetting] = useState<string>(screeningSettingList[0].name);
   const [authorizedMember, setAuthorizedMember] = useState<string>("");
 
+  const [cvSecretPrompt, setCVSecretPrompt] = useState<string>("");
+
   const [isSalaryNegotiable, setIsSalaryNegotiable] = useState<boolean>(false);
   const [isVideoInterviewRequired, setIsVideoInterviewRequired] = useState<boolean>(true);
   const [showStep1Validation, setShowStep1Validation] = useState<boolean>(false);
@@ -528,7 +530,10 @@ export default function CareerFormV2({
                         <span className={styles.fieldGroupDesc}>Secret Prompts give you extra control over Jia’s evaluation style, complementing her accurate assessment of requirements from the job description.</span>
                       </div>
 
-                      <textarea placeholder="Enter a secret prompt (e.g. Give higher fit scores to candidates who participate in hackathons or competitions.)">
+                      <textarea
+                        onChange={(e) => setCVSecretPrompt(e.target.value)}
+                        value={cvSecretPrompt}
+                        placeholder="Enter a secret prompt (e.g. Give higher fit scores to candidates who participate in hackathons or competitions.)">
                       </textarea>
                     </div>
                   </div>
