@@ -603,8 +603,10 @@ export default function (props) {
                         max={group.questions.length}
                         min={0}
                         style={{
-                          maxWidth: "40px",
+                          width: "70px",
                           maxHeight: "40px",
+                          padding: "10px",
+                          textAlign: "center",
                         }}
                         onChange={(e) => {
                           let value = parseInt(e.target.value);
