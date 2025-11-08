@@ -101,7 +101,8 @@ export default function CareerFormV2({
 
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [accessRole, setAccessRole] = useState<string>();
-  const [isSavingCareer, setIsSavingCareer] = useState<boolean>(false);
+  const [isPublishing, setIsPublishing] = useState<boolean>(false);
+  const [isSavingUnpublished, setIsSavingUnpublished] = useState<boolean>(false);
   const savingCareerRef = useRef<boolean>(false);
 
   const handleSaveAndContinue = () => {
@@ -175,7 +176,7 @@ export default function CareerFormV2({
     if (savingCareerRef.current) return;
     
     savingCareerRef.current = true;
-    setIsSavingCareer(true);
+    setIsPublishing(true);
 
     try {
       const flattenedData = flattenNewCareerData(formState, orgID, user, false);
@@ -200,7 +201,7 @@ export default function CareerFormV2({
         3000
       );
       savingCareerRef.current = false;
-      setIsSavingCareer(false);
+      setIsPublishing(false);
     }
   };
 
@@ -209,7 +210,7 @@ export default function CareerFormV2({
     if (savingCareerRef.current) return;
     
     savingCareerRef.current = true;
-    setIsSavingCareer(true);
+    setIsSavingUnpublished(true);
 
     try {
       const flattenedData = flattenNewCareerData(formState, orgID, user, false);
@@ -240,7 +241,7 @@ export default function CareerFormV2({
         3000
       );
       savingCareerRef.current = false;
-      setIsSavingCareer(false);
+      setIsSavingUnpublished(false);
     }
   };
 
@@ -260,9 +261,9 @@ export default function CareerFormV2({
             <button 
               className={`${styles.actionButton} ${styles.secondary}`}
               onClick={handleSaveAsUnpublished}
-              disabled={isSavingCareer}
+              disabled={isSavingUnpublished || isPublishing}
             >
-              {isSavingCareer ? "Saving..." : "Save as Unpublished"}
+              {isSavingUnpublished ? "Saving..." : "Save as Unpublished"}
             </button>
           ) : (
             <button className={`${styles.actionButton} ${styles.secondary} ${styles.disabled}`} disabled>
@@ -274,10 +275,10 @@ export default function CareerFormV2({
             <button 
               className={styles.actionButton} 
               onClick={handlePublish}
-              disabled={isSavingCareer}
+              disabled={isPublishing || isSavingUnpublished}
             >
-              {isSavingCareer ? "Publishing..." : "Publish"}
-              {!isSavingCareer && <img alt="arrow" src={assetConstants.arrow} />}
+              {isPublishing ? "Publishing..." : "Publish"}
+              {!isPublishing && <img alt="arrow" src={assetConstants.arrow} />}
             </button>
           ) : (
             <button className={styles.actionButton} onClick={handleSaveAndContinue}>
