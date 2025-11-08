@@ -22,6 +22,17 @@ export type DropdownOption = {
   icon?: string;
 };
 
+export type PreScreeningQuestion = {
+  id: string;
+  title: string;
+  question: string;
+  questionType: "dropdown" | "range" | "shorttext" | "longtext";
+  options?: DropdownOption[];
+  answer?:
+    | string
+    | { min: number, max: number };  // for handlng range type
+}
+
 export type FormState = {
   careerDetails: {
     jobTitle: string,
@@ -41,6 +52,7 @@ export type FormState = {
   cvScreeningDetails: {
     cvScreeningSetting: string,
     cvSecretPrompt: string,
+    preScreeningQuestions: PreScreeningQuestion[];
   };
 
   aiScreeningDetails: {
@@ -61,5 +73,5 @@ export type FormReducerAction = {
   type: "SET";
   category: keyof FormState;
   field: string;
-  payload: string | boolean | AIInterviewQuestion[];
+  payload: string | boolean | AIInterviewQuestion[] | PreScreeningQuestion[];
 }

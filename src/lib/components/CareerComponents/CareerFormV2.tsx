@@ -27,9 +27,11 @@ import {
   isValidInterviewQuestionsCount,
   validateStepStatus,
   flattenNewCareerData,
+  preScreeningQuestionTypes,
+  suggestedPreScreeningQuestions,
 } from "@/lib/CareerFormUtils";
 import { useAppContext } from "@/lib/context/AppContext";
-import { successToast, errorToast, candidateActionToast } from "@/lib/Utils";
+import { errorToast, candidateActionToast } from "@/lib/Utils";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -54,6 +56,7 @@ const initFormState: FormState = {
   cvScreeningDetails: {
     cvScreeningSetting: screeningSettingList[0].name,
     cvSecretPrompt: "",
+    preScreeningQuestions: [],
   },
 
   aiScreeningDetails: {
@@ -261,6 +264,162 @@ export default function CareerFormV2({
       savingCareerRef.current = false;
       setIsSavingUnpublished(false);
     }
+  };
+
+  const handleAddCustomQuestion = () => {
+    const newQuestion: typeof formState.cvScreeningDetails.preScreeningQuestions[0] = {
+      id: `custom-${Date.now()}`,
+      title: "",
+      question: "",
+      questionType: "dropdown",
+      options: [{ name: "" }],
+    };
+
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: [...formState.cvScreeningDetails.preScreeningQuestions, newQuestion]
+    });
+  };
+
+  const handleAddSuggestedQuestion = (suggestedQuestion: typeof suggestedPreScreeningQuestions[0]) => {
+    const newQuestion: typeof formState.cvScreeningDetails.preScreeningQuestions[0] = {
+      id: `${suggestedQuestion.id}-${Date.now()}`,
+      title: suggestedQuestion.title,
+      question: suggestedQuestion.question,
+      questionType: suggestedQuestion.questionType,
+      options: suggestedQuestion.options ? [...suggestedQuestion.options] : undefined,
+    };
+
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: [...formState.cvScreeningDetails.preScreeningQuestions, newQuestion]
+    });
+  };
+
+  const handleDeleteQuestion = (questionId: string) => {
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: formState.cvScreeningDetails.preScreeningQuestions.filter(q => q.id !== questionId)
+    });
+  };
+
+  const handleUpdateQuestion = (questionId: string, field: string, value: any) => {
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: formState.cvScreeningDetails.preScreeningQuestions.map(q => 
+        q.id === questionId ? { ...q, [field]: value } : q
+      )
+    });
+  };
+
+  const handleAddOption = (questionId: string) => {
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: formState.cvScreeningDetails.preScreeningQuestions.map(q => 
+        q.id === questionId 
+          ? { ...q, options: [...(q.options || []), { name: "" }] }
+          : q
+      )
+    });
+  };
+
+  const handleDeleteOption = (questionId: string, optionIndex: number) => {
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: formState.cvScreeningDetails.preScreeningQuestions.map(q => 
+        q.id === questionId 
+          ? { ...q, options: q.options?.filter((_, idx) => idx !== optionIndex) }
+          : q
+      )
+    });
+  };
+
+  const handleUpdateOption = (questionId: string, optionIndex: number, value: string) => {
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: formState.cvScreeningDetails.preScreeningQuestions.map(q => 
+        q.id === questionId 
+          ? { 
+              ...q, 
+              options: q.options?.map((opt, idx) => idx === optionIndex ? { name: value } : opt) 
+            }
+          : q
+      )
+    });
+  };
+
+  const handleDragStart = (e: React.DragEvent, questionId: string) => {
+    e.dataTransfer.setData("questionId", questionId);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLElement;
+    const bounding = target.getBoundingClientRect();
+    const offset = bounding.y + bounding.height / 2;
+
+    if (e.clientY - offset > 0) {
+      target.style.borderBottom = "3px solid #4F46E5";
+      target.style.borderTop = "none";
+    } else {
+      target.style.borderTop = "3px solid #4F46E5";
+      target.style.borderBottom = "none";
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    const target = e.currentTarget as HTMLElement;
+    target.style.borderTop = "none";
+    target.style.borderBottom = "none";
+  };
+
+  const handleDrop = (e: React.DragEvent, targetQuestionId: string) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLElement;
+    target.style.borderTop = "none";
+    target.style.borderBottom = "none";
+
+    const draggedQuestionId = e.dataTransfer.getData("questionId");
+    if (draggedQuestionId === targetQuestionId) return;
+
+    const questions = [...formState.cvScreeningDetails.preScreeningQuestions];
+    const draggedIndex = questions.findIndex(q => q.id === draggedQuestionId);
+    const targetIndex = questions.findIndex(q => q.id === targetQuestionId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const bounding = target.getBoundingClientRect();
+    const offset = bounding.y + bounding.height / 2;
+    const isAfter = e.clientY - offset > 0;
+
+    const [draggedQuestion] = questions.splice(draggedIndex, 1);
+    
+    const newTargetIndex = draggedIndex < targetIndex 
+      ? (isAfter ? targetIndex : targetIndex - 1)
+      : (isAfter ? targetIndex + 1 : targetIndex);
+
+    questions.splice(newTargetIndex, 0, draggedQuestion);
+
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: questions
+    });
   };
 
   return (
@@ -789,6 +948,242 @@ export default function CareerFormV2({
                         value={formState.cvScreeningDetails.cvSecretPrompt}
                         placeholder="Enter a secret prompt (e.g. Give higher fit scores to candidates who participate in hackathons or competitions.)">
                       </textarea>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div className={styles.stepFieldsContainer}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0" }}>
+                    <h2>
+                      2. Pre-Screening Options{" "}
+                      <span style={{ color: "#717680", fontWeight: "normal" }}>(optional)</span>{" "}
+                      <span className={styles.countBadge}>{formState.cvScreeningDetails.preScreeningQuestions.length}</span>
+                    </h2>
+
+                    <button
+                      type="button"
+                      onClick={handleAddCustomQuestion}
+                      style={{
+                        width: "fit-content",
+                        background: "black",
+                        color: "#fff",
+                        border: "1px solid #E9EAEB",
+                        padding: "8px 16px",
+                        borderRadius: "60px",
+                        cursor: "pointer",
+                        whiteSpace: "nowrap"
+                      }}
+                    >
+
+                      <img src="/icons/plus.svg" alt="Plus Icon" />
+                      Add Custom
+                    </button>
+                  </div>
+
+                  <div className={styles.fieldsWrapper} style={{ gap: "12px" }}>
+                    <div className={styles.fieldGroup} style={{ gap: "12px" }}>
+                      {formState.cvScreeningDetails.preScreeningQuestions.length === 0 && (
+                        <div className={styles.fieldGroupDesc}>No pre-screening questions added yet.</div>
+                      )}
+                    </div>
+
+                    {formState.cvScreeningDetails.preScreeningQuestions.length > 0 && (
+                      <div className={styles.psQuestions}>
+                        {formState.cvScreeningDetails.preScreeningQuestions.map((psQuestion) => (
+                          <div 
+                            className={styles.psQuestionItemWrapper} 
+                            key={psQuestion.id}
+                            draggable={true}
+                            onDragStart={(e) => handleDragStart(e, psQuestion.id)}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={(e) => handleDrop(e, psQuestion.id)}
+                          >
+                            <div className={styles.grip}>
+                              <img src="/icons/dragIcon.svg" alt="Grip Icon" style={{ width: "14px", height: "14px", margin: "0 7px" }} />
+                            </div>
+
+                            <div className={styles.psQuestionItem}>
+                              <div className={`${styles.questionHeader}`}>
+                                {psQuestion.id.startsWith("custom-") ? (
+                                  <input
+                                    type="text"
+                                    placeholder="Write your question..."
+                                    value={psQuestion.question}
+                                    onChange={(e) => handleUpdateQuestion(psQuestion.id, "question", e.target.value)}
+                                    style={{ padding: "10px 14px", flex: 1 }}
+                                  />
+                                ) : (
+                                  <span>{psQuestion.question}</span>
+                                )}
+
+                                <CustomDropdownV2
+                                  value={psQuestion.questionType === "dropdown" ? "Dropdown" : psQuestion.questionType === "range" ? "Range" : psQuestion.questionType === "shorttext" ? "Short Answer" : "Long Answer"}
+                                  options={preScreeningQuestionTypes}
+                                  onValueChange={(value) => {
+                                    const typeMap: Record<string, typeof psQuestion.questionType> = {
+                                      "Dropdown": "dropdown",
+                                      "Range": "range",
+                                      "Short Answer": "shorttext",
+                                      "Long Answer": "longtext"
+                                    };
+                                    handleUpdateQuestion(psQuestion.id, "questionType", typeMap[value]);
+                                  }}
+                                  fullWidth={false}
+                                />
+                              </div>
+
+                              <div className={styles.choicesWrapper}>
+                                {psQuestion.questionType === "dropdown" && (
+                                  <>
+                                    {psQuestion.options?.map((option, idx) => (
+                                      <div className={styles.dropdownItem} key={idx}>
+                                        <div className={styles.dropdownValue}>
+                                          <div className={styles.number}>{idx + 1}</div>
+                                          <input
+                                            type="text"
+                                            className={styles.value}
+                                            value={option.name}
+                                            onChange={(e) => handleUpdateOption(psQuestion.id, idx, e.target.value)}
+                                            placeholder={`Option ${idx + 1}`}
+                                            style={{ border: "none", outline: "none", background: "transparent", flex: 1 }}
+                                          />
+                                        </div>
+
+                                        <img 
+                                          src="/icons/circle-xV2.svg" 
+                                          alt="X Icon" 
+                                          style={{ cursor: "pointer" }}
+                                          onClick={() => handleDeleteOption(psQuestion.id, idx)}
+                                        />
+                                      </div>
+                                    ))}
+
+                                    <div 
+                                      className={styles.addOptionBtn}
+                                      onClick={() => handleAddOption(psQuestion.id)}
+                                    >
+                                      <i className="la la-plus" /> Add Option
+                                    </div>
+                                  </>
+                                )}
+
+                                {psQuestion.questionType === "range" && (
+                                  <>
+                                    {psQuestion.id.includes("suggested-asking-salary") ? (
+                                      <div style={{ display: "flex", gap: "16px" }}>
+                                        <div className={styles.field} style={{ flex: 1 }}>
+                                          <span className={styles.fieldLabel}>Minimum Salary</span>
+                                          <SalaryInput
+                                            value=""
+                                            currency="PHP"
+                                            onValueChange={(value) => console.log("Min salary:", value)}
+                                            onCurrencyChange={(currency) => console.log("Currency:", currency)}
+                                          />
+                                        </div>
+
+                                        <div className={styles.field} style={{ flex: 1 }}>
+                                          <span className={styles.fieldLabel}>Maximum Salary</span>
+                                          <SalaryInput
+                                            value=""
+                                            currency="PHP"
+                                            onValueChange={(value) => console.log("Max salary:", value)}
+                                            onCurrencyChange={(currency) => console.log("Currency:", currency)}
+                                          />
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div style={{ display: "flex", gap: "16px" }}>
+                                        <div className={styles.field} style={{ flex: 1 }}>
+                                          <span className={styles.fieldLabel}>Minimum</span>
+                                          <input
+                                            type="number"
+                                            placeholder="Enter minimum value"
+                                            style={{ padding: "10px 14px" }}
+                                            onChange={(e) => console.log("Min value:", e.target.value)}
+                                          />
+                                        </div>
+
+                                        <div className={styles.field} style={{ flex: 1 }}>
+                                          <span className={styles.fieldLabel}>Maximum</span>
+                                          <input
+                                            type="number"
+                                            placeholder="Enter maximum value"
+                                            style={{ padding: "10px 14px" }}
+                                            onChange={(e) => console.log("Max value:", e.target.value)}
+                                          />
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+
+                                {(psQuestion.questionType === "dropdown" || psQuestion.questionType === "range") && (
+                                  <hr className={styles.divider} />
+                                )}
+
+                                <div style={{ display: "flex", justifyContent: "end" }}>
+                                  <button 
+                                    className={styles.deleteChoiceBtn}
+                                    onClick={() => handleDeleteQuestion(psQuestion.id)}
+                                  >
+                                    <i className="la la-trash" /> Delete Question
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+
+                    <hr className={styles.divider} />
+
+                    <div className={styles.fieldGroup} style={{ gap: "12px" }}>
+                      <div style={{ fontSize: "16px", fontWeight: "bold", color: "#181d27", marginBottom: "4px" }}>
+                        Suggested Pre-screening Questions:
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                        {suggestedPreScreeningQuestions.map(q => {
+                          const isAdded = formState.cvScreeningDetails.preScreeningQuestions.some(
+                            psq => psq.id.includes(q.id)
+                          );
+                          
+                          return (
+                            <div 
+                              style={{ 
+                                display: "flex", 
+                                justifyContent: "space-between",
+                                opacity: isAdded ? 0.5 : 1,
+                                pointerEvents: isAdded ? "none" : "auto"
+                              }} 
+                              key={q.title}
+                            >
+                              <div>
+                                <div style={{ color: isAdded ? "#D5D7DA" : "#414651", fontWeight: "bold" }}>{q.title}</div>
+                                <div style={{ color: isAdded ? "#D5D7DA" : "#717680", fontWeight: "500" }}>{q.question}</div>
+                              </div>
+
+                              <button 
+                                type="button" 
+                                className={`${styles.actionButton} ${styles.secondary}`}
+                                onClick={() => handleAddSuggestedQuestion(q)}
+                                disabled={isAdded}
+                                style={{
+                                  color: isAdded ? "#D5D7DA" : "",
+                                  cursor: isAdded ? "not-allowed" : "pointer"
+                                }}
+                              >
+                                Add
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>

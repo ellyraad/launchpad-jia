@@ -1,4 +1,4 @@
-import type { AIInterviewQuestion, DropdownOption, FormState, FormStep } from "./definitions";
+import type { AIInterviewQuestion, DropdownOption, FormState, FormStep, PreScreeningQuestion } from "./definitions";
 import { isSalaryRangeValid } from "./Utils";
 
 type UserInfo = { email: string; image: string; name: string; }
@@ -87,6 +87,45 @@ export const screeningSettingList: DropdownOption[] = [
   { name: "Only Strong Fit", icon: "la la-check-double" },
   { name: "No Automatic Promotion", icon: "la la-times" },
 ];
+
+export const preScreeningQuestionTypes: DropdownOption[] = [
+  { name: "Dropdown", icon: "la la-arrow-circle-down" },
+  { name: "Range", icon: "la la-sort-numeric-down" },
+  { name: "Short Answer", icon: "la la-user" },
+  { name: "Long Answer", icon: "la la-align-left" },
+]
+
+export const suggestedPreScreeningQuestions: PreScreeningQuestion[] = [
+  {
+    id: "suggested-notice-period",
+    title: "Notice Period",
+    question: "How long is your notice period?",
+    questionType: "dropdown",
+    options: [
+      { name: "Immediately" },
+      { name: "< 30 days" },
+      { name: "> 30 days" },
+    ],
+  },
+  {
+    id: "suggested-work-setup",
+    title: "Work Setup",
+    question: "How often are you willing to report to the office?",
+    questionType: "dropdown",
+    options: [
+      { name: "At most 1-2x a week" },
+      { name: "At most 3-4x a week" },
+      { name: "Open to fully onsite work" },
+      { name: "Only open to fully remote work" },
+    ]
+  },
+  {
+    id: "suggested-asking-salary",
+    title: "Asking Salary",
+    question: "How much is your expected monthly salary?",
+    questionType: "range",
+  }
+]
 
 export const employmentTypeOptions: DropdownOption[] = [
   { name: "Full-Time" },
