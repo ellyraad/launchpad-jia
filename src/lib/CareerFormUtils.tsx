@@ -1,6 +1,7 @@
-import type { AIInterviewQuestion, DropdownOption, FormStep } from "./definitions";
+import type { AIInterviewQuestion, DropdownOption, FormState, FormStep } from "./definitions";
+import { isSalaryRangeValid } from "./Utils";
 
-const formSteps: FormStep[] = [
+export const formSteps: FormStep[] = [
   {
     title: "Career Details & Team Access",
     tooltips: [
@@ -51,32 +52,32 @@ const formSteps: FormStep[] = [
   }
 ]
 
-const screeningSettingList: DropdownOption[] = [
+export const screeningSettingList: DropdownOption[] = [
   { name: "Good Fit and above", icon: "la la-check" },
   { name: "Only Strong Fit", icon: "la la-check-double" },
   { name: "No Automatic Promotion", icon: "la la-times" },
 ];
 
-const employmentTypeOptions: DropdownOption[] = [
+export const employmentTypeOptions: DropdownOption[] = [
   { name: "Full-Time" },
   { name: "Part-Time" },
 ];
 
-const workArrangementOptions: DropdownOption[] = [
+export const workArrangementOptions: DropdownOption[] = [
   { name: "Fully Remote" },
   { name: "Onsite" },
   { name: "Hybrid" },
 ];
 
-const accessRolesOptions: DropdownOption[] = [
+export const accessRolesOptions: DropdownOption[] = [
   { name: "Job Owner" },
   { name: "Reviewer" },
   { name: "Contributor" },
 ];
 
-const secretPromptTooltip = "These prompts remain hidden from candidates and the public job portal.<br>Additionally, only Admins and the Job Owner can view the secret prompt.";
+export const secretPromptTooltip = "These prompts remain hidden from candidates and the public job portal.<br>Additionally, only Admins and the Job Owner can view the secret prompt.";
 
-const baseAIInterviewQuestion: AIInterviewQuestion[] = [
+export const baseAIInterviewQuestion: AIInterviewQuestion[] = [
   {
     id: 1,
     category: "CV Validation / Experience",
@@ -109,12 +110,72 @@ const baseAIInterviewQuestion: AIInterviewQuestion[] = [
   },
 ];
 
-export {
-  formSteps,
-  secretPromptTooltip,
-  baseAIInterviewQuestion,
-  employmentTypeOptions,
-  workArrangementOptions,
-  accessRolesOptions,
-  screeningSettingList,
-};
+export const validateCareerDetails = (details: FormState["careerDetails"]): boolean => {
+  const {
+    jobTitle,
+    employmentType,
+    workArrangement,
+    state,
+    city,
+    jobDescription,
+    isSalaryNegotiable,
+    minSalary,
+    maxSalary
+  } = details;
+
+  if (!jobTitle.trim() || !employmentType || !workArrangement || !state || !city || !jobDescription.trim()) {
+    return false;
+  }
+
+  if (!isSalaryNegotiable) {
+    if (!minSalary.trim() || !maxSalary.trim()) {
+      return false
+    };
+
+    if (!isSalaryRangeValid(minSalary, maxSalary)) {
+      return false
+    }
+  }
+
+  return true;
+}
+
+export const isValidInterviewQuestionsCount = (questions: AIInterviewQuestion[]): boolean => {
+  const totalQuestions = questions.reduce(
+    (acc, group) => acc + group.questions.length, 0
+  );
+  return totalQuestions >= 5;
+}
+
+export const isCurrStepValid = (careerDetails: FormState["careerDetails"], interviewQuestions: AIInterviewQuestion[], stepIndex: number) => boolean => {
+  if (stepIndex === 0) {
+    return validateCareerDetails(careerDetails);
+  }
+  if (stepIndex === 2) {
+    return isValidInterviewQuestionsCount(interviewQuestions);
+  }
+
+  return true;
+}
+
+export const validateStepStatus = (
+  currentStep: number,
+  stepIndex: number,
+  careerDetails: FormState["careerDetails"],
+  interviewQuestions: AIInterviewQuestion[],
+  validationErrors: FormState["validationErrors"]
+): "completed" | "in_progress" | "pending" | "invalid" => {
+  if (stepIndex < currentStep) return "completed";
+
+  if (stepIndex === currentStep) {
+    if (stepIndex === 0 && !validationErrors.step1 && !isCurrStepValid(careerDetails, interviewQuestions, stepIndex)) {
+      return "invalid"
+    };
+    if (stepIndex === 2 && !validationErrors.step3 && !isCurrStepValid(careerDetails, interviewQuestions, stepIndex)) {
+      return "invalid"
+    };
+    return "in_progress";
+  }
+
+  return "pending";
+}

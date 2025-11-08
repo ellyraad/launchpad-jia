@@ -23,6 +23,10 @@ import {
   baseAIInterviewQuestion,
   secretPromptTooltip,
   accessRolesOptions,
+  validateCareerDetails,
+  isValidInterviewQuestionsCount,
+  isCurrStepValid,
+  validateStepStatus,
 } from "@/lib/CareerFormUtils";
 import { isSalaryRangeValid } from "@/lib/Utils";
 
@@ -92,57 +96,9 @@ export default function CareerFormV2({
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [accessRole, setAccessRole] = useState<string>();
 
-  const validateStep1 = (): boolean => {
-    const { jobTitle, employmentType, workArrangement, state, city, jobDescription, isSalaryNegotiable, minSalary, maxSalary } = formState.careerDetails;
-
-    if (!jobTitle.trim() || !employmentType || !workArrangement || !state || !city || !jobDescription.trim()) {
-      return false;
-    }
-
-    if (!isSalaryNegotiable) {
-      if (!formState.careerDetails.minSalary.trim() || !formState.careerDetails.maxSalary.trim()) {
-        return false
-      };
-
-      if (!isSalaryRangeValid(formState.careerDetails.minSalary, formState.careerDetails.maxSalary)) {
-        return false
-      }
-    }
-
-    return true;
-  };
-
-  const validateStep3 = (): boolean => {
-    const totalQuestions = formState.aiScreeningDetails.interviewQuestions.reduce(
-      (acc, group) => acc + group.questions.length, 0
-    );
-    return totalQuestions >= 5;
-  };
-
-  const isStepValid = (stepIndex: number): boolean => {
-    if (stepIndex === 0) {
-      return validateStep1();
-    }
-    if (stepIndex === 2) {
-      return validateStep3();
-    }
-
-    return true;
-  };
-
-  const getStepStatus = (stepIndex: number): "completed" | "in_progress" | "pending" | "invalid" => {
-    if (stepIndex < currentStep) return "completed";
-    if (stepIndex === currentStep) {
-      if (stepIndex === 0 && !formState.validationErrors.step1 && !isStepValid(stepIndex)) return "invalid";
-      if (stepIndex === 2 && !formState.validationErrors.step3 && !isStepValid(stepIndex)) return "invalid";
-      return "in_progress";
-    }
-    return "pending";
-  };
-
   const handleSaveAndContinue = () => {
     if (currentStep === 0) {
-      if (!validateStep1()) {
+      if (!validateCareerDetails(formState.careerDetails)) {
         dispatch({
           type: "SET",
           category: "validationErrors",
@@ -160,7 +116,7 @@ export default function CareerFormV2({
     }
     
     if (currentStep === 2) {
-      if (!validateStep3()) {
+      if (!isValidInterviewQuestionsCount(formState.aiScreeningDetails.interviewQuestions)) {
         dispatch({
           type: "SET",
           category: "validationErrors",
@@ -234,7 +190,13 @@ export default function CareerFormV2({
         <div className={styles.topContainer}>
           <div className={styles.applicationStepContainer}>
             {formSteps.map((step, index) => {
-              const stepStatus = getStepStatus(index);
+              const stepStatus = validateStepStatus(
+                currentStep,
+                index,
+                formState.careerDetails,
+                formState.aiScreeningDetails.interviewQuestions,
+                formState.validationErrors,
+              );
               const isClickable = index <= currentStep;
               
               return (
