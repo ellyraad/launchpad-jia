@@ -266,6 +266,23 @@ export default function CareerFormV2({
     }
   };
 
+  const handleAddCustomQuestion = () => {
+    const newQuestion: typeof formState.cvScreeningDetails.preScreeningQuestions[0] = {
+      id: `custom-${Date.now()}`,
+      title: "",
+      question: "",
+      questionType: "dropdown",
+      options: [{ name: "" }],
+    };
+
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: [...formState.cvScreeningDetails.preScreeningQuestions, newQuestion]
+    });
+  };
+
   const handleAddSuggestedQuestion = (suggestedQuestion: typeof suggestedPreScreeningQuestions[0]) => {
     const newQuestion: typeof formState.cvScreeningDetails.preScreeningQuestions[0] = {
       id: `${suggestedQuestion.id}-${Date.now()}`,
@@ -885,6 +902,8 @@ export default function CareerFormV2({
                     </h2>
 
                     <button
+                      type="button"
+                      onClick={handleAddCustomQuestion}
                       style={{
                         width: "fit-content",
                         background: "black",
@@ -919,7 +938,17 @@ export default function CareerFormV2({
 
                             <div className={styles.psQuestionItem}>
                               <div className={`${styles.questionHeader}`}>
-                                <span>{psQuestion.question}</span>
+                                {psQuestion.id.startsWith("custom-") ? (
+                                  <input
+                                    type="text"
+                                    placeholder="Write your question..."
+                                    value={psQuestion.question}
+                                    onChange={(e) => handleUpdateQuestion(psQuestion.id, "question", e.target.value)}
+                                    style={{ padding: "10px 14px", flex: 1 }}
+                                  />
+                                ) : (
+                                  <span>{psQuestion.question}</span>
+                                )}
 
                                 <CustomDropdownV2
                                   value={psQuestion.questionType === "dropdown" ? "Dropdown" : psQuestion.questionType === "range" ? "Range" : psQuestion.questionType === "shorttext" ? "Short Answer" : "Long Answer"}
