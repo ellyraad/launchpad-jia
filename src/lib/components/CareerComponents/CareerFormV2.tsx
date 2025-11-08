@@ -89,8 +89,6 @@ export default function CareerFormV2({
 }: CareerFormProps) {
   const [formState, dispatch] = useReducer(formReducer, initFormState);
 
-  const [questions, setQuestions] = useState<AIInterviewQuestion[]>(baseAIInterviewQuestion);
-
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [accessRole, setAccessRole] = useState<string>();
 
@@ -815,7 +813,7 @@ export default function CareerFormV2({
                 </div>
 
                 <InterviewQuestionGeneratorV2 
-                  questions={questions} 
+                  questions={formState.aiScreeningDetails.interviewQuestions} 
                   setQuestions={(questions) => {
                     dispatch({
                       type: "SET",
