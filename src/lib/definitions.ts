@@ -23,6 +23,7 @@ export type DropdownOption = {
 };
 
 export type PreScreeningQuestion = {
+  id: string;
   title: string;
   question: string;
   questionType: "dropdown" | "range" | "shorttext" | "longtext";
@@ -51,7 +52,7 @@ export type FormState = {
   cvScreeningDetails: {
     cvScreeningSetting: string,
     cvSecretPrompt: string,
-    preScreeningQuestions?: string;
+    preScreeningQuestions: PreScreeningQuestion[];
   };
 
   aiScreeningDetails: {
@@ -72,5 +73,5 @@ export type FormReducerAction = {
   type: "SET";
   category: keyof FormState;
   field: string;
-  payload: string | boolean | AIInterviewQuestion[];
+  payload: string | boolean | AIInterviewQuestion[] | PreScreeningQuestion[];
 }

@@ -97,6 +97,7 @@ export const preScreeningQuestionTypes: DropdownOption[] = [
 
 export const suggestedPreScreeningQuestions: PreScreeningQuestion[] = [
   {
+    id: "suggested-notice-period",
     title: "Notice Period",
     question: "How long is your notice period?",
     questionType: "dropdown",
@@ -107,6 +108,7 @@ export const suggestedPreScreeningQuestions: PreScreeningQuestion[] = [
     ],
   },
   {
+    id: "suggested-work-setup",
     title: "Work Setup",
     question: "How often are you willing to report to the office?",
     questionType: "dropdown",
@@ -118,6 +120,7 @@ export const suggestedPreScreeningQuestions: PreScreeningQuestion[] = [
     ]
   },
   {
+    id: "suggested-asking-salary",
     title: "Asking Salary",
     question: "How much is your expected monthly salary?",
     questionType: "range",
