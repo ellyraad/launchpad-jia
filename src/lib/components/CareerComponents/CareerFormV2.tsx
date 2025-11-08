@@ -14,7 +14,7 @@ import AvatarImage from "../AvatarImage/AvatarImage";
 import AssessmentBadge from "./AssessmentBadge";
 import TipsBox from "./TipsBox";
 import InterviewQuestionGeneratorV2 from "./InterviewQuestionGeneratorV2";
-import type { AIInterviewQuestion, FormReducerAction, FormState } from "@/lib/definitions";
+import type { FormReducerAction, FormState } from "@/lib/definitions";
 import {
   formSteps,
   screeningSettingList,
@@ -25,10 +25,8 @@ import {
   accessRolesOptions,
   validateCareerDetails,
   isValidInterviewQuestionsCount,
-  isCurrStepValid,
   validateStepStatus,
 } from "@/lib/CareerFormUtils";
-import { isSalaryRangeValid } from "@/lib/Utils";
 
 const initFormState: FormState = {
   careerDetails: {
