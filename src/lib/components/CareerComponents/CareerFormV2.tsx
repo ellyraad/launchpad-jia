@@ -5,7 +5,7 @@ import "@/lib/styles/commonV2/globals.scss";
 import { assetConstants } from "@/lib/utils/constantsV2";
 import styles from "@/lib/styles/screens/careerForm.module.scss";
 import { CareerFormProps } from "./CareerForm";
-import { useState } from "react";
+import { useReducer, useState } from "react";
 import { Tooltip } from "react-tooltip";
 import CustomDropdownV2 from "@/lib/components/Dropdown/CustomDropdownV2";
 import SalaryInput from "@/lib/components/CareerComponents/SalaryInput";
@@ -14,217 +14,123 @@ import AvatarImage from "../AvatarImage/AvatarImage";
 import AssessmentBadge from "./AssessmentBadge";
 import TipsBox from "./TipsBox";
 import InterviewQuestionGeneratorV2 from "./InterviewQuestionGeneratorV2";
+import type { AIInterviewQuestion, FormReducerAction, FormState } from "@/lib/definitions";
+import {
+  formSteps,
+  screeningSettingList,
+  employmentTypeOptions,
+  workArrangementOptions,
+  baseAIInterviewQuestion,
+  secretPromptTooltip,
+  accessRolesOptions,
+  validateCareerDetails,
+  isValidInterviewQuestionsCount,
+  isCurrStepValid,
+  validateStepStatus,
+} from "@/lib/CareerFormUtils";
+import { isSalaryRangeValid } from "@/lib/Utils";
+
+const initFormState: FormState = {
+  careerDetails: {
+    jobTitle: "",
+
+    employmentType: "Full-Time",
+    workArrangement: "",
+
+    country: "Philippines",
+    state: "",
+    city: "",
+
+    isSalaryNegotiable: false,
+    minSalary: "",
+    maxSalary: "",
+    salaryCurrency: "PHP",
+    jobDescription: "",
+  },
+
+  cvScreeningDetails: {
+    cvScreeningSetting: screeningSettingList[0].name,
+    cvSecretPrompt: "",
+  },
+
+  aiScreeningDetails: {
+    aiScreeningSetting: screeningSettingList[0].name,
+    isVideoInterviewRequired: true,
+    interviewQuestions: baseAIInterviewQuestion,
+  },
+
+  teamAccessDetails: {
+    accessRole: "",
+    authorizedMembers: "",
+  },
+
+  validationErrors: {
+    step1: true,
+    step3: true,
+  }
+}
+
+function formReducer(state: FormState, action: FormReducerAction) {
+  if (action.type === "SET") {
+    const newState = {
+      ...state,
+      [action.category]: {
+        ...(state[action.category]),
+        [action.field]: action.payload
+      }
+    }
+
+    return newState;
+  }
+
+  return state;
+}
 
 export default function CareerFormV2({
   career,
   formType,
   setShowEditModal,
 }: CareerFormProps) {
-  const formSteps: { title: string; content?: React.ReactNode }[] = [
-    {
-      title: "Career Details & Team Access",
-      content: (
-        <>
-          <p>
-            <strong>Use clear, standard job titles</strong> for better searchability{" "}
-            (e.g., “Software Engineer” instead of “Code Ninja” or “Tech Rockstar”).
-          </p>
-          <p>
-            <strong>Avoid abbreviations</strong> or internal role codes that applicants may not{" "}
-            understand (e.g., use “QA Engineer” instead of “QE II” or “QA-TL”).
-          </p>
-          <p>
-            <strong>Keep it concise</strong> – job titles should be no more than a few words (2–4 max),{" "}
-            avoiding fluff or marketing terms.
-          </p>
-        </>
-      )
-    },
-
-    {
-      title: "CV Review & Pre-screening",
-      content: (
-        <>
-          <p>
-            <strong>Add a secret prompt</strong> to fine-tune how Jia scores and evaluates submitted CV.
-          </p>
-          <p>
-            <strong>Add pre-screening questions</strong> to collect key details such as notice period, work{" "}
-            setup, or salary expectations to guide your review and candidate discussions.
-          </p>
-        </>
-      )
-    },
-
-    {
-      title: "AI Interview Setup",
-      content: (
-        <>
-          <p>
-            <strong>Add a secret prompt</strong> to fine-tune how Jia scores and evaluates the interview responses.
-          </p>
-          <p>
-            <strong>Use &ldquo;Generate Questions&rdquo;</strong>to quickly create tailored interview questions,{" "}
-            then refine or mix them with your own for balanced results. 
-          </p>
-        </>
-      )
-    },
-
-    {
-      title: "Review Center"
-    }
-  ];
-
-  const screeningSettingList = [
-    { name: "Good Fit and above", icon: "la la-check" },
-    { name: "Only Strong Fit", icon: "la la-check-double" },
-    { name: "No Automatic Promotion", icon: "la la-times" },
-  ];
-
-  const employmentTypeOptions = [
-    { name: "Full-Time" },
-    { name: "Part-Time" },
-  ];
-
-  const workArrangementOptions = [
-    { name: "Fully Remote" },
-    { name: "Onsite" },
-    { name: "Hybrid" },
-  ];
-
-  const accessRolesOptions = [
-    { name: "Job Owner" },
-    { name: "Reviewer" },
-    { name: "Contributor" },
-  ];
-
-  const [questions, setQuestions] = useState([
-    {
-      id: 1,
-      category: "CV Validation / Experience",
-      questionCountToAsk: null,
-      questions: [],
-    },
-    {
-      id: 2,
-      category: "Technical",
-      questionCountToAsk: null,
-      questions: [],
-    },
-    {
-      id: 3,
-      category: "Behavioral",
-      questionCountToAsk: null,
-      questions: [],
-    },
-    {
-      id: 4,
-      category: "Analytical",
-      questionCountToAsk: null,
-      questions: [],
-    },
-    {
-      id: 5,
-      category: "Others",
-      questionCountToAsk: null,
-      questions: [],
-    },
-  ]);
-
-  const secretPromptTooltip = "These prompts remain hidden from candidates and the public job portal.<br>Additionally, only Admins and the Job Owner can view the secret prompt.";
+  const [formState, dispatch] = useReducer(formReducer, initFormState);
 
   const [currentStep, setCurrentStep] = useState<number>(0);
-
-  // FIXME: should use the provided geo data
-  const [country, setCountry] = useState<string>("Philippines"); // FIXME
-  const [province, setProvince] = useState<string>(""); 
-  const [city, setCity] = useState<string>("");
-
-  const [jobTitle, setJobTitle] = useState<string>("");
-  const [employmentType, setEmploymentType] = useState<string>("Full-Time");
-  const [workArrangement, setWorkArrangement] = useState<string>("");
-  const [minSalary, setMinSalary] = useState<string>("");
-  const [maxSalary, setMaxSalary] = useState<string>("");
-  const [salaryCurrency, setSalaryCurrency] = useState<string>("PHP");
-  const [description, setDescription] = useState<string>("");
   const [accessRole, setAccessRole] = useState<string>();
-  const [cvScreeningSetting, setCVScreeningSetting] = useState<string>(screeningSettingList[0].name);
-  const [aiScreeningSetting, setAIScreeningSetting] = useState<string>(screeningSettingList[0].name);
-  const [authorizedMember, setAuthorizedMember] = useState<string>("");
-
-  const [isSalaryNegotiable, setIsSalaryNegotiable] = useState<boolean>(false);
-  const [isVideoInterviewRequired, setIsVideoInterviewRequired] = useState<boolean>(true);
-  const [showStep1Validation, setShowStep1Validation] = useState<boolean>(false);
-  const [showStep2Validation, setShowStep2Validation] = useState<boolean>(false);
-
-  const validateStep1 = (): boolean => {
-    const requiredFields = [
-      jobTitle.trim(),
-      employmentType,
-      workArrangement,
-      province,
-      city,
-      description.trim(),
-    ];
-    
-    // Check all required fields are filled
-    if (requiredFields.some(field => !field)) return false;
-    
-    // Check salary fields only if not negotiable
-    if (!isSalaryNegotiable) {
-      if (!minSalary.trim() || !maxSalary.trim()) return false;
-      
-      // Validate that min salary is not greater than max salary
-      const min = parseFloat(minSalary.replace(/,/g, ''));
-      const max = parseFloat(maxSalary.replace(/,/g, ''));
-      if (!isNaN(min) && !isNaN(max) && min > max) return false;
-    }
-    
-    return true;
-  };
-
-  const validateStep2 = (): boolean => {
-    const totalQuestions = questions.reduce((acc, group) => acc + group.questions.length, 0);
-    return totalQuestions >= 5;
-  };
-
-  const isStepValid = (stepIndex: number): boolean => {
-    if (stepIndex === 0) {
-      return validateStep1();
-    }
-    if (stepIndex === 2) {
-      return validateStep2();
-    }
-
-    return true;
-  };
-
-  const getStepStatus = (stepIndex: number): "completed" | "in_progress" | "pending" | "invalid" => {
-    if (stepIndex < currentStep) return "completed";
-    if (stepIndex === currentStep) {
-      if (stepIndex === 0 && showStep1Validation && !isStepValid(stepIndex)) return "invalid";
-      if (stepIndex === 2 && showStep2Validation && !isStepValid(stepIndex)) return "invalid";
-      return "in_progress";
-    }
-    return "pending";
-  };
 
   const handleSaveAndContinue = () => {
     if (currentStep === 0) {
-      if (!validateStep1()) {
-        setShowStep1Validation(true);
+      if (!validateCareerDetails(formState.careerDetails)) {
+        dispatch({
+          type: "SET",
+          category: "validationErrors",
+          field: "step1",
+          payload: false
+        });
         return;
       }
-      setShowStep1Validation(false);
+      dispatch({
+        type: "SET",
+        category: "validationErrors",
+        field: "step1",
+        payload: true
+      });
     }
     
     if (currentStep === 2) {
-      if (!validateStep2()) {
-        setShowStep2Validation(true);
+      if (!isValidInterviewQuestionsCount(formState.aiScreeningDetails.interviewQuestions)) {
+        dispatch({
+          type: "SET",
+          category: "validationErrors",
+          field: "step3",
+          payload: false
+        });
         return;
       }
-      setShowStep2Validation(false);
+      dispatch({
+        type: "SET",
+        category: "validationErrors",
+        field: "step3",
+        payload: true
+      });
     }
     
     if (currentStep < formSteps.length - 1) {
@@ -238,10 +144,20 @@ export default function CareerFormV2({
 
       // Reset validation when navigating
       if (stepIndex === 0) {
-        setShowStep1Validation(false);
+        dispatch({
+          type: "SET",
+          category: "validationErrors",
+          field: "step1",
+          payload: true
+        });
       }
       if (stepIndex === 2) {
-        setShowStep2Validation(false);
+        dispatch({
+          type: "SET",
+          category: "validationErrors",
+          field: "step3",
+          payload: true
+        });
       }
     }
   };
@@ -252,7 +168,7 @@ export default function CareerFormV2({
         <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#181D27" }}>
           {currentStep > 0 ? (
             <>
-              <span style={{ color: "#717680" }}>[Draft]</span> {jobTitle}
+              <span style={{ color: "#717680" }}>[Draft]</span> {formState.careerDetails.jobTitle}
             </>
           ) : <>Add new career</>}
         </h1>
@@ -262,6 +178,7 @@ export default function CareerFormV2({
             Save as Unpublished
           </button>
 
+          {/* Will change to "Publish" at last step */}
           <button className={styles.actionButton} onClick={handleSaveAndContinue}>
             Save and Continue
             <img alt="arrow" src={assetConstants.arrow} />
@@ -273,7 +190,13 @@ export default function CareerFormV2({
         <div className={styles.topContainer}>
           <div className={styles.applicationStepContainer}>
             {formSteps.map((step, index) => {
-              const stepStatus = getStepStatus(index);
+              const stepStatus = validateStepStatus(
+                currentStep,
+                index,
+                formState.careerDetails,
+                formState.aiScreeningDetails.interviewQuestions,
+                formState.validationErrors,
+              );
               const isClickable = index <= currentStep;
               
               return (
@@ -320,14 +243,24 @@ export default function CareerFormV2({
                         <span className={styles.fieldLabel}>Job Title</span>
                         <input
                           type="text"
-                          value={jobTitle}
+                          value={formState.careerDetails.jobTitle}
                           placeholder="Enter job title"
                           style={{ padding: "10px 14px" }}
-                          onChange={(e) => setJobTitle(e.target.value)}
-                          onFocus={() => setShowStep1Validation(false)}
-                          className={showStep1Validation && !jobTitle.trim() ? styles.invalid : ""}
+                          onChange={(e) => dispatch({
+                            type: "SET",
+                            category: "careerDetails",
+                            field: "jobTitle",
+                            payload: e.target.value
+                          })}
+                          onFocus={() => dispatch({
+                            type: "SET",
+                            category: "validationErrors",
+                            field: "step1",
+                            payload: true
+                          })}
+                          className={!formState.validationErrors.step1 && !formState.careerDetails.jobTitle.trim() ? styles.invalid : ""}
                         />
-                        {showStep1Validation && !jobTitle.trim() && (
+                        {!formState.validationErrors.step1 && !formState.careerDetails.jobTitle.trim() && (
                           <span style={{ color: "#F04438", fontSize: "14px", marginTop: "2px" }}>
                             Job title is required
                           </span>
@@ -341,16 +274,26 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Employment Type</span>
                           <CustomDropdownV2
-                            value={employmentType}
+                            value={formState.careerDetails.employmentType}
                             placeholder="Choose employment type"
                             options={employmentTypeOptions}
                             onValueChange={(value) => {
-                              setEmploymentType(value);
-                              setShowStep1Validation(false);
+                              dispatch({
+                                type: "SET",
+                                category: "careerDetails",
+                                field: "employmenType",
+                                payload: value
+                              });
+                              dispatch({
+                                type: "SET",
+                                category: "validationErrors",
+                                field: "step1",
+                                payload: true
+                              });
                             }}
-                            invalid={showStep1Validation && !employmentType}
+                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.employmentType}
                           />
-                          {showStep1Validation && !employmentType && (
+                          {!formState.validationErrors.step1 && !formState.careerDetails.employmentType && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Employment type is required
                             </span>
@@ -360,16 +303,26 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Arrangement</span>
                           <CustomDropdownV2
-                            value={workArrangement}
+                            value={formState.careerDetails.workArrangement}
                             placeholder="Choose work arrangement"
                             options={workArrangementOptions}
                             onValueChange={(value) => {
-                              setWorkArrangement(value);
-                              setShowStep1Validation(false);
+                              dispatch({
+                                type: "SET",
+                                category: "careerDetails",
+                                field: "workArrangement",
+                                payload: value
+                              });
+                              dispatch({
+                                type: "SET",
+                                category: "validationErrors",
+                                field: "step1",
+                                payload: true
+                              });
                             }}
-                            invalid={showStep1Validation && !workArrangement}
+                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.workArrangement}
                           />
-                          {showStep1Validation && !workArrangement && (
+                          {!formState.validationErrors.step1 && !formState.careerDetails.workArrangement && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Work arrangement is required
                             </span>
@@ -385,25 +338,40 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Country</span>
                           <CustomDropdownV2
-                            value={country}
+                            value={formState.careerDetails.country}
                             options={[{ name: "Philippines" }]} // FIXME
-                            onValueChange={setCountry}
+                            onValueChange={(value) => dispatch({
+                              type: "SET",
+                              category: "careerDetails",
+                              field: "country",
+                              payload: value
+                            })}
                           />
                         </div>
 
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>State / Province</span>
                           <CustomDropdownV2
-                            value={province}
+                            value={formState.careerDetails.state}
                             placeholder="Choose state / province"
                             options={[{ name: "Metro Manila" }]} // FIXME
                             onValueChange={(value) => {
-                              setProvince(value);
-                              setShowStep1Validation(false);
+                              dispatch({
+                                type: "SET",
+                                category: "careerDetails",
+                                field: "state",
+                                payload: value
+                              });
+                              dispatch({
+                                type: "SET",
+                                category: "validationErrors",
+                                field: "step1",
+                                payload: true
+                              });
                             }}
-                            invalid={showStep1Validation && !province}
+                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.state}
                           />
-                          {showStep1Validation && !province && (
+                          {!formState.validationErrors.step1 && !formState.careerDetails.state && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               State / Province is required
                             </span>
@@ -413,16 +381,26 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>City</span>
                           <CustomDropdownV2
-                            value={city}
+                            value={formState.careerDetails.city}
                             placeholder="Choose city"
                             options={[{ name: "Quezon City" }]} // FIXME
                             onValueChange={(value) => {
-                              setCity(value);
-                              setShowStep1Validation(false);
+                              dispatch({
+                                type: "SET",
+                                category: "careerDetails",
+                                field: "city",
+                                payload: value
+                              });
+                              dispatch({
+                                type: "SET",
+                                category: "validationErrors",
+                                field: "step1",
+                                payload: true
+                              });
                             }}
-                            invalid={showStep1Validation && !city}
+                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.city}
                           />
-                          {showStep1Validation && !city && (
+                          {!formState.validationErrors.step1 && !formState.careerDetails.city && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               City is required
                             </span>
@@ -439,8 +417,13 @@ export default function CareerFormV2({
                           <label className="switch">
                             <input
                               type="checkbox"
-                              checked={isSalaryNegotiable}
-                              onChange={() => setIsSalaryNegotiable(!isSalaryNegotiable)}
+                              checked={formState.careerDetails.isSalaryNegotiable}
+                              onChange={() => dispatch({
+                                type: "SET",
+                                category: "careerDetails",
+                                field: "isSalaryNegotiable",
+                                payload: !formState.careerDetails.isSalaryNegotiable
+                              })}
                             />
                             <span className="slider round"></span>
                           </label>{" "}
@@ -453,17 +436,32 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Minimum Salary</span>
                           <SalaryInput
-                            disabled={isSalaryNegotiable}
-                            value={minSalary}
-                            currency={salaryCurrency}
+                            disabled={formState.careerDetails.isSalaryNegotiable}
+                            value={formState.careerDetails.minSalary}
+                            currency={formState.careerDetails.salaryCurrency}
                             onValueChange={(value) => {
-                              setMinSalary(value);
-                              setShowStep1Validation(false);
+                              dispatch({
+                                type: "SET",
+                                category: "careerDetails",
+                                field: "minSalary",
+                                payload: value
+                              });
+                              dispatch({
+                                type: "SET",
+                                category: "validationErrors",
+                                field: "step1",
+                                payload: true
+                              });
                             }}
-                            onCurrencyChange={setSalaryCurrency}
-                            invalid={showStep1Validation && !isSalaryNegotiable && !minSalary.trim()}
+                            onCurrencyChange={(value) => dispatch({
+                              type: "SET",
+                              category: "careerDetails",
+                              field: "salaryCurrency",
+                              payload: value
+                            })}
+                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.minSalary.trim()}
                           />
-                          {showStep1Validation && !isSalaryNegotiable && !minSalary.trim() && (
+                          {!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.minSalary.trim() && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Minimum salary is required
                             </span>
@@ -473,23 +471,38 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Maximum Salary</span>
                           <SalaryInput
-                            disabled={isSalaryNegotiable}
-                            value={maxSalary}
-                            currency={salaryCurrency}
+                            disabled={formState.careerDetails.isSalaryNegotiable}
+                            value={formState.careerDetails.maxSalary}
+                            currency={formState.careerDetails.salaryCurrency}
                             onValueChange={(value) => {
-                              setMaxSalary(value);
-                              setShowStep1Validation(false);
+                              dispatch({
+                                type: "SET",
+                                category: "careerDetails",
+                                field: "maxSalary",
+                                payload: value
+                              });
+                              dispatch({
+                                type: "SET",
+                                category: "validationErrors",
+                                field: "step1",
+                                payload: true
+                              });
                             }}
-                            onCurrencyChange={setSalaryCurrency}
-                            invalid={showStep1Validation && !isSalaryNegotiable && !maxSalary.trim()}
+                            onCurrencyChange={(value) => dispatch({
+                              type: "SET",
+                              category: "careerDetails",
+                              field: "salaryCurrency",
+                              payload: value
+                            })}
+                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.maxSalary.trim()}
                           />
-                          {showStep1Validation && !isSalaryNegotiable && !maxSalary.trim() && (
+                          {!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.maxSalary.trim() && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Maximum salary is required
                             </span>
                           )}
-                          {showStep1Validation && !isSalaryNegotiable && minSalary.trim() && maxSalary.trim() && 
-                           parseFloat(minSalary.replace(/,/g, '')) > parseFloat(maxSalary.replace(/,/g, '')) && (
+                          {!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && formState.careerDetails.minSalary.trim() && formState.careerDetails.maxSalary.trim() && 
+                           parseFloat(formState.careerDetails.minSalary.replace(/,/g, '')) > parseFloat(formState.careerDetails.maxSalary.replace(/,/g, '')) && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Maximum salary must be greater than minimum salary
                             </span>
@@ -505,10 +518,15 @@ export default function CareerFormV2({
 
                   <div className={styles.fieldsWrapper}>
                     <RichTextEditor 
-                      setText={setDescription} 
-                      text={description} 
+                      setText={(value) => dispatch({
+                        type: "SET",
+                        category: "careerDetails",
+                        field: "jobDescription",
+                        payload: value
+                      })} 
+                      text={formState.careerDetails.jobDescription} 
                     />
-                    {showStep1Validation && !description.trim() && (
+                    {!formState.validationErrors.step1 && !formState.careerDetails.jobDescription.trim() && (
                       <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                         Job description is required
                       </span>
@@ -529,10 +547,15 @@ export default function CareerFormV2({
 
                         <div>
                           <CustomDropdownV2
-                            value={authorizedMember}
+                            value={formState.teamAccessDetails.authorizedMembers}
                             placeholder="Add member"
                             options={[{ name:"John Doe" }]}
-                            onValueChange={setAuthorizedMember}
+                            onValueChange={(value) => dispatch({
+                              type: "SET",
+                              category: "teamAccessDetails",
+                              field: "authorizedMembers",
+                              payload: value
+                            })}
                           />
                         </div>
                       </div>
@@ -600,9 +623,14 @@ export default function CareerFormV2({
                       </div>
 
                       <CustomDropdownV2
-                        value={cvScreeningSetting}
+                        value={formState.cvScreeningDetails.cvScreeningSetting}
                         options={screeningSettingList}
-                        onValueChange={setCVScreeningSetting}
+                        onValueChange={(value) => dispatch({
+                          type: "SET",
+                          category: "cvScreeningDetails",
+                          field: "cvScreeningSetting",
+                          payload: value
+                        })}
                         fullWidth={false}
                       />
                     </div>
@@ -630,7 +658,15 @@ export default function CareerFormV2({
                         <span className={styles.fieldGroupDesc}>Secret Prompts give you extra control over Jia’s evaluation style, complementing her accurate assessment of requirements from the job description.</span>
                       </div>
 
-                      <textarea placeholder="Enter a secret prompt (e.g. Give higher fit scores to candidates who participate in hackathons or competitions.)">
+                      <textarea
+                        onChange={(e) => dispatch({
+                          type: "SET",
+                          category: "cvScreeningDetails",
+                          field: "cvSecretPrompt",
+                          payload: e.target.value
+                        })}
+                        value={formState.cvScreeningDetails.cvSecretPrompt}
+                        placeholder="Enter a secret prompt (e.g. Give higher fit scores to candidates who participate in hackathons or competitions.)">
                       </textarea>
                     </div>
                   </div>
@@ -655,9 +691,14 @@ export default function CareerFormV2({
                       </div>
 
                       <CustomDropdownV2
-                        value={aiScreeningSetting}
+                        value={formState.aiScreeningDetails.aiScreeningSetting}
                         options={screeningSettingList}
-                        onValueChange={setAIScreeningSetting}
+                        onValueChange={(value) => dispatch({
+                          type: "SET",
+                          category: "aiScreeningDetails",
+                          field: "aiScreeningSetting",
+                          payload: value
+                        })}
                         fullWidth={false}
                       />
                     </div>
@@ -686,8 +727,13 @@ export default function CareerFormV2({
                           <label className="switch">
                             <input
                               type="checkbox"
-                              checked={isVideoInterviewRequired}
-                              onChange={() => setIsVideoInterviewRequired(!isVideoInterviewRequired)}
+                              checked={formState.aiScreeningDetails.isVideoInterviewRequired}
+                              onChange={() => dispatch({
+                                type: "SET",
+                                category: "aiScreeningDetails",
+                                field: "isVideoInterviewRequired",
+                                payload: !formState.aiScreeningDetails.isVideoInterviewRequired
+                              })}
                             />
                             <span className="slider round"></span>
                           </label>{" "}
@@ -729,14 +775,25 @@ export default function CareerFormV2({
                 </div>
 
                 <InterviewQuestionGeneratorV2 
-                  questions={questions} 
+                  questions={formState.aiScreeningDetails.interviewQuestions} 
                   setQuestions={(questions) => {
-                    setQuestions(questions);
-                    setShowStep2Validation(false);
+                    dispatch({
+                      type: "SET",
+                      category: "aiScreeningDetails",
+                      field: "interviewQuestions",
+                      payload: questions
+                    })
+
+                    dispatch({
+                      type: "SET",
+                      category: "validationErrors",
+                      field: "step3",
+                      payload: true
+                    });
                   }} 
-                  jobTitle={jobTitle} 
-                  description={description}
-                  showValidation={showStep2Validation}
+                  jobTitle={formState.careerDetails.jobTitle} 
+                  description={formState.careerDetails.jobDescription}
+                  showValidation={!formState.validationErrors.step3}
                 />
               </div>
             )}
@@ -752,7 +809,7 @@ export default function CareerFormV2({
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>Job Title</div>
-                      <div className={styles.fieldValue}>Software Engineer - Java</div>
+                      <div className={styles.fieldValue}>{formState.careerDetails.jobTitle}</div>
                     </div>
 
                     <hr className={styles.groupDivider} />
@@ -760,17 +817,17 @@ export default function CareerFormV2({
                     <div style={{ display: "grid", gap: "16px", gridTemplateColumns: "1fr 1fr 1fr", width: "100%" }}>
                       <div className={styles.reviewField} style={{ flex: "1" }}>
                         <div className={styles.fieldLabel}>Country</div>
-                        <div className={styles.fieldValue}>Philippines</div>
+                        <div className={styles.fieldValue}>{formState.careerDetails.country}</div>
                       </div>
 
                       <div className={styles.reviewField} style={{ flex: "1" }}>
                         <div className={styles.fieldLabel}>State / Province</div>
-                        <div className={styles.fieldValue}>Metro Manila</div>
+                        <div className={styles.fieldValue}>{formState.careerDetails.state}</div>
                       </div>
 
                       <div className={styles.reviewField} style={{ flex: "1" }}>
                         <div className={styles.fieldLabel}>City</div>
-                        <div className={styles.fieldValue}>Pasig City</div>
+                        <div className={styles.fieldValue}>{formState.careerDetails.city}</div>
                       </div>
                     </div>
 
@@ -779,12 +836,20 @@ export default function CareerFormV2({
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", width: "100%" }}>
                       <div className={styles.reviewField}>
                         <div className={styles.fieldLabel}>Minimum Salary</div>
-                        <div className={styles.fieldValue}>Negotiable</div>
+                        <div className={styles.fieldValue}>
+                          {formState.careerDetails.isSalaryNegotiable 
+                            ? "Negotiable" 
+                            : `${formState.careerDetails.salaryCurrency} ${formState.careerDetails.minSalary}`}
+                        </div>
                       </div>
 
                       <div className={styles.reviewField} style={{ gridColumn: "span 2" }}>
                         <div className={styles.fieldLabel}>Maximum Salary</div>
-                        <div className={styles.fieldValue}>Negotiable</div>
+                        <div className={styles.fieldValue}>
+                          {formState.careerDetails.isSalaryNegotiable 
+                            ? "Negotiable" 
+                            : `${formState.careerDetails.salaryCurrency} ${formState.careerDetails.maxSalary}`}
+                        </div>
                       </div>
                     </div>
 
@@ -793,9 +858,7 @@ export default function CareerFormV2({
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>Job Description</div>
                       <div className={styles.fieldValue}>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam error,
-                        quasi deserunt rerum repellat impedit asperiores placeat temporibus excepturi
-                        repellendus nam ullam saepe, tempore rem quis. Amet molestiae nisi atque.
+                        {formState.careerDetails.jobDescription}
                       </div>
                     </div>
 
@@ -811,7 +874,7 @@ export default function CareerFormV2({
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>CV Screening</div>
-                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type={cvScreeningSetting} /> and above</div>
+                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type={formState.cvScreeningDetails.cvScreeningSetting} /> and above</div>
                     </div>
                   </div>
                 </div>
@@ -825,21 +888,23 @@ export default function CareerFormV2({
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>AI Interview Screening</div>
-                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type={aiScreeningSetting} /> and above</div>
+                      <div className={styles.fieldValue}>Automatically endorse candidates who are <AssessmentBadge _type={formState.aiScreeningDetails.aiScreeningSetting} /> and above</div>
                     </div>
 
                     <hr className={styles.groupDivider} />
 
                     <div className={styles.reviewField} style={{ display: "flex", gap: "12px", justifyContent: "space-between" }}>
                       <div className={styles.fieldLabel}>Require Video on Interview</div>
-                      <div className={styles.fieldValue}>Yes</div>
+                      <div className={styles.fieldValue}>{formState.aiScreeningDetails.isVideoInterviewRequired ? "Yes" : "No"}</div>
                     </div>
 
                     <hr className={styles.groupDivider} />
 
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>
-                        Interview Questions <span className={styles.countBadge}>3</span>
+                        Interview Questions <span className={styles.countBadge}>
+                          {formState.aiScreeningDetails.interviewQuestions.reduce((acc, group) => acc + group.questions.length, 0)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -849,9 +914,7 @@ export default function CareerFormV2({
           </div>
 
           {currentStep !== formSteps.length - 1 && (
-            <TipsBox>
-              {formSteps[currentStep].content}
-            </TipsBox>
+            <TipsBox tips={formSteps[currentStep].tooltips} />
           )}
         </div>
       </div>

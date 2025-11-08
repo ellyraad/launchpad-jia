@@ -9,6 +9,30 @@ export function validateEmail(email) {
   return emailRegex.test(email);
 }
 
+/**
+ * Parses a formatted salary string to a number
+ * @param salary - Formatted salary string (e.g., "50,000")
+ * @returns Parsed number or NaN if invalid
+ */
+export const parseSalary = (salary: string): number => {
+  return parseFloat(salary.replace(/,/g, ''));
+};
+
+/**
+ * Validates that minimum salary is not greater than maximum salary
+ * @param minSalary - Formatted salary string (e.g., "50,000")
+ * @param maxSalary - Formatted salary string (e.g., "80,000")
+ * @returns true if valid (min <= max), false otherwise
+ */
+export const isSalaryRangeValid = (minSalary: string, maxSalary: string): boolean => {
+  const min = parseSalary(minSalary);
+  const max = parseSalary(maxSalary);
+
+  if (isNaN(min) || isNaN(max)) return true;
+
+  return min <= max;
+};
+
 export function convertDate(date) {
   let parsedDate = new Date(date);
 

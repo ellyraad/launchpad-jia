@@ -1,6 +1,8 @@
+import { accessRolesOptions } from "@/lib/CareerFormUtils";
+import { ToolTip } from "@/lib/definitions";
 import styles from "@/lib/styles/screens/careerForm.module.scss";
 
-export default function TipsBox({ children }: { children?: React.ReactNode }) {
+export default function TipsBox({ tips }: { tips: ToolTip[] }) {
   return (
     <div className={styles.stepFieldsContainer} style={{ height: "fit-content" }}>
       <div>
@@ -11,7 +13,11 @@ export default function TipsBox({ children }: { children?: React.ReactNode }) {
       </div>
 
       <div className={`${styles.fieldsWrapper} ${styles.tipsContent}`}>
-        {children}
+        {tips.map(t => (
+          <p key={t.highlightText}>
+            <strong>{t.highlightText}</strong> {t.restOfText}
+          </p>
+        ))}
       </div>
     </div>
   )
