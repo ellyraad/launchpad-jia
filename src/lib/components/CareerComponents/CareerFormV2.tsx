@@ -516,7 +516,7 @@ export default function CareerFormV2({
 
                   <div className={styles.fieldsWrapper}>
                     <RichTextEditor 
-                      setText={(value) => dispatch({
+                      setText={(value: string) => dispatch({
                         type: "SET",
                         category: "careerDetails",
                         field: "jobDescription",
