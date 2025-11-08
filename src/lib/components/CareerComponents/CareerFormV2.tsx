@@ -1051,7 +1051,9 @@ export default function CareerFormV2({
                                   </>
                                 )}
 
-                                <hr className={styles.divider} />
+                                {(psQuestion.questionType === "dropdown" || psQuestion.questionType === "range") && (
+                                  <hr className={styles.divider} />
+                                )}
 
                                 <div style={{ display: "flex", justifyContent: "end" }}>
                                   <button 
