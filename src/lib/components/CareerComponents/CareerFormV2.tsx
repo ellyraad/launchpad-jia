@@ -279,7 +279,7 @@ export default function CareerFormV2({
                               dispatch({
                                 type: "SET",
                                 category: "careerDetails",
-                                field: "employmenType",
+                                field: "employmentType",
                                 payload: value
                               });
                               dispatch({
