@@ -295,8 +295,8 @@ export default function CareerFormV2({
               onClick={handlePublish}
               disabled={isPublishing || isSavingUnpublished}
             >
+              {!isPublishing && <img alt="check" src="/iconsV3/checkV7.svg" style={{ width: "19px", height: "19px" }} />}
               {isPublishing ? "Publishing..." : "Publish"}
-              {!isPublishing && <img alt="arrow" src={assetConstants.arrow} />}
             </button>
           ) : (
             <button className={styles.actionButton} onClick={handleSaveAndContinue}>
