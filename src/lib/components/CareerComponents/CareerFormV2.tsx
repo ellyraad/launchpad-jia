@@ -991,10 +991,11 @@ export default function CareerFormV2({
                     <hr className={styles.groupDivider} />
 
                     <div className={styles.reviewField}>
-                      <div className={styles.fieldLabel}>Job Description</div>
-                      <div className={styles.fieldValue}>
-                        {formState.careerDetails.jobDescription}
-                      </div>
+                      <div className={styles.fieldLabel} style={{ marginBottom: "8px" }}>Job Description</div>
+                      <div 
+                        className={styles.fieldValue}
+                        dangerouslySetInnerHTML={{ __html: formState.careerDetails.jobDescription }}
+                      />
                     </div>
 
                     {/* TODO: Team access */}
