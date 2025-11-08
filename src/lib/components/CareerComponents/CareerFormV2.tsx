@@ -204,6 +204,46 @@ export default function CareerFormV2({
     }
   };
 
+  const handleSaveAsUnpublished = async () => {
+    // Prevent duplicate submissions
+    if (savingCareerRef.current) return;
+    
+    savingCareerRef.current = true;
+    setIsSavingCareer(true);
+
+    try {
+      const flattenedData = flattenNewCareerData(formState, orgID, user, false);
+      
+      // Override status to inactive for unpublished careers
+      const unpublishedData = {
+        ...flattenedData,
+        status: "inactive"
+      };
+      
+      const response = await axios.post("/api/add-career", unpublishedData);
+
+      if (response.data.message) {
+        candidateActionToast(
+          "Career saved as unpublished!",
+          1500,
+          <img alt="check" src={assetConstants.checkV5} style={{ width: "20px", height: "20px" }} />
+        );
+        
+        setTimeout(() => {
+          router.push("/recruiter-dashboard/careers");
+        }, 1500);
+      }
+    } catch (error: any) {
+      console.error("Error saving career:", error);
+      errorToast(
+        error.response?.data?.error || "Failed to save career. Please try again.",
+        3000
+      );
+      savingCareerRef.current = false;
+      setIsSavingCareer(false);
+    }
+  };
+
   return (
     <div style={{ width: "100%" }}>
       <div style={{ marginBottom: "35px", display: "flex", justifyContent: "space-between" }}>
@@ -216,9 +256,19 @@ export default function CareerFormV2({
         </h1>
 
         <div className={styles.buttonContainer}>
-          <button className={`${styles.actionButton} ${styles.secondary} ${styles.disabled}`} disabled>
-            Save as Unpublished
-          </button>
+          {currentStep === formSteps.length - 1 ? (
+            <button 
+              className={`${styles.actionButton} ${styles.secondary}`}
+              onClick={handleSaveAsUnpublished}
+              disabled={isSavingCareer}
+            >
+              {isSavingCareer ? "Saving..." : "Save as Unpublished"}
+            </button>
+          ) : (
+            <button className={`${styles.actionButton} ${styles.secondary} ${styles.disabled}`} disabled>
+              Save as Unpublished
+            </button>
+          )}
 
           {currentStep === formSteps.length - 1 ? (
             <button 
