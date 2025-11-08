@@ -507,8 +507,6 @@ export default function CareerFormV2({
                     <RichTextEditor 
                       setText={setDescription} 
                       text={description} 
-                      invalid={showStep1Validation && !description.trim()}
-                      onFocus={() => setShowStep1Validation(false)}
                     />
                     {showStep1Validation && !description.trim() && (
                       <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
