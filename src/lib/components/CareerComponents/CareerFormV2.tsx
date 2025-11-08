@@ -362,6 +362,66 @@ export default function CareerFormV2({
     });
   };
 
+  const handleDragStart = (e: React.DragEvent, questionId: string) => {
+    e.dataTransfer.setData("questionId", questionId);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLElement;
+    const bounding = target.getBoundingClientRect();
+    const offset = bounding.y + bounding.height / 2;
+
+    if (e.clientY - offset > 0) {
+      target.style.borderBottom = "3px solid #4F46E5";
+      target.style.borderTop = "none";
+    } else {
+      target.style.borderTop = "3px solid #4F46E5";
+      target.style.borderBottom = "none";
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    const target = e.currentTarget as HTMLElement;
+    target.style.borderTop = "none";
+    target.style.borderBottom = "none";
+  };
+
+  const handleDrop = (e: React.DragEvent, targetQuestionId: string) => {
+    e.preventDefault();
+    const target = e.currentTarget as HTMLElement;
+    target.style.borderTop = "none";
+    target.style.borderBottom = "none";
+
+    const draggedQuestionId = e.dataTransfer.getData("questionId");
+    if (draggedQuestionId === targetQuestionId) return;
+
+    const questions = [...formState.cvScreeningDetails.preScreeningQuestions];
+    const draggedIndex = questions.findIndex(q => q.id === draggedQuestionId);
+    const targetIndex = questions.findIndex(q => q.id === targetQuestionId);
+
+    if (draggedIndex === -1 || targetIndex === -1) return;
+
+    const bounding = target.getBoundingClientRect();
+    const offset = bounding.y + bounding.height / 2;
+    const isAfter = e.clientY - offset > 0;
+
+    const [draggedQuestion] = questions.splice(draggedIndex, 1);
+    
+    const newTargetIndex = draggedIndex < targetIndex 
+      ? (isAfter ? targetIndex : targetIndex - 1)
+      : (isAfter ? targetIndex + 1 : targetIndex);
+
+    questions.splice(newTargetIndex, 0, draggedQuestion);
+
+    dispatch({
+      type: "SET",
+      category: "cvScreeningDetails",
+      field: "preScreeningQuestions",
+      payload: questions
+    });
+  };
+
   return (
     <div style={{ width: "100%" }}>
       <div style={{ marginBottom: "35px", display: "flex", justifyContent: "space-between" }}>
@@ -931,7 +991,15 @@ export default function CareerFormV2({
                     {formState.cvScreeningDetails.preScreeningQuestions.length > 0 && (
                       <div className={styles.psQuestions}>
                         {formState.cvScreeningDetails.preScreeningQuestions.map((psQuestion) => (
-                          <div className={styles.psQuestionItemWrapper} key={psQuestion.id}>
+                          <div 
+                            className={styles.psQuestionItemWrapper} 
+                            key={psQuestion.id}
+                            draggable={true}
+                            onDragStart={(e) => handleDragStart(e, psQuestion.id)}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={(e) => handleDrop(e, psQuestion.id)}
+                          >
                             <div className={styles.grip}>
                               <img src="/icons/dragIcon.svg" alt="Grip Icon" style={{ width: "14px", height: "14px", margin: "0 7px" }} />
                             </div>

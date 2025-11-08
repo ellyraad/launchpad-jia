@@ -381,10 +381,16 @@
     display: flex;
     gap: 12px;
     font-weight: 500;
+    cursor: move;
 
     .grip {
       display: flex;
       align-items: center;
+      cursor: grab;
+
+      &:active {
+        cursor: grabbing;
+      }
     }
 
     .psQuestionItem {
