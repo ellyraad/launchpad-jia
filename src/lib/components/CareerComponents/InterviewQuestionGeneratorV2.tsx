@@ -31,6 +31,9 @@ export default function (props) {
             },
           ];
 
+          updatedQuestions[categoryIndex].questionCountToAsk =
+            updatedQuestions[categoryIndex].questions.length;
+
           setQuestions(updatedQuestions);
         }
 

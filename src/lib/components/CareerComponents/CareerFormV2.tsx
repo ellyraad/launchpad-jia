@@ -5,7 +5,7 @@ import "@/lib/styles/commonV2/globals.scss";
 import { assetConstants } from "@/lib/utils/constantsV2";
 import styles from "@/lib/styles/screens/careerForm.module.scss";
 import { CareerFormProps } from "./CareerForm";
-import { useReducer, useState } from "react";
+import { useReducer, useState, useRef } from "react";
 import { Tooltip } from "react-tooltip";
 import CustomDropdownV2 from "@/lib/components/Dropdown/CustomDropdownV2";
 import SalaryInput from "@/lib/components/CareerComponents/SalaryInput";
@@ -14,7 +14,7 @@ import AvatarImage from "../AvatarImage/AvatarImage";
 import AssessmentBadge from "./AssessmentBadge";
 import TipsBox from "./TipsBox";
 import InterviewQuestionGeneratorV2 from "./InterviewQuestionGeneratorV2";
-import type { AIInterviewQuestion, FormReducerAction, FormState } from "@/lib/definitions";
+import type { FormReducerAction, FormState } from "@/lib/definitions";
 import {
   formSteps,
   screeningSettingList,
@@ -25,10 +25,13 @@ import {
   accessRolesOptions,
   validateCareerDetails,
   isValidInterviewQuestionsCount,
-  isCurrStepValid,
   validateStepStatus,
+  flattenNewCareerData,
 } from "@/lib/CareerFormUtils";
-import { isSalaryRangeValid } from "@/lib/Utils";
+import { useAppContext } from "@/lib/context/AppContext";
+import { successToast, errorToast, candidateActionToast } from "@/lib/Utils";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const initFormState: FormState = {
   careerDetails: {
@@ -91,10 +94,16 @@ export default function CareerFormV2({
   formType,
   setShowEditModal,
 }: CareerFormProps) {
+  const { user, orgID } = useAppContext();
+  const router = useRouter();
+
   const [formState, dispatch] = useReducer(formReducer, initFormState);
 
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [accessRole, setAccessRole] = useState<string>();
+  const [isPublishing, setIsPublishing] = useState<boolean>(false);
+  const [isSavingUnpublished, setIsSavingUnpublished] = useState<boolean>(false);
+  const savingCareerRef = useRef<boolean>(false);
 
   const handleSaveAndContinue = () => {
     if (currentStep === 0) {
@@ -162,6 +171,80 @@ export default function CareerFormV2({
     }
   };
 
+  const handlePublish = async () => {
+    // Prevent duplicate submissions
+    if (savingCareerRef.current) return;
+    
+    savingCareerRef.current = true;
+    setIsPublishing(true);
+
+    try {
+      const flattenedData = flattenNewCareerData(formState, orgID, user, false);
+      
+      const response = await axios.post("/api/add-career", flattenedData);
+
+      if (response.data.message) {
+        candidateActionToast(
+          "Career published successfully!",
+          1500,
+          <img alt="check" src={assetConstants.checkV5} style={{ width: "20px", height: "20px" }} />
+        );
+        
+        setTimeout(() => {
+          router.push("/recruiter-dashboard/careers");
+        }, 1500);
+      }
+    } catch (error: any) {
+      console.error("Error saving career:", error);
+      errorToast(
+        error.response?.data?.error || "Failed to publish career. Please try again.",
+        3000
+      );
+      savingCareerRef.current = false;
+      setIsPublishing(false);
+    }
+  };
+
+  const handleSaveAsUnpublished = async () => {
+    // Prevent duplicate submissions
+    if (savingCareerRef.current) return;
+    
+    savingCareerRef.current = true;
+    setIsSavingUnpublished(true);
+
+    try {
+      const flattenedData = flattenNewCareerData(formState, orgID, user, false);
+      
+      // Override status to inactive for unpublished careers
+      const unpublishedData = {
+        ...flattenedData,
+        status: "inactive"
+      };
+      
+      const response = await axios.post("/api/add-career", unpublishedData);
+
+      if (response.data.message) {
+        candidateActionToast(
+          "Career saved as unpublished!",
+          1500,
+          <img alt="check" src={assetConstants.checkV5} style={{ width: "20px", height: "20px" }} />
+        );
+        
+        setTimeout(() => {
+          router.push("/recruiter-dashboard/careers");
+        }, 1500);
+      }
+    } catch (error: any) {
+      console.error("Error saving career:", error);
+      errorToast(
+        error.response?.data?.error || "Failed to save career. Please try again.",
+        3000
+      );
+      savingCareerRef.current = false;
+      setIsSavingUnpublished(false);
+    }
+  };
+
   return (
     <div style={{ width: "100%" }}>
       <div style={{ marginBottom: "35px", display: "flex", justifyContent: "space-between" }}>
@@ -174,15 +257,35 @@ export default function CareerFormV2({
         </h1>
 
         <div className={styles.buttonContainer}>
-          <button className={`${styles.actionButton} ${styles.secondary} ${styles.disabled}`} disabled>
-            Save as Unpublished
-          </button>
+          {currentStep === formSteps.length - 1 ? (
+            <button 
+              className={`${styles.actionButton} ${styles.secondary}`}
+              onClick={handleSaveAsUnpublished}
+              disabled={isSavingUnpublished || isPublishing}
+            >
+              {isSavingUnpublished ? "Saving..." : "Save as Unpublished"}
+            </button>
+          ) : (
+            <button className={`${styles.actionButton} ${styles.secondary} ${styles.disabled}`} disabled>
+              Save as Unpublished
+            </button>
+          )}
 
-          {/* Will change to "Publish" at last step */}
-          <button className={styles.actionButton} onClick={handleSaveAndContinue}>
-            Save and Continue
-            <img alt="arrow" src={assetConstants.arrow} />
-          </button>
+          {currentStep === formSteps.length - 1 ? (
+            <button 
+              className={styles.actionButton} 
+              onClick={handlePublish}
+              disabled={isPublishing || isSavingUnpublished}
+            >
+              {isPublishing ? "Publishing..." : "Publish"}
+              {!isPublishing && <img alt="arrow" src={assetConstants.arrow} />}
+            </button>
+          ) : (
+            <button className={styles.actionButton} onClick={handleSaveAndContinue}>
+              Save and Continue
+              <img alt="arrow" src={assetConstants.arrow} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -281,7 +384,7 @@ export default function CareerFormV2({
                               dispatch({
                                 type: "SET",
                                 category: "careerDetails",
-                                field: "employmenType",
+                                field: "employmentType",
                                 payload: value
                               });
                               dispatch({
@@ -518,7 +621,7 @@ export default function CareerFormV2({
 
                   <div className={styles.fieldsWrapper}>
                     <RichTextEditor 
-                      setText={(value) => dispatch({
+                      setText={(value: string) => dispatch({
                         type: "SET",
                         category: "careerDetails",
                         field: "jobDescription",

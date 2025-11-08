@@ -13,8 +13,8 @@ export type FormStep = {
 export type AIInterviewQuestion = {
   id: number;
   category: string;
-  questionCountToAsk: string | null;
-  questions: string[]
+  questionCountToAsk: number | null;
+  questions: Array<{ id: string; question: string }>
 };
 
 export type DropdownOption = {
