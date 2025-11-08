@@ -849,7 +849,7 @@ export default function CareerFormV2({
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>Job Title</div>
-                      <div className={styles.fieldValue}>Software Engineer - Java</div>
+                      <div className={styles.fieldValue}>{formState.careerDetails.jobTitle}</div>
                     </div>
 
                     <hr className={styles.groupDivider} />
@@ -857,17 +857,17 @@ export default function CareerFormV2({
                     <div style={{ display: "grid", gap: "16px", gridTemplateColumns: "1fr 1fr 1fr", width: "100%" }}>
                       <div className={styles.reviewField} style={{ flex: "1" }}>
                         <div className={styles.fieldLabel}>Country</div>
-                        <div className={styles.fieldValue}>Philippines</div>
+                        <div className={styles.fieldValue}>{formState.careerDetails.country}</div>
                       </div>
 
                       <div className={styles.reviewField} style={{ flex: "1" }}>
                         <div className={styles.fieldLabel}>State / Province</div>
-                        <div className={styles.fieldValue}>Metro Manila</div>
+                        <div className={styles.fieldValue}>{formState.careerDetails.state}</div>
                       </div>
 
                       <div className={styles.reviewField} style={{ flex: "1" }}>
                         <div className={styles.fieldLabel}>City</div>
-                        <div className={styles.fieldValue}>Pasig City</div>
+                        <div className={styles.fieldValue}>{formState.careerDetails.city}</div>
                       </div>
                     </div>
 
@@ -876,12 +876,20 @@ export default function CareerFormV2({
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", width: "100%" }}>
                       <div className={styles.reviewField}>
                         <div className={styles.fieldLabel}>Minimum Salary</div>
-                        <div className={styles.fieldValue}>Negotiable</div>
+                        <div className={styles.fieldValue}>
+                          {formState.careerDetails.isSalaryNegotiable 
+                            ? "Negotiable" 
+                            : `${formState.careerDetails.salaryCurrency} ${formState.careerDetails.minSalary}`}
+                        </div>
                       </div>
 
                       <div className={styles.reviewField} style={{ gridColumn: "span 2" }}>
                         <div className={styles.fieldLabel}>Maximum Salary</div>
-                        <div className={styles.fieldValue}>Negotiable</div>
+                        <div className={styles.fieldValue}>
+                          {formState.careerDetails.isSalaryNegotiable 
+                            ? "Negotiable" 
+                            : `${formState.careerDetails.salaryCurrency} ${formState.careerDetails.maxSalary}`}
+                        </div>
                       </div>
                     </div>
 
@@ -890,9 +898,7 @@ export default function CareerFormV2({
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>Job Description</div>
                       <div className={styles.fieldValue}>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsam error,
-                        quasi deserunt rerum repellat impedit asperiores placeat temporibus excepturi
-                        repellendus nam ullam saepe, tempore rem quis. Amet molestiae nisi atque.
+                        {formState.careerDetails.jobDescription}
                       </div>
                     </div>
 
@@ -929,14 +935,16 @@ export default function CareerFormV2({
 
                     <div className={styles.reviewField} style={{ display: "flex", gap: "12px", justifyContent: "space-between" }}>
                       <div className={styles.fieldLabel}>Require Video on Interview</div>
-                      <div className={styles.fieldValue}>Yes</div>
+                      <div className={styles.fieldValue}>{formState.aiScreeningDetails.isVideoInterviewRequired ? "Yes" : "No"}</div>
                     </div>
 
                     <hr className={styles.groupDivider} />
 
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>
-                        Interview Questions <span className={styles.countBadge}>3</span>
+                        Interview Questions <span className={styles.countBadge}>
+                          {formState.aiScreeningDetails.interviewQuestions.reduce((acc, group) => acc + group.questions.length, 0)}
+                        </span>
                       </div>
                     </div>
                   </div>
