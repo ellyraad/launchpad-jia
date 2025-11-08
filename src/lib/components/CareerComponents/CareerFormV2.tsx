@@ -27,9 +27,10 @@ import {
   isValidInterviewQuestionsCount,
   validateStepStatus,
   flattenNewCareerData,
+  preScreeningQuestionTypes,
 } from "@/lib/CareerFormUtils";
 import { useAppContext } from "@/lib/context/AppContext";
-import { successToast, errorToast, candidateActionToast } from "@/lib/Utils";
+import { errorToast, candidateActionToast } from "@/lib/Utils";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
@@ -789,6 +790,231 @@ export default function CareerFormV2({
                         value={formState.cvScreeningDetails.cvSecretPrompt}
                         placeholder="Enter a secret prompt (e.g. Give higher fit scores to candidates who participate in hackathons or competitions.)">
                       </textarea>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div className={styles.stepFieldsContainer}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 0" }}>
+                    <h2>
+                      2. Pre-Screening Options{" "}
+                      <span style={{ color: "#717680", fontWeight: "normal" }}>(optional)</span>{" "}
+                      <span className={styles.countBadge}>0</span>
+                    </h2>
+
+                    <button
+                      style={{
+                        width: "fit-content",
+                        background: "black",
+                        color: "#fff",
+                        border: "1px solid #E9EAEB",
+                        padding: "8px 16px",
+                        borderRadius: "60px",
+                        cursor: "pointer",
+                        whiteSpace: "nowrap"
+                      }}
+                    >
+
+                      <img src="/icons/plus.svg" alt="Plus Icon" />
+                      Add Custom
+                    </button>
+                  </div>
+
+                  <div className={styles.fieldsWrapper} style={{ gap: "12px" }}>
+                    <div className={styles.fieldGroup} style={{ gap: "12px" }}>
+                      {/* FIXME: hide when user added questions either custom or from suggestions */}
+                      <div className={styles.fieldGroupDesc}>No pre-screening questions added yet.</div>
+                    </div>
+
+                    <div className={styles.psQuestions}>
+                      <div className={styles.psQuestionItemWrapper}>
+                        <div className={styles.grip}>
+                          <img src="/icons/dragIcon.svg" alt="Grip Icon" style={{ width: "14px", height: "14px", margin: "0 7px" }} />
+                        </div>
+
+                        <div className={styles.psQuestionItem}>
+                          <div className={`${styles.questionHeader}`}>
+                            <span>How long is your notice period?</span>
+
+                            <CustomDropdownV2
+                              value="Dropdown" // la-chevron-circle-down
+                              options={preScreeningQuestionTypes}
+                              onValueChange={(value) => console.log(value)}
+                              fullWidth={false}
+                            />
+                          </div>
+
+                          <div className={styles.choicesWrapper}>
+                            <div className={styles.dropdownItem}>
+                              <div className={styles.dropdownValue}>
+                                <div className={styles.number}>1</div>
+                                <div className={styles.value}>
+                                  Immediately
+                                </div>
+                              </div>
+
+                              <img src="/icons/circle-xV2.svg" alt="X Icon" />
+                            </div>
+
+                            <div className={styles.dropdownItem}>
+                              <div className={styles.dropdownValue}>
+                                <div className={styles.number}>2</div>
+                                <div className={styles.value}>
+                                  &lt; 30 Days
+                                </div>
+                              </div>
+
+                              <img src="/icons/circle-xV2.svg" alt="X Icon" />
+                            </div>
+
+                            {/* Will only appear in dropdown type of question */}
+                            <div className={styles.addOptionBtn}>
+                              <i className="la la-plus" /> Add Option
+                            </div>
+
+                            <hr className={styles.divider} />
+
+                            <div style={{ display: "flex", justifyContent: "end" }}>
+                              <button className={styles.deleteChoiceBtn}>
+                                <i className="la la-trash" /> Delete Question
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                      </div>
+
+                      <div className={styles.psQuestionItemWrapper}>
+                        <div className={styles.grip}>
+                          <img src="/icons/dragIcon.svg" alt="Grip Icon" style={{ width: "14px", height: "14px", margin: "0 7px" }} />
+                        </div>
+
+                        <div className={styles.psQuestionItem}>
+                          <div className={`${styles.questionHeader}`}>
+                            <span>How much is your expected salary?</span>
+
+                            <CustomDropdownV2
+                              value="Range" // la-chevron-circle-down
+                              options={preScreeningQuestionTypes}
+                              onValueChange={(value) => console.log(value)}
+                              fullWidth={false}
+                            />
+                          </div>
+
+                          <div className={styles.choicesWrapper}>
+                            <div style={{ display: "flex", gap: "16px" }}>
+                              <div className={styles.field} style={{ flex: 1 }}>
+                                <span className={styles.fieldLabel}>Minimum Salary</span>
+                                <SalaryInput
+                                  value=""
+                                  currency="PHP"
+                                  onValueChange={(value) => console.log("Min salary:", value)}
+                                  onCurrencyChange={(currency) => console.log("Currency:", currency)}
+                                />
+                              </div>
+
+                              <div className={styles.field} style={{ flex: 1 }}>
+                                <span className={styles.fieldLabel}>Maximum Salary</span>
+                                <SalaryInput
+                                  value=""
+                                  currency="PHP"
+                                  onValueChange={(value) => console.log("Max salary:", value)}
+                                  onCurrencyChange={(currency) => console.log("Currency:", currency)}
+                                />
+                              </div>
+                            </div>
+
+                            <hr className={styles.divider} />
+
+                            <div style={{ display: "flex", justifyContent: "end" }}>
+                              <button className={styles.deleteChoiceBtn}>
+                                <i className="la la-trash" /> Delete Question
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className={styles.psQuestionItemWrapper}>
+                        <div className={styles.grip}>
+                          <img src="/icons/dragIcon.svg" alt="Grip Icon" style={{ width: "14px", height: "14px", margin: "0 7px" }} />
+                        </div>
+
+                        <div className={styles.psQuestionItem}>
+                          <div className={`${styles.questionHeader}`}>
+                            <input
+                              type="text"
+                              placeholder="Write your question..."
+                              style={{ padding: "10px 14px", flex: 1 }}
+                              onChange={(e) => console.log("Question:", e.target.value)}
+                            />
+
+                            <CustomDropdownV2
+                              value="Text"
+                              options={preScreeningQuestionTypes}
+                              onValueChange={(value) => console.log(value)}
+                              fullWidth={false}
+                            />
+                          </div>
+
+                          <div className={styles.choicesWrapper}>
+                            <hr className={styles.divider} />
+
+                            <div style={{ display: "flex", justifyContent: "end" }}>
+                              <button className={styles.deleteChoiceBtn}>
+                                <i className="la la-trash" /> Delete Question
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+                    <hr className={styles.divider} />
+
+                    <div className={styles.fieldGroup} style={{ gap: "12px" }}>
+                      <div style={{ fontSize: "16px", fontWeight: "bold", color: "#181d27", marginBottom: "4px" }}>
+                        Suggested Pre-screening Questions:
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <div>
+                            <div style={{ color: "#414651", fontWeight: "bold" }}>Notice Period</div>
+                            <div style={{ color: "#717680", fontWeight: "500" }}>How long is your notice period?</div>
+                          </div>
+
+                          <button type="button" className={`${styles.actionButton} ${styles.secondary}`}>
+                            Add
+                          </button>
+                        </div>
+
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <div>
+                            <div style={{ color: "#414651", fontWeight: "bold" }}>Work Setup</div>
+                            <div style={{ color: "#717680", fontWeight: "500" }}>
+                              How often are you willing to report to the office each week?
+                            </div>
+                          </div>
+
+                          <button type="button" className={`${styles.actionButton} ${styles.secondary}`}>
+                            Add
+                          </button>
+                        </div>
+
+                        <div style={{ display: "flex", justifyContent: "space-between" }}>
+                          <div>
+                            <div style={{ color: "#414651", fontWeight: "bold" }}>Asking Salary</div>
+                            <div style={{ color: "#717680", fontWeight: "500" }}>How much is your expected monthly salary?</div>
+                          </div>
+
+                          <button type="button" className={`${styles.actionButton} ${styles.secondary}`}>
+                            Add
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
