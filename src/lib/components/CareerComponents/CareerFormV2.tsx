@@ -104,6 +104,24 @@ export default function CareerFormV2({
   const [isPublishing, setIsPublishing] = useState<boolean>(false);
   const [isSavingUnpublished, setIsSavingUnpublished] = useState<boolean>(false);
   const savingCareerRef = useRef<boolean>(false);
+  
+  // Collapsible sections state for Review Center
+  const [collapsedSections, setCollapsedSections] = useState<{
+    careerDetails: boolean;
+    cvScreening: boolean;
+    aiInterview: boolean;
+  }>({
+    careerDetails: false,
+    cvScreening: false,
+    aiInterview: false,
+  });
+
+  const toggleSection = (section: 'careerDetails' | 'cvScreening' | 'aiInterview') => {
+    setCollapsedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   const handleSaveAndContinue = () => {
     if (currentStep === 0) {
@@ -904,12 +922,26 @@ export default function CareerFormV2({
             {currentStep === 3 && (
               <div style={{ display: "flex", gap: "24px", flexDirection: "column" }}>
                 <div className={styles.stepFieldsContainer}>
-                  <h2 style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <img src="/iconsV3/chevronV2.svg" alt="chevron" style={{ width: "20px", height: "20px", transform: "rotate(90deg)", filter: "grayscale(100%) brightness(0.7) contrast(1.2)" }} />
+                  <h2 
+                    style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+                    onClick={() => toggleSection('careerDetails')}
+                  >
+                    <img 
+                      src="/iconsV3/chevronV2.svg" 
+                      alt="chevron" 
+                      style={{ 
+                        width: "20px", 
+                        height: "20px", 
+                        transform: collapsedSections.careerDetails ? "rotate(-90deg)" : "rotate(90deg)", 
+                        filter: "grayscale(100%) brightness(0.7) contrast(1.2)",
+                        transition: "transform 0.2s ease"
+                      }} 
+                    />
                     Career Details &amp; Team Access
                   </h2>
 
-                  <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
+                  {!collapsedSections.careerDetails && (
+                    <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>Job Title</div>
                       <div className={styles.fieldValue}>{formState.careerDetails.jobTitle}</div>
@@ -967,13 +999,28 @@ export default function CareerFormV2({
 
                     {/* TODO: Team access */}
                   </div>
+                  )}
                 </div>
 
                 <div className={styles.stepFieldsContainer}>
-                  <h2 style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <img src="/iconsV3/chevronV2.svg" alt="chevron" style={{ width: "20px", height: "20px", transform: "rotate(90deg)", filter: "grayscale(100%) brightness(0.7) contrast(1.2)" }} />
+                  <h2 
+                    style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+                    onClick={() => toggleSection('cvScreening')}
+                  >
+                    <img 
+                      src="/iconsV3/chevronV2.svg" 
+                      alt="chevron" 
+                      style={{ 
+                        width: "20px", 
+                        height: "20px", 
+                        transform: collapsedSections.cvScreening ? "rotate(-90deg)" : "rotate(90deg)", 
+                        filter: "grayscale(100%) brightness(0.7) contrast(1.2)",
+                        transition: "transform 0.2s ease"
+                      }} 
+                    />
                     CV Review &amp; Pre-Screening Questions
                   </h2>
+                  {!collapsedSections.cvScreening && (
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>CV Screening</div>
@@ -1000,14 +1047,29 @@ export default function CareerFormV2({
                       </>
                     )}
                   </div>
+                  )}
                 </div>
 
                 <div className={styles.stepFieldsContainer}>
-                  <h2 style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px" }}>
-                    <img src="/iconsV3/chevronV2.svg" alt="chevron" style={{ width: "20px", height: "20px", transform: "rotate(90deg)", filter: "grayscale(100%) brightness(0.7) contrast(1.2)" }} />
+                  <h2 
+                    style={{ padding: "4px 12px", display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+                    onClick={() => toggleSection('aiInterview')}
+                  >
+                    <img 
+                      src="/iconsV3/chevronV2.svg" 
+                      alt="chevron" 
+                      style={{ 
+                        width: "20px", 
+                        height: "20px", 
+                        transform: collapsedSections.aiInterview ? "rotate(-90deg)" : "rotate(90deg)", 
+                        filter: "grayscale(100%) brightness(0.7) contrast(1.2)",
+                        transition: "transform 0.2s ease"
+                      }} 
+                    />
                     AI Interview Setup
                   </h2>
 
+                  {!collapsedSections.aiInterview && (
                   <div className={`${styles.fieldsWrapper} ${styles.reviewFieldsGroup}`}>
                     <div className={styles.reviewField}>
                       <div className={styles.fieldLabel}>AI Interview Screening</div>
@@ -1053,6 +1115,7 @@ export default function CareerFormV2({
                       </div>
                     </div>
                   </div>
+                  )}
                 </div>
               </div>
             )}
