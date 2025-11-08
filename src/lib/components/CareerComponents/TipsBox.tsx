@@ -14,7 +14,7 @@ export default function TipsBox({ tips }: { tips: ToolTip[] }) {
 
       <div className={`${styles.fieldsWrapper} ${styles.tipsContent}`}>
         {tips.map(t => (
-          <p>
+          <p key={t.highlightText}>
             <strong>{t.highlightText}</strong> {t.restOfText}
           </p>
         ))}
