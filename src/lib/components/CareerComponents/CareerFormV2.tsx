@@ -1080,7 +1080,14 @@ export default function CareerFormV2({
 
                     <div className={styles.reviewField} style={{ display: "flex", gap: "12px", justifyContent: "space-between" }}>
                       <div className={styles.fieldLabel}>Require Video on Interview</div>
-                      <div className={styles.fieldValue}>{formState.aiScreeningDetails.isVideoInterviewRequired ? "Yes" : "No"}</div>
+                      <div className={styles.fieldValue} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        {formState.aiScreeningDetails.isVideoInterviewRequired ? "Yes" : "No"}
+                        <img 
+                          src={formState.aiScreeningDetails.isVideoInterviewRequired ? "/icons/checkV3-green.svg" : "/icons/circle-x.svg"} 
+                          alt={formState.aiScreeningDetails.isVideoInterviewRequired ? "check" : "x"} 
+                          style={{ width: "18px", height: "18px" }} 
+                        />
+                      </div>
                     </div>
 
                     <hr className={styles.groupDivider} />
