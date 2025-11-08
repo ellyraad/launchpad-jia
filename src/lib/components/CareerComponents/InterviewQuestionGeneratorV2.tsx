@@ -516,7 +516,7 @@ export default function (props) {
                   >
 
                     <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8, height: "100%" }}>
-                      <i className="la la-grip-vertical" style={{ fontSize: 20, color: "#A4A7AE" }}></i>
+                      <img src="/icons/dragIcon.svg" alt="Grip Icon" style={{ width: "14px", height: "14px", margin: "0 7px" }} />
                       <span style={{ wordBreak: "break-word", whiteSpace: "pre-line" }}>
                         {question.question}
                       </span>
