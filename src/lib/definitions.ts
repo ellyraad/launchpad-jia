@@ -21,3 +21,45 @@ export type DropdownOption = {
   name: string;
   icon?: string;
 };
+
+export type FormState = {
+  careerDetails: {
+    jobTitle: string,
+    employmentType: string,
+    workArrangement: string,
+    country: string,
+    state: string,
+    city: string,
+
+    isSalaryNegotiable: boolean,
+    minSalary: string,
+    maxSalary: string,
+    salaryCurrency: string,
+    jobDescription: string,
+  };
+
+  cvScreeningDetails: {
+    cvScreeningSetting: string,
+    cvSecretPrompt: string,
+  };
+
+  aiScreeningDetails: {
+    aiScreeningSetting: string,
+    isVideoInterviewRequired: boolean,
+    interviewQuestions: AIInterviewQuestion[],
+  };
+
+  teamAccessDetails: {
+    accessRole: string,
+    authorizedMembers: string,
+  };
+
+  validationErrors: Record<string, boolean>;
+}
+
+export type FormReducerAction = {
+  type: "SET";
+  category: keyof FormState;
+  field: string;
+  payload: string | boolean | AIInterviewQuestion[];
+}

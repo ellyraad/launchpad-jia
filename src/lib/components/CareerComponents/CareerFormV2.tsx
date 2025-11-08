@@ -14,7 +14,7 @@ import AvatarImage from "../AvatarImage/AvatarImage";
 import AssessmentBadge from "./AssessmentBadge";
 import TipsBox from "./TipsBox";
 import InterviewQuestionGeneratorV2 from "./InterviewQuestionGeneratorV2";
-import type { AIInterviewQuestion } from "@/lib/definitions";
+import type { AIInterviewQuestion, FormReducerAction, FormState } from "@/lib/definitions";
 import {
   formSteps,
   screeningSettingList,
@@ -26,11 +26,11 @@ import {
 } from "@/lib/CareerFormUtils";
 import { isSalaryRangeValid } from "@/lib/Utils";
 
-const initFormState = {
+const initFormState: FormState = {
   careerDetails: {
     jobTitle: "",
 
-    employmenType: "Full-Time",
+    employmentType: "Full-Time",
     workArrangement: "",
 
     country: "Philippines",
@@ -56,7 +56,7 @@ const initFormState = {
   },
 
   teamAccessDetails: {
-    acceeRole: "",
+    accessRole: "",
     authorizedMembers: "",
   },
 
@@ -66,14 +66,7 @@ const initFormState = {
   }
 }
 
-type FormAction = {
-  type: "SET";
-  category: keyof typeof initFormState;
-  field: string;
-  payload: string | boolean | AIInterviewQuestion[];
-}
-
-function formReducer(state: typeof initFormState, action: FormAction) {
+function formReducer(state: FormState, action: FormReducerAction) {
   if (action.type === "SET") {
     const newState = {
       ...state,
@@ -102,9 +95,9 @@ export default function CareerFormV2({
   const [accessRole, setAccessRole] = useState<string>();
 
   const validateStep1 = (): boolean => {
-    const { jobTitle, employmenType, workArrangement, state, city, jobDescription, isSalaryNegotiable, minSalary, maxSalary } = formState.careerDetails;
+    const { jobTitle, employmentType, workArrangement, state, city, jobDescription, isSalaryNegotiable, minSalary, maxSalary } = formState.careerDetails;
 
-    if (!jobTitle.trim() || !employmenType || !workArrangement || !state || !city || !jobDescription.trim()) {
+    if (!jobTitle.trim() || !employmentType || !workArrangement || !state || !city || !jobDescription.trim()) {
       return false;
     }
 
@@ -321,7 +314,7 @@ export default function CareerFormV2({
                         <div className={styles.field}>
                           <span className={styles.fieldLabel}>Employment Type</span>
                           <CustomDropdownV2
-                            value={formState.careerDetails.employmenType}
+                            value={formState.careerDetails.employmentType}
                             placeholder="Choose employment type"
                             options={employmentTypeOptions}
                             onValueChange={(value) => {
@@ -338,9 +331,9 @@ export default function CareerFormV2({
                                 payload: true
                               });
                             }}
-                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.employmenType}
+                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.employmentType}
                           />
-                          {!formState.validationErrors.step1 && !formState.careerDetails.employmenType && (
+                          {!formState.validationErrors.step1 && !formState.careerDetails.employmentType && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Employment type is required
                             </span>
