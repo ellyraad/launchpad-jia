@@ -172,3 +172,5 @@ export function usePreScreeningQuestions(
     handleDrop,
   };
 }
+
+export type PreScreeningQuestionsHook = ReturnType<typeof usePreScreeningQuestions>;

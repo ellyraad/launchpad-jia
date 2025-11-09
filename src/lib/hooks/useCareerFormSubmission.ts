@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, createElement } from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { errorToast, candidateActionToast } from "@/lib/Utils";
@@ -32,7 +32,11 @@ export function useCareerFormSubmission(
         candidateActionToast(
           "Career published successfully!",
           1500,
-          <img alt="check" src={assetConstants.checkV5} style={{ width: "20px", height: "20px" }} />
+          createElement("img", { 
+            alt: "check", 
+            src: assetConstants.checkV5, 
+            style: { width: "20px", height: "20px" } 
+          })
         );
         
         setTimeout(() => {
@@ -72,7 +76,11 @@ export function useCareerFormSubmission(
         candidateActionToast(
           "Career saved as unpublished!",
           1500,
-          <img alt="check" src={assetConstants.checkV5} style={{ width: "20px", height: "20px" }} />
+          createElement("img", { 
+            alt: "check", 
+            src: assetConstants.checkV5, 
+            style: { width: "20px", height: "20px" } 
+          })
         );
         
         setTimeout(() => {
