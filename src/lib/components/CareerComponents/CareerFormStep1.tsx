@@ -179,16 +179,14 @@ export default function CareerFormStep1({
                             <div className={styles.field} style={{ flex: 1 }}>
                               <span className={styles.fieldLabel}>Minimum Salary</span>
                               <SalaryInput
-                                value={psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer 
-                                  ? String(psQuestion.answer.min || "") 
+                                value={psQuestion.preferredRange 
+                                  ? String(psQuestion.preferredRange.min || "") 
                                   : ""}
                                 currency={psQuestion.currency || "PHP"}
                                 onValueChange={(value) => {
                                   const numValue = value ? parseFloat(value.replace(/,/g, '')) : 0;
-                                  const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer
-                                    ? psQuestion.answer
-                                    : { min: 0, max: 0 };
-                                  preScreeningHook.handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, min: numValue });
+                                  const currentRange = psQuestion.preferredRange || { min: 0, max: 0 };
+                                  preScreeningHook.handleUpdateQuestion(psQuestion.id, "preferredRange", { ...currentRange, min: numValue });
                                 }}
                                 onCurrencyChange={(currency) => preScreeningHook.handleUpdateQuestion(psQuestion.id, "currency", currency)}
                               />
@@ -197,16 +195,14 @@ export default function CareerFormStep1({
                             <div className={styles.field} style={{ flex: 1 }}>
                               <span className={styles.fieldLabel}>Maximum Salary</span>
                               <SalaryInput
-                                value={psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer 
-                                  ? String(psQuestion.answer.max || "") 
+                                value={psQuestion.preferredRange 
+                                  ? String(psQuestion.preferredRange.max || "") 
                                   : ""}
                                 currency={psQuestion.currency || "PHP"}
                                 onValueChange={(value) => {
                                   const numValue = value ? parseFloat(value.replace(/,/g, '')) : 0;
-                                  const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer
-                                    ? psQuestion.answer
-                                    : { min: 0, max: 0 };
-                                  preScreeningHook.handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, max: numValue });
+                                  const currentRange = psQuestion.preferredRange || { min: 0, max: 0 };
+                                  preScreeningHook.handleUpdateQuestion(psQuestion.id, "preferredRange", { ...currentRange, max: numValue });
                                 }}
                                 onCurrencyChange={(currency) => preScreeningHook.handleUpdateQuestion(psQuestion.id, "currency", currency)}
                               />
@@ -220,15 +216,13 @@ export default function CareerFormStep1({
                                   type="number"
                                   placeholder="Enter minimum value"
                                   style={{ padding: "10px 14px" }}
-                                  value={psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer 
-                                    ? psQuestion.answer.min 
+                                  value={psQuestion.preferredRange 
+                                    ? psQuestion.preferredRange.min 
                                     : ""}
                                   onChange={(e) => {
                                     const numValue = e.target.value ? parseFloat(e.target.value) : 0;
-                                    const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer
-                                      ? psQuestion.answer
-                                      : { min: 0, max: 0 };
-                                    preScreeningHook.handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, min: numValue });
+                                    const currentRange = psQuestion.preferredRange || { min: 0, max: 0 };
+                                    preScreeningHook.handleUpdateQuestion(psQuestion.id, "preferredRange", { ...currentRange, min: numValue });
                                   }}
                                 />
                               </div>
@@ -239,15 +233,13 @@ export default function CareerFormStep1({
                                   type="number"
                                   placeholder="Enter maximum value"
                                   style={{ padding: "10px 14px" }}
-                                  value={psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer 
-                                    ? psQuestion.answer.max 
+                                  value={psQuestion.preferredRange 
+                                    ? psQuestion.preferredRange.max 
                                     : ""}
                                   onChange={(e) => {
                                     const numValue = e.target.value ? parseFloat(e.target.value) : 0;
-                                    const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer
-                                      ? psQuestion.answer
-                                      : { min: 0, max: 0 };
-                                    preScreeningHook.handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, max: numValue });
+                                    const currentRange = psQuestion.preferredRange || { min: 0, max: 0 };
+                                    preScreeningHook.handleUpdateQuestion(psQuestion.id, "preferredRange", { ...currentRange, max: numValue });
                                   }}
                                 />
                               </div>
