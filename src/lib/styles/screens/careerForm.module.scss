@@ -1,5 +1,56 @@
 @use "@/lib/styles/commonV2/animations.scss" as *;
 
+.careerFormContainer {
+  width: 100%;
+
+  .mainContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .subStepsContainer {
+    display: grid;
+    gap: 24px;
+    width: 100%;
+    padding-bottom: 40px;
+  }
+
+  .subStepsCol {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .subSteps {
+    display: flex;
+    gap: 24px;
+    flex-direction: column;
+  }
+}
+
+.subStepHeading {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  align-items: center;
+}
+
+.subStepCollapsibleHeading {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 12px;
+  gap: 8px;
+}
+
+.substepFieldGroupTitle {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--Text-text-primary, #181d27);
+  margin-bottom: 4px;
+}
+
 .actionButton {
   align-items: center;
   background: var(--Button-bg-primary, #181d27);
@@ -112,7 +163,7 @@
     h3,
     .fieldGroupTitle {
       font-weight: 700;
-      font-size: 14px;
+      font-size: 16px;
     }
 
     .field {
@@ -189,7 +240,17 @@
       margin: 16px 0;
     }
   }
+}
 
+.psAddCustomBtn {
+  width: fit-content;
+  background: black;
+  color: #fff;
+  border: 1px solid #e9eaeb;
+  padding: 8px 16px;
+  border-radius: 60px;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .countBadge {
@@ -213,7 +274,6 @@
   flex-direction: column;
   padding-bottom: 24px;
   border-bottom: 1px solid var(--Border-primary, #e9eaeb);
-  background: #ffffff;
   width: 100%;
 
   .applicationStepContainer {
