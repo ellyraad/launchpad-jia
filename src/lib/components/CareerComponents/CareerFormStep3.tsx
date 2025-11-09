@@ -144,10 +144,10 @@ export default function CareerFormStep3({
                     )}
 
                     {/* Display salary range as nested unordered list */}
-                    {question.questionType === "range" && question.answer && typeof question.answer === "object" && "min" in question.answer && (
+                    {question.questionType === "range" && question.preferredRange && (
                       <ul>
                         <li>
-                          Preferred: {formState.careerDetails.salaryCurrency} {question.answer.min.toLocaleString()} - {formState.careerDetails.salaryCurrency} {question.answer.max.toLocaleString()}
+                          Preferred: {question.currency || formState.careerDetails.salaryCurrency} {question.preferredRange.min.toLocaleString()} - {question.currency || formState.careerDetails.salaryCurrency} {question.preferredRange.max.toLocaleString()}
                         </li>
                       </ul>
                     )}

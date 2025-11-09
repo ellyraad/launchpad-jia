@@ -18,6 +18,8 @@ export const flattenNewCareerData = (career: FormState, orgID: string, user: Use
     lastEditedBy: userInfo,
     createdBy: userInfo,
     screeningSetting: career.cvScreeningDetails.cvScreeningSetting,
+    cvSecretPrompt: career.cvScreeningDetails.cvSecretPrompt,
+    preScreeningQuestions: career.cvScreeningDetails.preScreeningQuestions,
     salaryNegotiable: career.careerDetails.isSalaryNegotiable,
     minimumSalary: isNaN(Number(career.careerDetails.minSalary)) ? null : Number(career.careerDetails.minSalary),
     maximumSalary: isNaN(Number(career.careerDetails.maxSalary)) ? null : Number(career.careerDetails.minSalary),
@@ -125,7 +127,7 @@ export const suggestedPreScreeningQuestions: PreScreeningQuestion[] = [
     question: "How much is your expected monthly salary?",
     questionType: "range",
     currency: "PHP",
-    answer: { min: 0, max: 0 }
+    preferredRange: { min: 0, max: 0 }
   }
 ]
 
