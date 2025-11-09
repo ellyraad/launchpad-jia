@@ -66,7 +66,7 @@ export type FormState = {
     authorizedMembers: string,
   };
 
-  validationErrors: Record<string, boolean>;
+  isValid: Record<string, boolean>;
 }
 
 export type FormReducerAction = {
