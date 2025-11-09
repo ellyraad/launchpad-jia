@@ -1,77 +1,17 @@
 "use client";
 import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
-import InterviewQuestionGeneratorV2 from "./InterviewQuestionGeneratorV2";
 import { useAppContext } from "../../context/AppContext";
 import DirectInterviewLinkV2 from "./DirectInterviewLinkV2";
-import CareerForm from "./CareerForm";
 import CareerLink from "./CareerLink";
 import styles from "../../styles/screens/careerForm.module.scss";
 import AssessmentBadge from "./AssessmentBadge";
 
-export default function JobDescription({ formData, setFormData, editModal, isEditing, setIsEditing, handleCancelEdit }: { formData: any, setFormData: (formData: any) => void, editModal: boolean, isEditing: boolean, setIsEditing: (isEditing: boolean) => void, handleCancelEdit: () => void }) {
+export default function JobDescription({ formData, setFormData }: { formData: any, setFormData: (formData: any) => void }) {
     const { user } = useAppContext();
-    const [showEditModal, setShowEditModal] = useState(false);
 
-    useEffect(() => {
-        if (editModal) {
-            setShowEditModal(true);
-        }
-    }, [editModal]);
 
-    const handleEdit = () => {
-        setShowEditModal(true);
-    }
-
-    async function updateCareer() {
-      const userInfoSlice = {
-        image: user.image,
-        name: user.name,
-        email: user.email,
-      };
-        const input = {
-            _id: formData._id,
-            jobTitle: formData.jobTitle,
-            updatedAt: Date.now(),
-            questions: formData.questions,
-            status: formData.status,
-            screeningSetting: formData.screeningSetting,
-            requireVideo: formData.requireVideo,
-            description: formData.description,
-            lastEditedBy: userInfoSlice,
-            createdBy: userInfoSlice,
-        };
-
-        Swal.fire({
-            title: "Updating career...",
-            text: "Please wait while we update the career...",
-            allowOutsideClick: false,
-        });
-
-        try {
-            const response = await axios.post("/api/update-career", input);
-            
-            if (response.status === 200) {
-                Swal.fire({
-                    title: "Success",
-                    text: "Career updated successfully",
-                    icon: "success",
-                    allowOutsideClick: false,
-                }).then(() => {
-                   setIsEditing(false);
-                   window.location.reload();
-                });
-            }
-        } catch (error) {
-            Swal.fire({
-                title: "Error",
-                text: "Failed to update career",
-                icon: "error",
-                allowOutsideClick: false,
-            });
-        }
-    }
 
     async function deleteCareer() {
         Swal.fire({
@@ -129,10 +69,6 @@ export default function JobDescription({ formData, setFormData, editModal, isEdi
 
     return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 16 }}>
-          <button style={{ display: "flex", alignItems: "center", gap: 8, background: "#fff", border: "1px solid #D5D7DA", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap" }} onClick={handleEdit}>
-              <i className="la la-edit" style={{ marginRight: 8 }}></i>
-              Edit details
-          </button>
             <div className="thread-set">
                 <div className="left-thread">
                     <div className={styles.stepFieldsContainer}>
@@ -297,7 +233,6 @@ export default function JobDescription({ formData, setFormData, editModal, isEdi
                       </div>
                     </div>
 
-                    {!isEditing ? 
                     <div className={styles.stepFieldsContainer}>
                       <div className={styles.subStepHeading}>
                         <h2 className={styles.subStepCollapsibleHeading}>
@@ -373,18 +308,12 @@ export default function JobDescription({ formData, setFormData, editModal, isEdi
                         </div>
                       </div>
                     </div>
-                    : <InterviewQuestionGeneratorV2 questions={formData.questions} setQuestions={(questions) => setFormData({ ...formData, questions: questions })} jobTitle={formData.jobTitle} description={formData.description} />}
                 </div>
 
                 <div className="right-thread">
                     <CareerLink career={formData} />
                     {/* Card for direct interview link */}
                     <DirectInterviewLinkV2 formData={formData} setFormData={setFormData} />
-                    {isEditing && 
-                    <div style={{ display: "flex", justifyContent: "center", gap: 16, alignItems: "center", marginBottom: "16px", width: "100%" }}>
-                         <button className="button-primary" style={{ width: "50%" }} onClick={handleCancelEdit}>Cancel</button>
-                        <button className="button-primary" style={{ width: "50%" }} onClick={updateCareer}>Save Changes</button>
-                    </div>}
                     <div className="layered-card-outer">
                       <div className="layered-card-middle">
                       <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 8 }}>
@@ -409,35 +338,6 @@ export default function JobDescription({ formData, setFormData, editModal, isEdi
                 </div>
                 </div>
             </div>
-            {showEditModal && (
-                <div
-                className="modal show fade-in-bottom"
-                style={{
-                  display: "block",
-                  background: "rgba(0,0,0,0.45)",
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  width: "100vw",
-                  height: "100vh",
-                  zIndex: 1050,
-                }}
-                >
-                    <div
-                    style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        height: "100vh",
-                        width: "100vw",
-                    }}>
-                   
-                    <div className="modal-content" style={{ overflowY: "scroll", height: "100vh", width: "90vw", background: "#fff", border: `1.5px solid #E9EAEB`, borderRadius: 14, boxShadow: "0 8px 32px rgba(30,32,60,0.18)", padding: "24px" }}>
-                      <CareerForm career={formData} formType="edit" setShowEditModal={setShowEditModal} />
-                    </div>
-                  </div>
-                </div>
-            )}
         </div>
     )
 }

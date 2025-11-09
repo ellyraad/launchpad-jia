@@ -159,7 +159,6 @@ export default function ManageCareerPage() {
     const [selectedCandidateCV, setSelectedCandidateCV] = useState<any>({});
     const [droppedCandidatesOpen, setDroppedCandidatesOpen] = useState<boolean>(false);
     const [selectedDroppedCandidates, setSelectedDroppedCandidates] = useState<any>({});
-    const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<any>({
         _id: "",
         jobTitle: "",
@@ -336,19 +335,6 @@ export default function ManageCareerPage() {
         const updatedStages = {...timelineStages };
         updatedStages[updatedCandidate.stage].candidates = updatedStages[updatedCandidate.stage].candidates.map((c: any) => c._id === updatedCandidate._id ? updatedCandidate : c);
         setAndSortCandidates(updatedStages);
-    }
-
-    const handleCancelEdit = () => {
-        setFormData({
-            _id: career?._id || "",
-            jobTitle: career?.jobTitle || "",
-            description: career?.description || "",
-            questions: career?.questions || [],
-            status: career?.status || "",
-            screeningSetting: career?.screeningSetting || "",
-            requireVideo: career?.requireVideo === null || career?.requireVideo === undefined ? true : career?.requireVideo,
-        });
-        setIsEditing(false);
     }
 
     const handleEndorseCandidate = (candidate: any) => {
@@ -678,19 +664,12 @@ export default function ManageCareerPage() {
             <HeaderBar activeLink="Careers" currentPage={formData.jobTitle} icon="la la-suitcase" />
             <div className="container-fluid mt--7" style={{ paddingTop: "6rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                {isEditing ? 
-                    <input 
-                    type="text" 
-                    value={formData.jobTitle} 
-                    onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })} 
-                    style={{ color: "#030217", fontWeight: 550, fontSize: 30, width: "70%" }} 
-                    /> 
-                : <div style={{ maxWidth: "70%" }}>
+                <div style={{ maxWidth: "70%" }}>
                 <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 10 }}>
                     <h1 style={{ color: "#030217", fontWeight: 550, fontSize: 30 }}>{formData.jobTitle}</h1>
                     <CareerStatus status={formData.status} />
                 </div>
-                </div>}
+                </div>
                 {/* <div style={{ display: "flex", gap: 16, alignItems: "center", textAlign: "center" }}>
                 <div style={{ color: "#030217" }}>
                     <div style={{ fontSize: 20, fontWeight: 600 }}>{hired}</div>
@@ -788,7 +767,7 @@ export default function ManageCareerPage() {
             handleRetakeInterview={handleRetakeInterview}
             />}
             {activeTab === "all-applicants" && <CareerApplicantsTable slug={career?.id} />}
-            {activeTab === "job-description" && <JobDescription formData={formData} setFormData={setFormData} editModal={tab === "edit"} isEditing={isEditing} setIsEditing={setIsEditing} handleCancelEdit={handleCancelEdit} />}
+            {activeTab === "job-description" && <JobDescription formData={formData} setFormData={setFormData} />}
             {candidateMenuOpen && <CandidateMenu 
             handleCandidateMenuOpen={handleCandidateMenuOpen} 
             candidate={selectedCandidate} 
