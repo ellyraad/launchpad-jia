@@ -36,6 +36,7 @@ import { useRouter } from "next/navigation";
 import StepIndicator from "./StepIndicator";
 import SubstepContainer from "./SubstepContainer";
 import SubstepFieldsGroup from "./SubstepFieldsGroup";
+import { usePreScreeningQuestions } from "@/lib/hooks/usePreScreeningQuestions";
 
 const initFormState: FormState = {
   careerDetails: {
@@ -120,6 +121,19 @@ export default function CareerFormV2({
     cvScreening: false,
     aiInterview: false,
   });
+
+  // Pre-screening questions hook
+  const preScreeningHook = usePreScreeningQuestions(
+    formState.cvScreeningDetails.preScreeningQuestions,
+    (questions) => {
+      dispatch({
+        type: "SET",
+        category: "cvScreeningDetails",
+        field: "preScreeningQuestions",
+        payload: questions
+      });
+    }
+  );
 
   const toggleSection = (section: 'careerDetails' | 'cvScreening' | 'aiInterview') => {
     setCollapsedSections(prev => ({
@@ -266,162 +280,6 @@ export default function CareerFormV2({
       savingCareerRef.current = false;
       setIsSavingUnpublished(false);
     }
-  };
-
-  const handleAddCustomQuestion = () => {
-    const newQuestion: typeof formState.cvScreeningDetails.preScreeningQuestions[0] = {
-      id: `custom-${Date.now()}`,
-      title: "",
-      question: "",
-      questionType: "dropdown",
-      options: [{ name: "" }],
-    };
-
-    dispatch({
-      type: "SET",
-      category: "cvScreeningDetails",
-      field: "preScreeningQuestions",
-      payload: [...formState.cvScreeningDetails.preScreeningQuestions, newQuestion]
-    });
-  };
-
-  const handleAddSuggestedQuestion = (suggestedQuestion: typeof suggestedPreScreeningQuestions[0]) => {
-    const newQuestion: typeof formState.cvScreeningDetails.preScreeningQuestions[0] = {
-      id: `${suggestedQuestion.id}-${Date.now()}`,
-      title: suggestedQuestion.title,
-      question: suggestedQuestion.question,
-      questionType: suggestedQuestion.questionType,
-      options: suggestedQuestion.options ? [...suggestedQuestion.options] : undefined,
-    };
-
-    dispatch({
-      type: "SET",
-      category: "cvScreeningDetails",
-      field: "preScreeningQuestions",
-      payload: [...formState.cvScreeningDetails.preScreeningQuestions, newQuestion]
-    });
-  };
-
-  const handleDeleteQuestion = (questionId: string) => {
-    dispatch({
-      type: "SET",
-      category: "cvScreeningDetails",
-      field: "preScreeningQuestions",
-      payload: formState.cvScreeningDetails.preScreeningQuestions.filter(q => q.id !== questionId)
-    });
-  };
-
-  const handleUpdateQuestion = (questionId: string, field: string, value: any) => {
-    dispatch({
-      type: "SET",
-      category: "cvScreeningDetails",
-      field: "preScreeningQuestions",
-      payload: formState.cvScreeningDetails.preScreeningQuestions.map(q => 
-        q.id === questionId ? { ...q, [field]: value } : q
-      )
-    });
-  };
-
-  const handleAddOption = (questionId: string) => {
-    dispatch({
-      type: "SET",
-      category: "cvScreeningDetails",
-      field: "preScreeningQuestions",
-      payload: formState.cvScreeningDetails.preScreeningQuestions.map(q => 
-        q.id === questionId 
-          ? { ...q, options: [...(q.options || []), { name: "" }] }
-          : q
-      )
-    });
-  };
-
-  const handleDeleteOption = (questionId: string, optionIndex: number) => {
-    dispatch({
-      type: "SET",
-      category: "cvScreeningDetails",
-      field: "preScreeningQuestions",
-      payload: formState.cvScreeningDetails.preScreeningQuestions.map(q => 
-        q.id === questionId 
-          ? { ...q, options: q.options?.filter((_, idx) => idx !== optionIndex) }
-          : q
-      )
-    });
-  };
-
-  const handleUpdateOption = (questionId: string, optionIndex: number, value: string) => {
-    dispatch({
-      type: "SET",
-      category: "cvScreeningDetails",
-      field: "preScreeningQuestions",
-      payload: formState.cvScreeningDetails.preScreeningQuestions.map(q => 
-        q.id === questionId 
-          ? { 
-              ...q, 
-              options: q.options?.map((opt, idx) => idx === optionIndex ? { name: value } : opt) 
-            }
-          : q
-      )
-    });
-  };
-
-  const handleDragStart = (e: React.DragEvent, questionId: string) => {
-    e.dataTransfer.setData("questionId", questionId);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    const target = e.currentTarget as HTMLElement;
-    const bounding = target.getBoundingClientRect();
-    const offset = bounding.y + bounding.height / 2;
-
-    if (e.clientY - offset > 0) {
-      target.style.borderBottom = "3px solid #4F46E5";
-      target.style.borderTop = "none";
-    } else {
-      target.style.borderTop = "3px solid #4F46E5";
-      target.style.borderBottom = "none";
-    }
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    const target = e.currentTarget as HTMLElement;
-    target.style.borderTop = "none";
-    target.style.borderBottom = "none";
-  };
-
-  const handleDrop = (e: React.DragEvent, targetQuestionId: string) => {
-    e.preventDefault();
-    const target = e.currentTarget as HTMLElement;
-    target.style.borderTop = "none";
-    target.style.borderBottom = "none";
-
-    const draggedQuestionId = e.dataTransfer.getData("questionId");
-    if (draggedQuestionId === targetQuestionId) return;
-
-    const questions = [...formState.cvScreeningDetails.preScreeningQuestions];
-    const draggedIndex = questions.findIndex(q => q.id === draggedQuestionId);
-    const targetIndex = questions.findIndex(q => q.id === targetQuestionId);
-
-    if (draggedIndex === -1 || targetIndex === -1) return;
-
-    const bounding = target.getBoundingClientRect();
-    const offset = bounding.y + bounding.height / 2;
-    const isAfter = e.clientY - offset > 0;
-
-    const [draggedQuestion] = questions.splice(draggedIndex, 1);
-    
-    const newTargetIndex = draggedIndex < targetIndex 
-      ? (isAfter ? targetIndex : targetIndex - 1)
-      : (isAfter ? targetIndex + 1 : targetIndex);
-
-    questions.splice(newTargetIndex, 0, draggedQuestion);
-
-    dispatch({
-      type: "SET",
-      category: "cvScreeningDetails",
-      field: "preScreeningQuestions",
-      payload: questions
-    });
   };
 
   return (
@@ -879,7 +737,7 @@ export default function CareerFormV2({
                   style={{ gap: "12px" }}
                   count={formState.cvScreeningDetails.preScreeningQuestions.length}
                   headingBtn={(
-                    <button type="button" onClick={handleAddCustomQuestion} className={styles.psAddCustomBtn}>
+                    <button type="button" onClick={preScreeningHook.handleAddCustomQuestion} className={styles.psAddCustomBtn}>
                       <img src="/icons/plus.svg" alt="Plus Icon" />
                       Add Custom
                     </button>
@@ -897,10 +755,10 @@ export default function CareerFormV2({
                           className={styles.psQuestionItemWrapper} 
                           key={psQuestion.id}
                           draggable={true}
-                          onDragStart={(e) => handleDragStart(e, psQuestion.id)}
-                          onDragOver={handleDragOver}
-                          onDragLeave={handleDragLeave}
-                          onDrop={(e) => handleDrop(e, psQuestion.id)}
+                          onDragStart={(e) => preScreeningHook.handleDragStart(e, psQuestion.id)}
+                          onDragOver={preScreeningHook.handleDragOver}
+                          onDragLeave={preScreeningHook.handleDragLeave}
+                          onDrop={(e) => preScreeningHook.handleDrop(e, psQuestion.id)}
                         >
                           <div className={styles.grip}>
                             <img src="/icons/dragIcon.svg" alt="Grip Icon" style={{ width: "14px", height: "14px", margin: "0 7px" }} />
@@ -913,7 +771,7 @@ export default function CareerFormV2({
                                   type="text"
                                   placeholder="Write your question..."
                                   value={psQuestion.question}
-                                  onChange={(e) => handleUpdateQuestion(psQuestion.id, "question", e.target.value)}
+                                  onChange={(e) => preScreeningHook.handleUpdateQuestion(psQuestion.id, "question", e.target.value)}
                                   style={{ padding: "10px 14px", flex: 1 }}
                                 />
                               ) : (
@@ -930,7 +788,7 @@ export default function CareerFormV2({
                                     "Short Answer": "shorttext",
                                     "Long Answer": "longtext"
                                   };
-                                  handleUpdateQuestion(psQuestion.id, "questionType", typeMap[value]);
+                                  preScreeningHook.handleUpdateQuestion(psQuestion.id, "questionType", typeMap[value]);
                                 }}
                                 fullWidth={false}
                               />
@@ -947,7 +805,7 @@ export default function CareerFormV2({
                                           type="text"
                                           className={styles.value}
                                           value={option.name}
-                                          onChange={(e) => handleUpdateOption(psQuestion.id, idx, e.target.value)}
+                                          onChange={(e) => preScreeningHook.handleUpdateOption(psQuestion.id, idx, e.target.value)}
                                           placeholder={`Option ${idx + 1}`}
                                           style={{ border: "none", outline: "none", background: "transparent", flex: 1 }}
                                         />
@@ -957,14 +815,14 @@ export default function CareerFormV2({
                                         src="/icons/circle-xV2.svg" 
                                         alt="X Icon" 
                                         style={{ cursor: "pointer" }}
-                                        onClick={() => handleDeleteOption(psQuestion.id, idx)}
+                                        onClick={() => preScreeningHook.handleDeleteOption(psQuestion.id, idx)}
                                       />
                                     </div>
                                   ))}
 
                                   <div 
                                     className={styles.addOptionBtn}
-                                    onClick={() => handleAddOption(psQuestion.id)}
+                                    onClick={() => preScreeningHook.handleAddOption(psQuestion.id)}
                                   >
                                     <i className="la la-plus" /> Add Option
                                   </div>
@@ -987,9 +845,9 @@ export default function CareerFormV2({
                                             const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer
                                               ? psQuestion.answer
                                               : { min: 0, max: 0 };
-                                            handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, min: numValue });
+                                            preScreeningHook.handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, min: numValue });
                                           }}
-                                          onCurrencyChange={(currency) => handleUpdateQuestion(psQuestion.id, "currency", currency)}
+                                          onCurrencyChange={(currency) => preScreeningHook.handleUpdateQuestion(psQuestion.id, "currency", currency)}
                                         />
                                       </div>
 
@@ -1005,9 +863,9 @@ export default function CareerFormV2({
                                             const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer
                                               ? psQuestion.answer
                                               : { min: 0, max: 0 };
-                                            handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, max: numValue });
+                                            preScreeningHook.handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, max: numValue });
                                           }}
-                                          onCurrencyChange={(currency) => handleUpdateQuestion(psQuestion.id, "currency", currency)}
+                                          onCurrencyChange={(currency) => preScreeningHook.handleUpdateQuestion(psQuestion.id, "currency", currency)}
                                         />
                                       </div>
                                     </div>
@@ -1027,7 +885,7 @@ export default function CareerFormV2({
                                               const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer
                                                 ? psQuestion.answer
                                                 : { min: 0, max: 0 };
-                                              handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, min: numValue });
+                                              preScreeningHook.handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, min: numValue });
                                             }}
                                           />
                                         </div>
@@ -1046,7 +904,7 @@ export default function CareerFormV2({
                                               const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer
                                                 ? psQuestion.answer
                                                 : { min: 0, max: 0 };
-                                              handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, max: numValue });
+                                              preScreeningHook.handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, max: numValue });
                                             }}
                                           />
                                         </div>
@@ -1062,7 +920,7 @@ export default function CareerFormV2({
                               <div style={{ display: "flex", justifyContent: "end" }}>
                                 <button 
                                   className={styles.deleteChoiceBtn}
-                                  onClick={() => handleDeleteQuestion(psQuestion.id)}
+                                  onClick={() => preScreeningHook.handleDeleteQuestion(psQuestion.id)}
                                 >
                                   <i className="la la-trash" /> Delete Question
                                 </button>
@@ -1105,7 +963,7 @@ export default function CareerFormV2({
                           <button 
                             type="button" 
                             className={`${styles.actionButton} ${styles.secondary}`}
-                            onClick={() => handleAddSuggestedQuestion(q)}
+                            onClick={() => preScreeningHook.handleAddSuggestedQuestion(q)}
                             disabled={isAdded}
                             style={{
                               color: isAdded ? "#D5D7DA" : "",
