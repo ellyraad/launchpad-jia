@@ -124,6 +124,8 @@ export const suggestedPreScreeningQuestions: PreScreeningQuestion[] = [
     title: "Asking Salary",
     question: "How much is your expected monthly salary?",
     questionType: "range",
+    currency: "PHP",
+    answer: { min: 0, max: 0 }
   }
 ]
 
