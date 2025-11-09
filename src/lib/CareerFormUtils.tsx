@@ -216,7 +216,7 @@ export const isValidInterviewQuestionsCount = (questions: AIInterviewQuestion[])
   return totalQuestions >= 5;
 }
 
-export const isCurrStepValid = (careerDetails: FormState["careerDetails"], interviewQuestions: AIInterviewQuestion[], stepIndex: number) => boolean => {
+export const isCurrStepValid = (careerDetails: FormState["careerDetails"], interviewQuestions: AIInterviewQuestion[], stepIndex: number): boolean => {
   if (stepIndex === 0) {
     return validateCareerDetails(careerDetails);
   }
