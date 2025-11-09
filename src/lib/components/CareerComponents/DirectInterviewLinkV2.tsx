@@ -70,31 +70,31 @@ export default function DirectInterviewLinkV2(props: { formData: any, setFormDat
   }
 
   useEffect(() => {
-      if (formData?.directInterviewLink) {
-        let dynamicLink = `${window.location.origin.includes("hirejia.ai") ? 
-          "https://www.hellojia.ai" : window.location.origin}${formData.directInterviewLink}`;
+    if (formData?.directInterviewLink) {
+      let dynamicLink = `${window.location.origin.includes("hirejia.ai")
+        ? "https://www.hellojia.ai"
+        : window.location.origin}${formData.directInterviewLink}`;
 
-        setLink(dynamicLink);
-      }
+      setLink(dynamicLink);
+    }
   }, [formData?.directInterviewLink]);
 
   return (
     <>
       {formData && (
-          <div className="layered-card-outer">
-            <div className="layered-card-middle">
-            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 8 }}>
-                <div style={{ width: 32, height: 32, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#181D27", borderRadius: "60px" }}>
-                <i className="la la-link" style={{ fontSize: 20, color: "#FFFFFF"}} /> 
-                </div>
-                <span style={{ fontSize: 16, color: "#181D27", fontWeight: 700 }}>Direct Interview Link</span>
+        <div className="layered-card-middle" style={{ margin: "16px 0" }}>
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 8 }}>
+            <div style={{ width: 32, height: 32, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#181D27", borderRadius: "60px" }}>
+              <i className="la la-link" style={{ fontSize: 20, color: "#FFFFFF"}} /> 
             </div>
+            <span style={{ fontSize: 16, color: "#181D27", fontWeight: 700 }}>Direct Interview Link</span>
+          </div>
 
-            <div className="layered-card-content">
-              <>
-                {shareLink && (
-                  <>
-                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 10 }}>
+          <div className="layered-card-content">
+            <>
+              {shareLink && (
+                <>
+                  <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 10 }}>
                     <input
                       type="text"
                       className="form-control"
@@ -102,52 +102,51 @@ export default function DirectInterviewLinkV2(props: { formData: any, setFormDat
                       readOnly={true}
                     />
                     <div
-                    style={{ display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-                    onClick={() => {
+                      style={{ display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                      onClick={() => {
                         navigator.clipboard.writeText(shareLink);
                         candidateActionToast(
-                            "Career Link Copied to Clipboard",
-                            1300,
-                            <i className="la la-link mr-1 text-info"></i>
+                          "Career Link Copied to Clipboard",
+                          1300,
+                          <i className="la la-link mr-1 text-info"></i>
                         );
-                    }}
+                      }}
                     >
-                    <i className="la la-copy" style={{ fontSize: 20, color: "#535862" }}></i>
+                      <i className="la la-copy" style={{ fontSize: 20, color: "#535862" }}></i>
                     </div>
-                    </div>
-                    <span style={{ textAlign: "center", fontSize: 14, color: "#717680", fontWeight: 500 }}>
-                      Share this
-                      link to an applicant for a direct interview.
-                    </span>
+                  </div>
+                  <span style={{ textAlign: "center", fontSize: 14, color: "#717680", fontWeight: 500 }}>
+                    Share this
+                    link to an applicant for a direct interview.
+                  </span>
 
-                    <div className="btn-set careers-btn-set" style={{ flexDirection: "row", gap: 10 }}>
-                      <a href={shareLink} target="_blank">
-                        <div style={{ color: "#414651", display: "flex", alignItems: "center", gap: 8, background: "#fff", border: "1px solid #D5D7DA", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", fontWeight: 700, fontSize: 14 }}>
-                            <i className="la la-link"></i> Open link
-                        </div>
-                      </a>
-                      <button
-                        style={{ color: "#B32318", display: "flex", alignItems: "center", gap: 8, background: "#FEF3F2", border: "1px solid #FEF3F2", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", fontWeight: 700, fontSize: 14 }}
-                        onClick={disableLink}
-                      >
-                        <i className="la la-square text-danger"></i> Disable
-                        Link
-                      </button>
-                    </div>
-                  </>
-                )}
-              </>
-
-              {!shareLink && (
-                <button style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#fff", border: "1px solid #D5D7DA", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap" }}
-                 onClick={generateLink}>
-                  <i className="la la-link text-success" /> Generate Direct
-                  Interview Link
-                </button>
+                  <div className="btn-set careers-btn-set" style={{ flexDirection: "row", gap: 10 }}>
+                    <a href={shareLink} target="_blank">
+                      <div style={{ color: "#414651", display: "flex", alignItems: "center", gap: 8, background: "#fff", border: "1px solid #D5D7DA", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", fontWeight: 700, fontSize: 14 }}>
+                        <i className="la la-link"></i> Open link
+                      </div>
+                    </a>
+                    <button
+                      style={{ color: "#B32318", display: "flex", alignItems: "center", gap: 8, background: "#FEF3F2", border: "1px solid #FEF3F2", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", fontWeight: 700, fontSize: 14 }}
+                      onClick={disableLink}
+                    >
+                      <i className="la la-square text-danger"></i> Disable
+                      Link
+                    </button>
+                  </div>
+                </>
               )}
-            </div>
-            </div>
+            </>
+
+            {!shareLink && (
+              <button style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#fff", border: "1px solid #D5D7DA", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap" }}
+                onClick={generateLink}>
+                <i className="la la-link text-success" /> Generate Direct
+                Interview Link
+              </button>
+            )}
           </div>
+        </div>
       )}
     </>
   );

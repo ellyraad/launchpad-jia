@@ -313,33 +313,30 @@ export default function JobDescription({ formData, setFormData }: Props) {
                     </div>
                 </div>
 
-                <div className="right-thread">
-                    <CareerLink career={formData} />
-                    {/* Card for direct interview link */}
-                    <DirectInterviewLinkV2 formData={formData} setFormData={setFormData} />
-                    <div className="layered-card-outer">
-                      <div className="layered-card-middle">
-                      <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 8 }}>
-                      <div style={{ width: 32, height: 32, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#181D27", borderRadius: "60px" }}>
-                      <i className="la la-cog" style={{ fontSize: 20, color: "#FFFFFF"}} /> 
-                      </div>
-                      <span style={{ fontSize: 16, color: "#181D27", fontWeight: 700 }}>Advanced Settings</span>
-                  </div>
-
-                      <div className="layered-card-content">
-                        <button 
-                        onClick={() => {
-                          deleteCareer();
-                        }}
-                        style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,backgroundColor: "#FFFFFF", color: "#B32318", borderRadius: "60px", padding: "5px 10px", border: "1px solid #B32318", cursor: "pointer", fontWeight: 700, fontSize: 14 }}>
-                                <i className="la la-trash" style={{ color: "#B32318", fontSize: 16 }}></i>
-                                <span>Delete this career</span>
-                        </button>
-                        <span style={{ fontSize: "14px", color: "#717680", textAlign: "center" }}>Be careful, this action cannot be undone.</span>
-                    </div>
-                  </div>
-                </div>
-                </div>
+        <div className="right-thread">
+          <CareerLink career={formData} />
+          {/* Card for direct interview link */}
+          <DirectInterviewLinkV2 formData={formData} setFormData={setFormData} />
+          <div className="layered-card-middle">
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 8 }}>
+              <div style={{ width: 32, height: 32, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#181D27", borderRadius: "60px" }}>
+                <i className="la la-cog" style={{ fontSize: 20, color: "#FFFFFF"}} /> 
+              </div>
+              <span style={{ fontSize: 16, color: "#181D27", fontWeight: 700 }}>Advanced Settings</span>
+            </div>
+            <div className="layered-card-content">
+              <button 
+                onClick={() => {
+                  deleteCareer();
+                }}
+                style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8,backgroundColor: "#FFFFFF", color: "#B32318", borderRadius: "60px", padding: "5px 10px", border: "1px solid #B32318", cursor: "pointer", fontWeight: 700, fontSize: 14 }}>
+                <i className="la la-trash" style={{ color: "#B32318", fontSize: 16 }}></i>
+                <span>Delete this career</span>
+              </button>
+              <span style={{ fontSize: "14px", color: "#717680", textAlign: "center" }}>Be careful, this action cannot be undone.</span>
+            </div>
+          </div>
+        </div>
             </div>
         </div>
     )
