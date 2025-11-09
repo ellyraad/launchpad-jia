@@ -1076,20 +1076,36 @@ export default function CareerFormV2({
                                         <div className={styles.field} style={{ flex: 1 }}>
                                           <span className={styles.fieldLabel}>Minimum Salary</span>
                                           <SalaryInput
-                                            value=""
-                                            currency="PHP"
-                                            onValueChange={(value) => console.log("Min salary:", value)}
-                                            onCurrencyChange={(currency) => console.log("Currency:", currency)}
+                                            value={psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer 
+                                              ? String(psQuestion.answer.min || "") 
+                                              : ""}
+                                            currency={psQuestion.currency || "PHP"}
+                                            onValueChange={(value) => {
+                                              const numValue = value ? parseFloat(value.replace(/,/g, '')) : 0;
+                                              const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer
+                                                ? psQuestion.answer
+                                                : { min: 0, max: 0 };
+                                              handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, min: numValue });
+                                            }}
+                                            onCurrencyChange={(currency) => handleUpdateQuestion(psQuestion.id, "currency", currency)}
                                           />
                                         </div>
 
                                         <div className={styles.field} style={{ flex: 1 }}>
                                           <span className={styles.fieldLabel}>Maximum Salary</span>
                                           <SalaryInput
-                                            value=""
-                                            currency="PHP"
-                                            onValueChange={(value) => console.log("Max salary:", value)}
-                                            onCurrencyChange={(currency) => console.log("Currency:", currency)}
+                                            value={psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer 
+                                              ? String(psQuestion.answer.max || "") 
+                                              : ""}
+                                            currency={psQuestion.currency || "PHP"}
+                                            onValueChange={(value) => {
+                                              const numValue = value ? parseFloat(value.replace(/,/g, '')) : 0;
+                                              const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer
+                                                ? psQuestion.answer
+                                                : { min: 0, max: 0 };
+                                              handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, max: numValue });
+                                            }}
+                                            onCurrencyChange={(currency) => handleUpdateQuestion(psQuestion.id, "currency", currency)}
                                           />
                                         </div>
                                       </div>
@@ -1101,7 +1117,16 @@ export default function CareerFormV2({
                                             type="number"
                                             placeholder="Enter minimum value"
                                             style={{ padding: "10px 14px" }}
-                                            onChange={(e) => console.log("Min value:", e.target.value)}
+                                            value={psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer 
+                                              ? psQuestion.answer.min 
+                                              : ""}
+                                            onChange={(e) => {
+                                              const numValue = e.target.value ? parseFloat(e.target.value) : 0;
+                                              const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "min" in psQuestion.answer
+                                                ? psQuestion.answer
+                                                : { min: 0, max: 0 };
+                                              handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, min: numValue });
+                                            }}
                                           />
                                         </div>
 
@@ -1111,7 +1136,16 @@ export default function CareerFormV2({
                                             type="number"
                                             placeholder="Enter maximum value"
                                             style={{ padding: "10px 14px" }}
-                                            onChange={(e) => console.log("Max value:", e.target.value)}
+                                            value={psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer 
+                                              ? psQuestion.answer.max 
+                                              : ""}
+                                            onChange={(e) => {
+                                              const numValue = e.target.value ? parseFloat(e.target.value) : 0;
+                                              const currentAnswer = psQuestion.answer && typeof psQuestion.answer === "object" && "max" in psQuestion.answer
+                                                ? psQuestion.answer
+                                                : { min: 0, max: 0 };
+                                              handleUpdateQuestion(psQuestion.id, "answer", { ...currentAnswer, max: numValue });
+                                            }}
                                           />
                                         </div>
                                       </div>
@@ -1439,6 +1473,46 @@ export default function CareerFormV2({
                           <div className={styles.fieldValue}>
                             {formState.cvScreeningDetails.cvSecretPrompt}
                           </div>
+                        </div>
+                      </>
+                    )}
+
+                    {formState.cvScreeningDetails.preScreeningQuestions.length > 0 && (
+                      <>
+                        <hr className={styles.groupDivider} />
+                        
+                        <div className={`${styles.reviewField} `}>
+                          <div className={styles.fieldLabel}>
+                            Pre-Screening Questions <span className={styles.countBadge}>
+                              {formState.cvScreeningDetails.preScreeningQuestions.length}
+                            </span>
+                          </div>
+
+                          <ol className={`${styles.questionList} ${styles.psQuestion}`} style={{ marginTop: "8px" }}>
+                            {formState.cvScreeningDetails.preScreeningQuestions.map((question) => (
+                              <li key={question.id} style={{ marginBottom: "8px" }}>
+                                {question.question}
+                                
+                                {/* Display dropdown options as nested unordered list */}
+                                {question.questionType === "dropdown" && question.options && question.options.length > 0 && (
+                                  <ul>
+                                    {question.options.filter(opt => opt.name.trim()).map((option, optIdx) => (
+                                      <li key={optIdx}>{option.name}</li>
+                                    ))}
+                                  </ul>
+                                )}
+                                
+                                {/* Display salary range as nested unordered list */}
+                                {question.questionType === "range" && question.answer && typeof question.answer === "object" && "min" in question.answer && (
+                                  <ul>
+                                    <li>
+                                      Preferred: {formState.careerDetails.salaryCurrency} {question.answer.min.toLocaleString()} - {formState.careerDetails.salaryCurrency} {question.answer.max.toLocaleString()}
+                                    </li>
+                                  </ul>
+                                )}
+                              </li>
+                            ))}
+                          </ol>
                         </div>
                       </>
                     )}

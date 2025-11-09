@@ -28,6 +28,8 @@ export type PreScreeningQuestion = {
   question: string;
   questionType: "dropdown" | "range" | "shorttext" | "longtext";
   options?: DropdownOption[];
+  currency?: string;  // for salary/range questions
+  preferredRange?: { min: number, max: number },
   answer?:
     | string
     | { min: number, max: number };  // for handlng range type
