@@ -83,10 +83,7 @@ export default function DirectInterviewLinkV2(props: { formData: any, setFormDat
     <>
       {formData && (
         <div className="layered-card-middle" style={{ margin: "16px 0" }}>
-          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 8 }}>
-            <div style={{ width: 32, height: 32, display: "flex", justifyContent: "center", alignItems: "center", gap: 8, background: "#181D27", borderRadius: "60px" }}>
-              <i className="la la-link" style={{ fontSize: 20, color: "#FFFFFF"}} /> 
-            </div>
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 8, paddingLeft: 12, paddingRight: 12 }}>
             <span style={{ fontSize: 16, color: "#181D27", fontWeight: 700 }}>Direct Interview Link</span>
           </div>
 
@@ -97,12 +94,24 @@ export default function DirectInterviewLinkV2(props: { formData: any, setFormDat
                   <div style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "flex-start", width: "100%", gap: 10 }}>
                     <input
                       type="text"
-                      className="form-control"
                       value={shareLink}
                       readOnly={true}
+                      style={{ 
+                        border: "1px solid #E9EAEB", 
+                        background: "#FFFFFF", 
+                        padding: "10px 14px", 
+                        boxShadow: "none", 
+                        outline: "none",
+                        fontSize: "16px",
+                        fontWeight: 500,
+                        color: "#181D27",
+                        width: "100%",
+                        flex: 1,
+                        borderRadius: "8px"
+                      }}
                     />
                     <div
-                      style={{ display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                      style={{ display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", flexShrink: 0 }}
                       onClick={() => {
                         navigator.clipboard.writeText(shareLink);
                         candidateActionToast(
@@ -120,14 +129,14 @@ export default function DirectInterviewLinkV2(props: { formData: any, setFormDat
                     link to an applicant for a direct interview.
                   </span>
 
-                  <div className="btn-set careers-btn-set" style={{ flexDirection: "row", gap: 10 }}>
-                    <a href={shareLink} target="_blank">
-                      <div style={{ color: "#414651", display: "flex", alignItems: "center", gap: 8, background: "#fff", border: "1px solid #D5D7DA", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", fontWeight: 700, fontSize: 14 }}>
+                  <div className="btn-set careers-btn-set" style={{ flexDirection: "row", gap: 10, width: "100%" }}>
+                    <a href={shareLink} target="_blank" style={{ flex: 1 }}>
+                      <div style={{ color: "#414651", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#fff", border: "1px solid #D5D7DA", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", fontWeight: 700, fontSize: 14, width: "100%" }}>
                         <i className="la la-link"></i> Open link
                       </div>
                     </a>
                     <button
-                      style={{ color: "#B32318", display: "flex", alignItems: "center", gap: 8, background: "#FEF3F2", border: "1px solid #FEF3F2", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", fontWeight: 700, fontSize: 14 }}
+                      style={{ color: "#B32318", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, background: "#FEF3F2", border: "1px solid #FEF3F2", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", fontWeight: 700, fontSize: 14, flex: 1 }}
                       onClick={disableLink}
                     >
                       <i className="la la-square text-danger"></i> Disable
