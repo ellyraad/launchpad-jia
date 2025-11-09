@@ -70,9 +70,9 @@ const initFormState: FormState = {
     authorizedMembers: "",
   },
 
-  validationErrors: {
-    step1: true,
-    step3: true,
+  isValid: {
+    step1: false,
+    step3: false,
   }
 }
 
@@ -131,17 +131,17 @@ export default function CareerFormV2({
       if (!validateCareerDetails(formState.careerDetails)) {
         dispatch({
           type: "SET",
-          category: "validationErrors",
+          category: "isValid",
           field: "step1",
-          payload: false
+          payload: true
         });
         return;
       }
       dispatch({
         type: "SET",
-        category: "validationErrors",
+        category: "isValid",
         field: "step1",
-        payload: true
+        payload: false
       });
     }
     
@@ -149,17 +149,17 @@ export default function CareerFormV2({
       if (!isValidInterviewQuestionsCount(formState.aiScreeningDetails.interviewQuestions)) {
         dispatch({
           type: "SET",
-          category: "validationErrors",
+          category: "isValid",
           field: "step3",
-          payload: false
+          payload: true
         });
         return;
       }
       dispatch({
         type: "SET",
-        category: "validationErrors",
+        category: "isValid",
         field: "step3",
-        payload: true
+        payload: false
       });
     }
     
@@ -176,17 +176,17 @@ export default function CareerFormV2({
       if (stepIndex === 0) {
         dispatch({
           type: "SET",
-          category: "validationErrors",
+          category: "isValid",
           field: "step1",
-          payload: true
+          payload: false
         });
       }
       if (stepIndex === 2) {
         dispatch({
           type: "SET",
-          category: "validationErrors",
+          category: "isValid",
           field: "step3",
-          payload: true
+          payload: false
         });
       }
     }
@@ -475,7 +475,7 @@ export default function CareerFormV2({
                 index,
                 formState.careerDetails,
                 formState.aiScreeningDetails.interviewQuestions,
-                formState.validationErrors,
+                formState.isValid,
               );
               const isClickable = index <= currentStep;
               
@@ -534,13 +534,13 @@ export default function CareerFormV2({
                           })}
                           onFocus={() => dispatch({
                             type: "SET",
-                            category: "validationErrors",
+                            category: "isValid",
                             field: "step1",
-                            payload: true
+                            payload: false
                           })}
-                          className={!formState.validationErrors.step1 && !formState.careerDetails.jobTitle.trim() ? styles.invalid : ""}
+                          className={formState.isValid.step1 && !formState.careerDetails.jobTitle.trim() ? styles.invalid : ""}
                         />
-                        {!formState.validationErrors.step1 && !formState.careerDetails.jobTitle.trim() && (
+                        {formState.isValid.step1 && !formState.careerDetails.jobTitle.trim() && (
                           <span style={{ color: "#F04438", fontSize: "14px", marginTop: "2px" }}>
                             Job title is required
                           </span>
@@ -566,14 +566,14 @@ export default function CareerFormV2({
                               });
                               dispatch({
                                 type: "SET",
-                                category: "validationErrors",
+                                category: "isValid",
                                 field: "step1",
-                                payload: true
+                                payload: false
                               });
                             }}
-                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.employmentType}
+                            invalid={formState.isValid.step1 && !formState.careerDetails.employmentType}
                           />
-                          {!formState.validationErrors.step1 && !formState.careerDetails.employmentType && (
+                          {formState.isValid.step1 && !formState.careerDetails.employmentType && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Employment type is required
                             </span>
@@ -595,14 +595,14 @@ export default function CareerFormV2({
                               });
                               dispatch({
                                 type: "SET",
-                                category: "validationErrors",
+                                category: "isValid",
                                 field: "step1",
-                                payload: true
+                                payload: false
                               });
                             }}
-                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.workArrangement}
+                            invalid={formState.isValid.step1 && !formState.careerDetails.workArrangement}
                           />
-                          {!formState.validationErrors.step1 && !formState.careerDetails.workArrangement && (
+                          {formState.isValid.step1 && !formState.careerDetails.workArrangement && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Work arrangement is required
                             </span>
@@ -644,14 +644,14 @@ export default function CareerFormV2({
                               });
                               dispatch({
                                 type: "SET",
-                                category: "validationErrors",
+                                category: "isValid",
                                 field: "step1",
-                                payload: true
+                                payload: false
                               });
                             }}
-                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.state}
+                            invalid={formState.isValid.step1 && !formState.careerDetails.state}
                           />
-                          {!formState.validationErrors.step1 && !formState.careerDetails.state && (
+                          {formState.isValid.step1 && !formState.careerDetails.state && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               State / Province is required
                             </span>
@@ -673,14 +673,14 @@ export default function CareerFormV2({
                               });
                               dispatch({
                                 type: "SET",
-                                category: "validationErrors",
+                                category: "isValid",
                                 field: "step1",
-                                payload: true
+                                payload: false
                               });
                             }}
-                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.city}
+                            invalid={formState.isValid.step1 && !formState.careerDetails.city}
                           />
-                          {!formState.validationErrors.step1 && !formState.careerDetails.city && (
+                          {formState.isValid.step1 && !formState.careerDetails.city && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               City is required
                             </span>
@@ -728,9 +728,9 @@ export default function CareerFormV2({
                               });
                               dispatch({
                                 type: "SET",
-                                category: "validationErrors",
+                                category: "isValid",
                                 field: "step1",
-                                payload: true
+                                payload: false
                               });
                             }}
                             onCurrencyChange={(value) => dispatch({
@@ -739,9 +739,9 @@ export default function CareerFormV2({
                               field: "salaryCurrency",
                               payload: value
                             })}
-                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.minSalary.trim()}
+                            invalid={formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.minSalary.trim()}
                           />
-                          {!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.minSalary.trim() && (
+                          {formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.minSalary.trim() && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Minimum salary is required
                             </span>
@@ -763,9 +763,9 @@ export default function CareerFormV2({
                               });
                               dispatch({
                                 type: "SET",
-                                category: "validationErrors",
+                                category: "isValid",
                                 field: "step1",
-                                payload: true
+                                payload: false
                               });
                             }}
                             onCurrencyChange={(value) => dispatch({
@@ -774,14 +774,14 @@ export default function CareerFormV2({
                               field: "salaryCurrency",
                               payload: value
                             })}
-                            invalid={!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.maxSalary.trim()}
+                            invalid={formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.maxSalary.trim()}
                           />
-                          {!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.maxSalary.trim() && (
+                          {formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.maxSalary.trim() && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Maximum salary is required
                             </span>
                           )}
-                          {!formState.validationErrors.step1 && !formState.careerDetails.isSalaryNegotiable && formState.careerDetails.minSalary.trim() && formState.careerDetails.maxSalary.trim() && 
+                          {formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && formState.careerDetails.minSalary.trim() && formState.careerDetails.maxSalary.trim() && 
                            parseFloat(formState.careerDetails.minSalary.replace(/,/g, '')) > parseFloat(formState.careerDetails.maxSalary.replace(/,/g, '')) && (
                             <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                               Maximum salary must be greater than minimum salary
@@ -806,7 +806,7 @@ export default function CareerFormV2({
                       })} 
                       text={formState.careerDetails.jobDescription} 
                     />
-                    {!formState.validationErrors.step1 && !formState.careerDetails.jobDescription.trim() && (
+                    {formState.isValid.step1 && !formState.careerDetails.jobDescription.trim() && (
                       <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
                         Job description is required
                       </span>
@@ -1302,14 +1302,14 @@ export default function CareerFormV2({
 
                     dispatch({
                       type: "SET",
-                      category: "validationErrors",
+                      category: "isValid",
                       field: "step3",
-                      payload: true
+                      payload: false
                     });
                   }} 
                   jobTitle={formState.careerDetails.jobTitle} 
                   description={formState.careerDetails.jobDescription}
-                  showValidation={!formState.validationErrors.step3}
+                  showValidation={formState.isValid.step3}
                 />
               </div>
             )}

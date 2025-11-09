@@ -232,15 +232,15 @@ export const validateStepStatus = (
   stepIndex: number,
   careerDetails: FormState["careerDetails"],
   interviewQuestions: AIInterviewQuestion[],
-  validationErrors: FormState["validationErrors"]
+  isValid: FormState["isValid"]
 ): "completed" | "in_progress" | "pending" | "invalid" => {
   if (stepIndex < currentStep) return "completed";
 
   if (stepIndex === currentStep) {
-    if (stepIndex === 0 && !validationErrors.step1 && !isCurrStepValid(careerDetails, interviewQuestions, stepIndex)) {
+    if (stepIndex === 0 && isValid.step1 && !isCurrStepValid(careerDetails, interviewQuestions, stepIndex)) {
       return "invalid"
     };
-    if (stepIndex === 2 && !validationErrors.step3 && !isCurrStepValid(careerDetails, interviewQuestions, stepIndex)) {
+    if (stepIndex === 2 && isValid.step3 && !isCurrStepValid(careerDetails, interviewQuestions, stepIndex)) {
       return "invalid"
     };
     return "in_progress";
