@@ -8,10 +8,13 @@ import CareerLink from "./CareerLink";
 import styles from "../../styles/screens/careerForm.module.scss";
 import AssessmentBadge from "./AssessmentBadge";
 
-export default function JobDescription({ formData, setFormData }: { formData: any, setFormData: (formData: any) => void }) {
+interface Props {
+  formData: any,
+  setFormData(formData: any): void;
+}
+
+export default function JobDescription({ formData, setFormData }: Props) {
     const { user } = useAppContext();
-
-
 
     async function deleteCareer() {
         Swal.fire({
