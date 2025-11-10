@@ -14,7 +14,8 @@ import {
   accessRolesOptions,
 } from "@/lib/CareerFormUtils";
 import type { FormReducerAction, FormState } from "@/lib/definitions";
-import { Dispatch, useState } from "react";
+import { Dispatch, useState, useMemo } from "react";
+import { getCountries, getProvinces, getCitiesByProvince } from "@/lib/utils/locations";
 
 interface CareerFormStep0Props {
   formState: FormState;
@@ -23,6 +24,16 @@ interface CareerFormStep0Props {
 
 export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0Props) {
   const [accessRole, setAccessRole] = useState("Job Owner");
+
+  // Get location options
+  const countries = useMemo(() => getCountries(), []);
+  const provinces = useMemo(() => getProvinces(), []);
+  const cities = useMemo(() => {
+    if (!formState.careerDetails.state) {
+      return [];
+    }
+    return getCitiesByProvince(formState.careerDetails.state);
+  }, [formState.careerDetails.state]);
 
   return (
     <div className={styles.subSteps}>
@@ -122,7 +133,7 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
             <span className={styles.fieldLabel}>Country</span>
             <CustomDropdownV2
               value={formState.careerDetails.country}
-              options={[{ name: "Philippines" }]} // FIXME
+              options={countries}
               onValueChange={(value) => dispatch({
                 type: "SET",
                 category: "careerDetails",
@@ -137,13 +148,20 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
             <CustomDropdownV2
               value={formState.careerDetails.state}
               placeholder="Choose state / province"
-              options={[{ name: "Metro Manila" }]} // FIXME
+              options={provinces}
               onValueChange={(value) => {
                 dispatch({
                   type: "SET",
                   category: "careerDetails",
                   field: "state",
                   payload: value
+                });
+                // Clear city when province changes
+                dispatch({
+                  type: "SET",
+                  category: "careerDetails",
+                  field: "city",
+                  payload: ""
                 });
                 dispatch({
                   type: "SET",
@@ -166,7 +184,7 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
             <CustomDropdownV2
               value={formState.careerDetails.city}
               placeholder="Choose city"
-              options={[{ name: "Quezon City" }]} // FIXME
+              options={cities}
               onValueChange={(value) => {
                 dispatch({
                   type: "SET",

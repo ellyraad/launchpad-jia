@@ -12,24 +12,7 @@ import axios from "axios";
 import Markdown from "react-markdown";
 import { useEffect, useRef, useState } from "react";
 import PreScreeningDropdown from "@/lib/components/Dropdown/PreScreeningDropdown";
-
-// Helper function to get currency symbol
-const getCurrencySymbol = (currency: string) => {
-  const symbols: { [key: string]: string } = {
-    PHP: "₱",
-    USD: "$",
-    EUR: "€",
-    GBP: "£",
-    JPY: "¥",
-    AUD: "$",
-    CAD: "$",
-    CHF: "Fr",
-    CNY: "¥",
-    INR: "₹",
-    SGD: "$",
-  };
-  return symbols[currency] || currency;
-};
+import { getCurrencySymbol } from "@/lib/utils/currency";
 
 export default function () {
   const fileInputRef = useRef(null);
