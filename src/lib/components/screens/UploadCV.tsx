@@ -11,6 +11,25 @@ import { CORE_API_URL } from "@/lib/Utils";
 import axios from "axios";
 import Markdown from "react-markdown";
 import { useEffect, useRef, useState } from "react";
+import PreScreeningDropdown from "@/lib/components/Dropdown/PreScreeningDropdown";
+
+// Helper function to get currency symbol
+const getCurrencySymbol = (currency: string) => {
+  const symbols: { [key: string]: string } = {
+    PHP: "₱",
+    USD: "$",
+    EUR: "€",
+    GBP: "£",
+    JPY: "¥",
+    AUD: "$",
+    CAD: "$",
+    CHF: "Fr",
+    CNY: "¥",
+    INR: "₹",
+    SGD: "$",
+  };
+  return symbols[currency] || currency;
+};
 
 export default function () {
   const fileInputRef = useRef(null);
@@ -25,6 +44,8 @@ export default function () {
   const [interview, setInterview] = useState(null);
   const [screeningResult, setScreeningResult] = useState(null);
   const [userCV, setUserCV] = useState(null);
+  const [preScreeningAnswers, setPreScreeningAnswers] = useState({});
+  const [hasPreScreeningQuestions, setHasPreScreeningQuestions] = useState(false);
   const cvSections = [
     "Introduction",
     "Current Position",
@@ -36,7 +57,9 @@ export default function () {
     "Certifications",
     "Awards",
   ];
-  const step = ["Submit CV", "CV Screening", "Review Next Steps"];
+  const step = hasPreScreeningQuestions 
+    ? ["Submit CV", "Pre-screening Questions", "Review"]
+    : ["Submit CV", "CV Screening", "Review Next Steps"];
   const stepStatus = ["Completed", "Pending", "In Progress"];
 
   function handleDragOver(e) {
@@ -183,8 +206,17 @@ export default function () {
             alert("This application has already been processed.");
             window.location.href = pathConstants.dashboard;
           } else {
-            setCurrentStep(step[0]);
-            setInterview(result[0]);
+            const interviewData = result[0];
+            const hasQuestions = interviewData.career?.preScreeningQuestions?.length > 0;
+            setHasPreScreeningQuestions(hasQuestions);
+            
+            // Initialize pre-screening answers with existing data if available
+            if (hasQuestions && interviewData.preScreeningAnswers) {
+              setPreScreeningAnswers(interviewData.preScreeningAnswers);
+            }
+            
+            setCurrentStep("Submit CV");
+            setInterview(interviewData);
             setLoading(false);
           }
         }
@@ -228,78 +260,196 @@ export default function () {
       }
     }
 
-    setCurrentStep(step[1]);
+    // If there are pre-screening questions, go to step 2, otherwise go to CV screening
+    if (hasPreScreeningQuestions) {
+      setCurrentStep(step[1]); // Pre-screening Questions
+      
+      // Save CV changes if any
+      if (hasChanges) {
+        const formattedUserCV = cvSections.map((section) => ({
+          name: section,
+          content: userCV[section]?.trim() || "",
+        }));
 
-    if (hasChanges) {
-      const formattedUserCV = cvSections.map((section) => ({
-        name: section,
-        content: userCV[section]?.trim() || "",
-      }));
+        parsedDigitalCV.digitalCV = formattedUserCV;
 
-      parsedDigitalCV.digitalCV = formattedUserCV;
-
-      const data = {
-        name: user.name,
-        cvData: parsedDigitalCV,
-        email: user.email,
-        fileInfo: null,
-      };
-
-      if (file) {
-        data.fileInfo = {
-          name: file.name,
-          size: file.size,
-          type: file.type,
+        const data = {
+          name: user.name,
+          cvData: parsedDigitalCV,
+          email: user.email,
+          fileInfo: null,
         };
+
+        if (file) {
+          data.fileInfo = {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          };
+        }
+
+        axios({
+          method: "POST",
+          url: `/api/whitecloak/save-cv`,
+          data,
+        })
+          .then(() => {
+            localStorage.setItem(
+              "userCV",
+              JSON.stringify({ ...data, ...data.cvData })
+            );
+            setHasChanges(false);
+          })
+          .catch((err) => {
+            alert("Error saving CV. Please try again.");
+            setCurrentStep(step[0]);
+            console.log(err);
+          });
+      }
+    } else {
+      // Original flow: go directly to CV screening
+      setCurrentStep(step[1]);
+
+      if (hasChanges) {
+        const formattedUserCV = cvSections.map((section) => ({
+          name: section,
+          content: userCV[section]?.trim() || "",
+        }));
+
+        parsedDigitalCV.digitalCV = formattedUserCV;
+
+        const data = {
+          name: user.name,
+          cvData: parsedDigitalCV,
+          email: user.email,
+          fileInfo: null,
+        };
+
+        if (file) {
+          data.fileInfo = {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          };
+        }
+
+        axios({
+          method: "POST",
+          url: `/api/whitecloak/save-cv`,
+          data,
+        })
+          .then(() => {
+            localStorage.setItem(
+              "userCV",
+              JSON.stringify({ ...data, ...data.cvData })
+            );
+          })
+          .catch((err) => {
+            alert("Error saving CV. Please try again.");
+            setCurrentStep(step[0]);
+            console.log(err);
+          });
       }
 
+      setHasChanges(true);
+
       axios({
+        url: "/api/whitecloak/screen-cv",
         method: "POST",
-        url: `/api/whitecloak/save-cv`,
-        data,
+        data: {
+          interviewID: interview.interviewID,
+          userEmail: user.email,
+        },
       })
-        .then(() => {
-          localStorage.setItem(
-            "userCV",
-            JSON.stringify({ ...data, ...data.cvData })
-          );
+        .then((res) => {
+          const result = res.data;
+
+          if (result.error) {
+            alert(result.message);
+            setCurrentStep(step[0]);
+          } else {
+            setCurrentStep(step[2]);
+            setScreeningResult(result);
+          }
         })
         .catch((err) => {
-          alert("Error saving CV. Please try again.");
+          alert("Error screening CV. Please try again.");
           setCurrentStep(step[0]);
           console.log(err);
+        })
+        .finally(() => {
+          setHasChanges(false);
         });
     }
+  }
 
-    setHasChanges(true);
+  function handlePreScreeningSubmit() {
+    // Validate all required questions are answered
+    const questions = interview.career.preScreeningQuestions;
+    const unanswered = questions.filter((q) => {
+      const answer = preScreeningAnswers[q.id];
+      if (!answer) return true;
+      if (q.questionType === "range") {
+        return !answer.min || !answer.max;
+      }
+      return !answer || answer.trim() === "";
+    });
 
+    if (unanswered.length > 0) {
+      alert("Please answer all pre-screening questions before continuing.");
+      return;
+    }
+
+    // Save pre-screening answers
     axios({
-      url: "/api/whitecloak/screen-cv",
       method: "POST",
+      url: "/api/job-portal/save-prescreening-answers",
       data: {
         interviewID: interview.interviewID,
-        userEmail: user.email,
+        preScreeningAnswers,
       },
     })
-      .then((res) => {
-        const result = res.data;
+      .then(() => {
+        // Move to Review step and start CV screening
+        setCurrentStep(step[2]);
+        
+        // Start CV screening with pre-screening answers
+        axios({
+          url: "/api/whitecloak/screen-cv",
+          method: "POST",
+          data: {
+            interviewID: interview.interviewID,
+            userEmail: user.email,
+            preScreeningAnswers,
+          },
+        })
+          .then((res) => {
+            const result = res.data;
 
-        if (result.error) {
-          alert(result.message);
-          setCurrentStep(step[0]);
-        } else {
-          setCurrentStep(step[2]);
-          setScreeningResult(result);
-        }
+            if (result.error) {
+              alert(result.message);
+              setCurrentStep(step[1]);
+            } else {
+              setScreeningResult(result);
+            }
+          })
+          .catch((err) => {
+            alert("Error screening CV. Please try again.");
+            setCurrentStep(step[1]);
+            console.log(err);
+          });
       })
       .catch((err) => {
-        alert("Error screening CV. Please try again.");
-        setCurrentStep(step[0]);
+        alert("Error saving pre-screening answers. Please try again.");
         console.log(err);
-      })
-      .finally(() => {
-        setHasChanges(false);
       });
+  }
+
+  function handlePreScreeningAnswer(questionId, value) {
+    setPreScreeningAnswers({
+      ...preScreeningAnswers,
+      [questionId]: value,
+    });
   }
 
   function handleFileSubmit(file) {
@@ -602,13 +752,159 @@ export default function () {
                       </div>
                     </div>
                   ))}
-                  <button onClick={handleCVScreen}>Submit CV</button>
+                  <button onClick={handleCVScreen}>
+                    Continue{" "}
+                    <img alt="arrow" src={assetConstants.arrow} />
+                  </button>
                 </div>
               )}
             </>
           )}
 
-          {currentStep == step[1] && (
+          {currentStep == step[1] && !hasPreScreeningQuestions && (
+            <div className={styles.cvScreeningContainer}>
+              <img alt="" src={assetConstants.loading} />
+              <span className={styles.title}>Sit tight!</span>
+              <span className={styles.description}>
+                Our smart reviewer is checking your qualifications.
+              </span>
+              <span className={styles.description}>
+                We'll let you know what's next in just a moment.
+              </span>
+            </div>
+          )}
+
+          {currentStep == step[1] && hasPreScreeningQuestions && (
+            <div className={styles.cvDetailsContainer}>
+              <div className={styles.preScreeningQuestionsContainer}>
+                <div className={styles.preScreeningHeader}>
+                  <span className={styles.title}>Pre-screening Questions</span>
+                  <span className={styles.description}>
+                    Please answer the following questions to help us better understand your qualifications.
+                  </span>
+                </div>
+
+                {interview.career.preScreeningQuestions.map((question, index) => (
+                  <div key={question.id} className={styles.gradient}>
+                    <div className={styles.cvDetailsCard}>
+                      <span className={styles.sectionTitle}>
+                        {index + 1}. {question.title || question.question}
+                      </span>
+
+                      <div className={styles.detailsContainer}>
+                        {question.questionType === "shorttext" && (
+                          <input
+                            type="text"
+                            placeholder="Enter your answer..."
+                            value={preScreeningAnswers[question.id] || ""}
+                            onChange={(e) =>
+                              handlePreScreeningAnswer(question.id, e.target.value)
+                            }
+                            className={styles.preScreeningInput}
+                          />
+                        )}
+
+                        {question.questionType === "longtext" && (
+                          <textarea
+                            placeholder="Enter your answer..."
+                            value={preScreeningAnswers[question.id] || ""}
+                            onChange={(e) =>
+                              handlePreScreeningAnswer(question.id, e.target.value)
+                            }
+                            className={styles.preScreeningTextarea}
+                            rows={4}
+                          />
+                        )}
+
+                        {question.questionType === "dropdown" && (
+                          <div style={{ display: 'inline-block', margin: 0, padding: 0 }}>
+                            <PreScreeningDropdown
+                              value={preScreeningAnswers[question.id] || ""}
+                              placeholder="Select an option..."
+                              options={question.options || []}
+                              onValueChange={(value) =>
+                                handlePreScreeningAnswer(question.id, value)
+                              }
+                            />
+                          </div>
+                        )}
+
+                        {question.questionType === "range" && (
+                          <div className={styles.rangeInputContainer}>
+                            <div className={styles.rangeInput}>
+                              <label>Minimum</label>
+                              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <span style={{ 
+                                  position: 'absolute', 
+                                  left: '12px', 
+                                  fontWeight: 500, 
+                                  fontSize: '16px',
+                                  color: '#717680',
+                                  pointerEvents: 'none'
+                                }}>
+                                  {getCurrencySymbol(question.currency || 'PHP')}
+                                </span>
+                                <input
+                                  type="number"
+                                  placeholder="Min"
+                                  value={preScreeningAnswers[question.id]?.min || ""}
+                                  onChange={(e) =>
+                                    handlePreScreeningAnswer(question.id, {
+                                      ...preScreeningAnswers[question.id],
+                                      min: parseFloat(e.target.value),
+                                    })
+                                  }
+                                  className={styles.preScreeningInput}
+                                  style={{ paddingLeft: '32px' }}
+                                />
+                              </div>
+                            </div>
+                            <div className={styles.rangeInput}>
+                              <label>Maximum</label>
+                              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                                <span style={{ 
+                                  position: 'absolute', 
+                                  left: '12px', 
+                                  fontWeight: 500, 
+                                  fontSize: '16px',
+                                  color: '#717680',
+                                  pointerEvents: 'none'
+                                }}>
+                                  {getCurrencySymbol(question.currency || 'PHP')}
+                                </span>
+                                <input
+                                  type="number"
+                                  placeholder="Max"
+                                  value={preScreeningAnswers[question.id]?.max || ""}
+                                  onChange={(e) =>
+                                    handlePreScreeningAnswer(question.id, {
+                                      ...preScreeningAnswers[question.id],
+                                      max: parseFloat(e.target.value),
+                                    })
+                                  }
+                                  className={styles.preScreeningInput}
+                                  style={{ paddingLeft: '32px' }}
+                                />
+                              </div>
+                            </div>
+                            {question.currency && (
+                              <span className={styles.currency}>{question.currency}</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <button onClick={handlePreScreeningSubmit}>
+                  Continue <img alt="arrow" src={assetConstants.arrow} />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {currentStep == step[2] && !screeningResult && (
             <div className={styles.cvScreeningContainer}>
               <img alt="" src={assetConstants.loading} />
               <span className={styles.title}>Sit tight!</span>
