@@ -50,6 +50,7 @@ export type CareerFormProps = {
   career?: any;
   formType: string;
   setShowEditModal?(show: boolean): void;
+  draftId?: string | null;
 };
 
 export default function CareerForm({ career, formType, setShowEditModal }: CareerFormProps) {

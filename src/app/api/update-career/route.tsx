@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import connectMongoDB from "@/lib/mongoDB/mongoDB";
 import { ObjectId } from "mongodb";
+import { sanitizeHTML } from "@/lib/utils/sanitize";
 
 export async function POST(request: Request) {
   try {
@@ -79,6 +80,11 @@ export async function POST(request: Request) {
     let dataUpdates = { ...requestData };
 
     delete dataUpdates._id;
+
+    // Sanitize description to prevent XSS attacks (uses dangerouslySetInnerHTML in UI)
+    if (dataUpdates.description) {
+      dataUpdates.description = sanitizeHTML(dataUpdates.description);
+    }
 
     const career = {
       ...dataUpdates,

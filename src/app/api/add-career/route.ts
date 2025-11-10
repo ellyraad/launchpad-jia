@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectMongoDB from "@/lib/mongoDB/mongoDB";
 import { guid } from "@/lib/Utils";
 import { ObjectId } from "mongodb";
+import { sanitizeHTML } from "@/lib/utils/sanitize";
 
 export async function POST(request: Request) {
   try {
@@ -88,10 +89,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "You have reached the maximum number of jobs for your plan" }, { status: 400 });
     }
 
+    // Sanitize description to prevent XSS attacks (uses dangerouslySetInnerHTML in UI)
+    const sanitizedDescription = sanitizeHTML(description);
+
     const career = {
       id: guid(),
       jobTitle,
-      description,
+      description: sanitizedDescription,
       questions,
       location,
       workSetup,
