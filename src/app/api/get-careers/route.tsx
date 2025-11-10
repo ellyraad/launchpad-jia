@@ -34,7 +34,13 @@ export async function GET(req: Request) {
         }
 
         if (status && status !== "All Statuses") {
-            filter.status = status === "Published" ? "active" : "inactive";
+            if (status === "Published") {
+                filter.status = "active";
+            } else if (status === "Draft") {
+                filter.status = "draft";
+            } else {
+                filter.status = "inactive";
+            }
         }
 
         const careers = await db
@@ -124,7 +130,14 @@ export async function GET(req: Request) {
         // TODO: Improve this query by moving to Redis or a count table
         const total = await db.collection("careers").countDocuments(filter);
         const totalPages = Math.ceil(total / limit);
-        const totalActiveCareers = await db.collection("careers").countDocuments({ orgID, status: "active" });
+        const totalActiveCareers = await db.collection("careers").countDocuments({ 
+            orgID, 
+            status: "active",
+            $or: [
+                { draft: { $exists: false } },
+                { draft: false }
+            ]
+        });
 
         return NextResponse.json({
             careers,
