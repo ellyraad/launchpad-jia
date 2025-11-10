@@ -43,6 +43,12 @@ export async function POST(request: Request) {
   const cvScreeningPromptText =
     cvScreeningPromptData?.cv_screening_prompt?.prompt;
 
+  // Fetch career data to get job-specific secret prompt
+  const careerData = await db.collection("careers").findOne(
+    { id: interviewData.id },
+    { projection: { cvSecretPrompt: 1 } }
+  );
+
   let parsedCV = "";
 
   cvData.digitalCV.forEach((section) => {
@@ -68,7 +74,10 @@ export async function POST(request: Request) {
 
     Processing Steps:
       ${cvScreeningPromptText}
-
+      ${careerData?.cvSecretPrompt ? `
+          Additional Secret Evaluation Criteria (Hidden from Candidate):
+            ${careerData.cvSecretPrompt}
+      ` : ''}
     - Format your response as JSON:
       {
         "result": <Result (No Fit / Bad Fit / Good Fit / Strong Fit / Ineligible CV / Insufficient Data)>,
