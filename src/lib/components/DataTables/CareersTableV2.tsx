@@ -33,7 +33,7 @@ export default function CareersV2Table() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedCareer, setSelectedCareer] = useState(null);
   const [filterStatus, setFilterStatus] = useState("All Statuses");
-  const filterStatusOptions = ["All Statuses", "Published", "Unpublished"];
+  const filterStatusOptions = ["All Statuses", "Published", "Unpublished", "Draft"];
   const [sortBy, setSortBy] = useState("Recent Activity");
   const sortByOptions = {
     // Default sort
@@ -292,7 +292,12 @@ export default function CareersV2Table() {
                         onClick={(e) => {
                           if (e.defaultPrevented) return;
                           e.preventDefault();
-                          window.location.href = `/recruiter-dashboard/careers/manage/${item._id}`;
+                          // If it's a draft, redirect to the form with draftId
+                          if (item.status === "draft") {
+                            window.location.href = `/recruiter-dashboard/careers/new-career?draftId=${item._id}`;
+                          } else {
+                            window.location.href = `/recruiter-dashboard/careers/manage/${item._id}`;
+                          }
                         }}
                       >
                         <th scope="row" style={{ maxWidth: "300px", whiteSpace: "initial" }}>

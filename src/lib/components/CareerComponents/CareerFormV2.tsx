@@ -1,11 +1,9 @@
-"use client";
-
 import "@/lib/styles/commonV2/globals.scss";
 
 import { assetConstants } from "@/lib/utils/constantsV2";
 import styles from "@/lib/styles/screens/careerForm.module.scss";
 import { CareerFormProps } from "./CareerForm";
-import { useReducer, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { Tooltip } from "react-tooltip";
 import TipsBox from "./TipsBox";
 import type { FormReducerAction, FormState } from "@/lib/definitions";
@@ -15,16 +13,19 @@ import {
   baseAIInterviewQuestion,
   validateCareerDetails,
   isValidInterviewQuestionsCount,
+  mapCareerToFormState,
 } from "@/lib/CareerFormUtils";
 import { useAppContext } from "@/lib/context/AppContext";
 import { useRouter } from "next/navigation";
 import StepIndicator from "./StepIndicator";
 import { usePreScreeningQuestions } from "@/lib/hooks/usePreScreeningQuestions";
 import { useCareerFormSubmission } from "@/lib/hooks/useCareerFormSubmission";
+import { useCareerDraftAutoSave } from "@/lib/hooks/useCareerDraftAutoSave";
 import CareerFormStep0 from "./CareerFormStep0";
 import CareerFormStep1 from "./CareerFormStep1";
 import CareerFormStep2 from "./CareerFormStep2";
 import CareerFormStep3 from "./CareerFormStep3";
+import axios from "axios";
 
 const initFormState: FormState = {
   careerDetails: {
@@ -87,11 +88,12 @@ export default function CareerFormV2({
   career,
   formType,
   setShowEditModal,
+  draftId: initialDraftId,
 }: CareerFormProps) {
   const { user, orgID } = useAppContext();
-  const router = useRouter();
 
   const [formState, dispatch] = useReducer(formReducer, initFormState);
+  const [isLoadingDraft, setIsLoadingDraft] = useState(false);
 
   const [currentStep, setCurrentStep] = useState<number>(0);
   
@@ -119,13 +121,92 @@ export default function CareerFormV2({
     }
   );
 
+  // Auto-save draft hook
+  const {
+    draftId,
+    isSaving: isSavingDraft,
+    lastSaved,
+    clearDraft,
+  } = useCareerDraftAutoSave(formState, orgID, user, currentStep, true, initialDraftId);
+
   // Form submission hook
   const {
     isPublishing,
     isSavingUnpublished,
     handlePublish,
     handleSaveAsUnpublished,
-  } = useCareerFormSubmission(formState, orgID, user);
+  } = useCareerFormSubmission(formState, orgID, user, draftId, clearDraft);
+
+  // Load draft data on mount if draftId is provided
+  useEffect(() => {
+    const loadDraftData = async () => {
+      if (!initialDraftId || !orgID) return;
+
+      setIsLoadingDraft(true);
+      try {
+        const response = await axios.post("/api/career-data", {
+          id: initialDraftId,
+          orgID,
+        });
+
+        if (response.data) {
+          const mappedFormState = mapCareerToFormState(response.data);
+          
+          // Update careerDetails
+          Object.entries(mappedFormState.careerDetails).forEach(([field, value]) => {
+            dispatch({
+              type: "SET",
+              category: "careerDetails",
+              field: field as keyof FormState["careerDetails"],
+              payload: value,
+            });
+          });
+
+          // Update cvScreeningDetails
+          Object.entries(mappedFormState.cvScreeningDetails).forEach(([field, value]) => {
+            dispatch({
+              type: "SET",
+              category: "cvScreeningDetails",
+              field: field as keyof FormState["cvScreeningDetails"],
+              payload: value,
+            });
+          });
+
+          // Update aiScreeningDetails
+          Object.entries(mappedFormState.aiScreeningDetails).forEach(([field, value]) => {
+            dispatch({
+              type: "SET",
+              category: "aiScreeningDetails",
+              field: field as keyof FormState["aiScreeningDetails"],
+              payload: value,
+            });
+          });
+
+          // Update teamAccessDetails
+          Object.entries(mappedFormState.teamAccessDetails).forEach(([field, value]) => {
+            dispatch({
+              type: "SET",
+              category: "teamAccessDetails",
+              field: field as keyof FormState["teamAccessDetails"],
+              payload: value,
+            });
+          });
+
+          // Set the current step from the draft
+          if (response.data.draftStep !== undefined) {
+            setCurrentStep(response.data.draftStep);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading draft:", error);
+        // Optionally show error toast to user
+      } finally {
+        setIsLoadingDraft(false);
+      }
+    };
+
+    loadDraftData();
+  }, [initialDraftId, orgID]);
 
   const toggleSection = (section: 'careerDetails' | 'cvScreening' | 'aiInterview') => {
     setCollapsedSections(prev => ({
@@ -202,14 +283,36 @@ export default function CareerFormV2({
 
   return (
     <div className={styles.careerFormContainer}>
+      {isLoadingDraft ? (
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
+          <div style={{ textAlign: "center" }}>
+            <div className="spinner-border text-primary" role="status">
+              <span className="sr-only">Loading draft...</span>
+            </div>
+            <p style={{ marginTop: "1rem", color: "#717680" }}>Loading draft...</p>
+          </div>
+        </div>
+      ) : (
+        <>
       <div style={{ marginBottom: "35px", display: "flex", justifyContent: "space-between" }}>
-        <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#181D27" }}>
-          {currentStep > 0 ? (
-            <>
-              <span style={{ color: "#717680" }}>[Draft]</span> {formState.careerDetails.jobTitle}
-            </>
-          ) : <>Add new career</>}
-        </h1>
+        <div>
+          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#181D27" }}>
+            {currentStep > 0 ? (
+              <>
+                <span style={{ color: "#717680" }}>[Draft]</span> {formState.careerDetails.jobTitle}
+              </>
+            ) : <>Add new career</>}
+          </h1>
+          {draftId && (
+            <div style={{ fontSize: "12px", color: "#717680", marginTop: "4px" }}>
+              {isSavingDraft ? (
+                <span>Saving draft...</span>
+              ) : lastSaved ? (
+                <span>Last saved: {new Date(lastSaved).toLocaleTimeString()}</span>
+              ) : null}
+            </div>
+          )}
+        </div>
 
         <div className={styles.buttonContainer}>
           {currentStep === formSteps.length - 1 ? (
@@ -287,6 +390,8 @@ export default function CareerFormV2({
         id="ai-int-secret-prompt-tooltip"
         style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
       />
+      </>
+      )}
     </div>
   );
 }
