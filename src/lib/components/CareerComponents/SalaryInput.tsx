@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import styles from "@/lib/styles/screens/salaryInput.module.scss";
+import { CURRENCIES, CURRENCY_SYMBOLS } from "@/lib/utils/currency";
 
 interface SalaryInputProps {
   value?: string;
@@ -24,19 +25,6 @@ export default function SalaryInput({
 }: SalaryInputProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
-  const currencies = ["PHP", "USD", "EUR", "GBP", "JPY", "AUD", "CAD", "SGD"];
-  
-  const currencySymbols: { [key: string]: string } = {
-    PHP: "₱",
-    USD: "$",
-    EUR: "€",
-    GBP: "£",
-    JPY: "¥",
-    AUD: "A$",
-    CAD: "C$",
-    SGD: "S$",
-  };
 
   const handleCurrencySelect = (selectedCurrency: string) => {
     onCurrencyChange?.(selectedCurrency);
@@ -77,7 +65,7 @@ export default function SalaryInput({
     <div className={styles.salaryInputContainer}>
       <div className={`${styles.salaryInput} ${invalid ? styles.invalid : ""}`}>
         <span className={styles.currencySymbol}>
-          {currencySymbols[currency] || currency}
+          {CURRENCY_SYMBOLS[currency as keyof typeof CURRENCY_SYMBOLS] || currency}
         </span><input
           type="text"
           className={styles.amountInput}
@@ -115,7 +103,7 @@ export default function SalaryInput({
 
           {isOpen && !disabled && (
             <div className={styles.dropdownMenu}>
-              {currencies.map((curr) => (
+              {CURRENCIES.map((curr) => (
                 <div
                   key={curr}
                   className={`${styles.dropdownItem} ${
@@ -124,7 +112,7 @@ export default function SalaryInput({
                   onClick={() => handleCurrencySelect(curr)}
                 >
                   <span className={styles.currencySymbolInMenu}>
-                    {currencySymbols[curr]}
+                    {CURRENCY_SYMBOLS[curr]}
                   </span>
                   <span>{curr}</span>
                 </div>

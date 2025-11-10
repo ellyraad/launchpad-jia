@@ -23,7 +23,7 @@ export default function CustomDropdownV2({
   invalid = false,
 }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [icon, setIcon] = useState(options[0].icon);
+  const [icon, setIcon] = useState(options[0]?.icon);
 
   const handleSelect = (option: {name: string, icon?: string}) => {
     onValueChange?.(option.name);
