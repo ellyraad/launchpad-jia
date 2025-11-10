@@ -75,7 +75,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Organization not found" }, { status: 404 });
     }
 
-    const totalActiveCareers = await db.collection("careers").countDocuments({ orgID, status: "active" });
+    const totalActiveCareers = await db.collection("careers").countDocuments({ 
+      orgID, 
+      status: "active",
+      $or: [
+        { draft: { $exists: false } },
+        { draft: false }
+      ]
+    });
 
     if (totalActiveCareers >= (orgDetails[0].plan.jobLimit + (orgDetails[0].extraJobSlots || 0))) {
       return NextResponse.json({ error: "You have reached the maximum number of jobs for your plan" }, { status: 400 });
