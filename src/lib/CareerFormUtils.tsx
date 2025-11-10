@@ -252,3 +252,43 @@ export const validateStepStatus = (
 
   return "pending";
 }
+
+/**
+ * Maps a career object from MongoDB to FormState structure
+ * Used when loading draft or existing career data into the form
+ */
+export const mapCareerToFormState = (career: any): FormState => {
+  return {
+    careerDetails: {
+      jobTitle: career.jobTitle || "",
+      employmentType: career.employmentType || "Full-Time",
+      workArrangement: career.workSetup || "",
+      country: career.country || "Philippines",
+      state: career.province || "",
+      city: career.location || "",
+      isSalaryNegotiable: career.salaryNegotiable || false,
+      minSalary: career.minimumSalary ? String(career.minimumSalary) : "",
+      maxSalary: career.maximumSalary ? String(career.maximumSalary) : "",
+      salaryCurrency: career.salaryCurrency || "PHP",
+      jobDescription: career.description || "",
+    },
+    cvScreeningDetails: {
+      cvScreeningSetting: career.screeningSetting || screeningSettingList[0].name,
+      cvSecretPrompt: career.cvSecretPrompt || "",
+      preScreeningQuestions: career.preScreeningQuestions || [],
+    },
+    aiScreeningDetails: {
+      aiScreeningSetting: career.aiScreeningSetting || screeningSettingList[0].name,
+      isVideoInterviewRequired: career.isVideoInterviewRequired !== undefined ? career.isVideoInterviewRequired : true,
+      interviewQuestions: career.questions && career.questions.length > 0 ? career.questions : baseAIInterviewQuestion,
+    },
+    teamAccessDetails: {
+      accessRole: career.accessRole || "",
+      authorizedMembers: career.authorizedMembers || "",
+    },
+    isValid: {
+      step1: false,
+      step3: false,
+    }
+  };
+}
