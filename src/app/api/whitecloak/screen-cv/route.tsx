@@ -5,7 +5,7 @@ import connectMongoDB from "@/lib/mongoDB/mongoDB";
 import OpenAI from "openai";
 
 export async function POST(request: Request) {
-  const { interviewID, userEmail } = await request.json();
+  const { interviewID, userEmail, preScreeningAnswers } = await request.json();
   const { db } = await connectMongoDB();
   const interviewData = await db.collection("interviews").findOne({
     interviewID,
@@ -43,11 +43,34 @@ export async function POST(request: Request) {
   const cvScreeningPromptText =
     cvScreeningPromptData?.cv_screening_prompt?.prompt;
 
+  // Fetch career data to get job-specific secret prompt
+  const careerData = await db.collection("careers").findOne(
+    { id: interviewData.id },
+    { projection: { cvSecretPrompt: 1, preScreeningQuestions: 1 } }
+  );
+
   let parsedCV = "";
 
   cvData.digitalCV.forEach((section) => {
     parsedCV += `${section.name}\n${section.content}\n`;
   });
+
+  // Format pre-screening answers if they exist
+  let preScreeningSection = "";
+  if (preScreeningAnswers && careerData?.preScreeningQuestions) {
+    preScreeningSection = "\n\nPre-screening Questions and Answers:\n";
+    careerData.preScreeningQuestions.forEach((question: any) => {
+      const answer = preScreeningAnswers[question.id];
+      if (answer) {
+        preScreeningSection += `\nQuestion: ${question.title}\n`;
+        if (question.questionType === "range") {
+          preScreeningSection += `Answer: ${answer.min} - ${answer.max}${question.currency ? ` ${question.currency}` : ""}\n`;
+        } else {
+          preScreeningSection += `Answer: ${answer}\n`;
+        }
+      }
+    });
+  }
 
   const screeningPrompt = `
     You are a helpful AI assistant.
@@ -64,11 +87,14 @@ export async function POST(request: Request) {
       Applicant Name: ${interviewData.name}
 
     Applicant CV:
-      ${parsedCV}
+      ${parsedCV}${preScreeningSection}
 
     Processing Steps:
       ${cvScreeningPromptText}
-
+      ${careerData?.cvSecretPrompt ? `
+          Additional Secret Evaluation Criteria (Hidden from Candidate):
+            ${careerData.cvSecretPrompt}
+      ` : ''}
     - Format your response as JSON:
       {
         "result": <Result (No Fit / Bad Fit / Good Fit / Strong Fit / Ineligible CV / Insufficient Data)>,
@@ -83,7 +109,7 @@ export async function POST(request: Request) {
       - Be as accurate as possible.
       - Give a detailed reason for the result — be clear, concise, and specific.
       - Set result to "Ineligible CV" if the applicant's CV is not in the correct format.
-      - Set result to "Insufficient Data" if the applicant's CV is missing important information.
+      - Set result to "Insufficient Data" if the applicant's CV is missing important information.${preScreeningSection ? "\n      - Consider the pre-screening answers in your evaluation." : ""}
       - Do not include any other text or comments.
       - DO NOT include \`\`\`json or \`\`\` around the response.
   `;
