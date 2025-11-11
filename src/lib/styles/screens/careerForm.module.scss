@@ -563,6 +563,10 @@
   pointer-events: none;
 }
 
+.sparkIconWhite {
+  filter: brightness(0) invert(1);
+}
+
 
 @media (max-width: 768px) {
   .bottomContainer {
