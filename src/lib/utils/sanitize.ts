@@ -1,4 +1,4 @@
-import DOMPurify from "isomorphic-dompurify";
+import sanitizeHtml from "sanitize-html";
 
 /**
  * Sanitizes HTML content to prevent XSS attacks
@@ -10,25 +10,23 @@ import DOMPurify from "isomorphic-dompurify";
 export const sanitizeHTML = (html: string): string => {
   if (typeof html !== 'string') return '';
   
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: [
+  return sanitizeHtml(html, {
+    allowedTags: [
       'p', 'br', 'strong', 'em', 'u', 'i', 'b', 's', 'strike',
       'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
       'ul', 'ol', 'li', 'blockquote', 'a', 'span', 'div', 
       'pre', 'code', 'hr', 'table', 'thead', 'tbody', 'tr', 'th', 'td'
     ],
-    ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
-    ALLOW_DATA_ATTR: false,
-    // Only allow safe URL schemes
-    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i,
-    // Additional security settings
-    KEEP_CONTENT: true,
-    RETURN_DOM: false,
-    RETURN_DOM_FRAGMENT: false,
-    FORCE_BODY: false,
-    SANITIZE_DOM: true,
-    // Remove any scripts, event handlers, or dangerous content
-    FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
-    FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onblur'],
+    allowedAttributes: {
+      'a': ['href', 'target', 'rel'],
+      '*': ['class', 'style']
+    },
+    allowedSchemes: ['http', 'https', 'mailto', 'tel'],
+    allowedSchemesByTag: {},
+    allowedSchemesAppliedToAttributes: ['href', 'src'],
+    // Disallow all protocol relative URLs
+    allowProtocolRelative: false,
+    // Only allow safe URL schemes  
+    enforceHtmlBoundary: true,
   });
 };
