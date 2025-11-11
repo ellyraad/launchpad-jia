@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectMongoDB from "@/lib/mongoDB/mongoDB";
 import { guid } from "@/lib/Utils";
 import { ObjectId } from "mongodb";
+import { sanitizeHTML } from "@/lib/utils/sanitize";
 
 export async function POST(request: Request) {
   try {
@@ -42,11 +43,14 @@ export async function POST(request: Request) {
 
     const now = new Date();
     
+    // Sanitize description to prevent XSS attacks
+    const sanitizedDescription = description ? sanitizeHTML(description) : "";
+    
     // If _id exists, update existing draft
     if (_id) {
       const updateData = {
         jobTitle: jobTitle || "Untitled Career",
-        description: description || "",
+        description: sanitizedDescription,
         questions: questions || [],
         location: location || "",
         workSetup: workSetup || "",
@@ -84,7 +88,7 @@ export async function POST(request: Request) {
     const career = {
       id: guid(),
       jobTitle: jobTitle || "Untitled Career",
-      description: description || "",
+      description: sanitizedDescription,
       questions: questions || [],
       location: location || "",
       workSetup: workSetup || "",
