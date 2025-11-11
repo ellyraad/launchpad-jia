@@ -301,11 +301,12 @@ export default function CareerFormStep1({
                   onClick={() => preScreeningHook.handleAddSuggestedQuestion(q)}
                   disabled={isAdded}
                   style={{
-                    color: isAdded ? "#D5D7DA" : "",
-                    cursor: isAdded ? "not-allowed" : "pointer"
+                    color: isAdded ? "#12B76A" : "",
+                    cursor: isAdded ? "not-allowed" : "pointer",
+                    borderColor: isAdded ? "#A6F4C5" : ""
                   }}
                 >
-                  Add
+                  {isAdded ? "Added" : "Add"}
                 </button>
               </div>
             );
