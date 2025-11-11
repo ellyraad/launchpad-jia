@@ -567,6 +567,65 @@ export default function ({ modalType, setModalType }) {
                   __html: applicationData.description,
                 }}
               />
+
+              {applicationData.organization && (
+                <>
+                  <hr />
+
+                  <span className={styles.footerTitle}>About The Company</span>
+
+                  <div className={styles.footerContent}>
+                    {applicationData.organization.image && (
+                      <img
+                        alt=""
+                        className={styles.companyLogo}
+                        src={applicationData.organization.image}
+                      />
+                    )}
+
+                    <div className={styles.footerDetails}>
+                      {applicationData.organization.name && (
+                        <span className={styles.footerCompanyName}>
+                          {applicationData.organization.name}
+                        </span>
+                      )}
+
+                      {applicationData.location && (
+                        <span className={styles.details}>
+                          {applicationData.location}
+                        </span>
+                      )}
+
+                      {applicationData.organization.name.includes(
+                        "White Cloak"
+                      ) && (
+                        <>
+                          <span
+                            className={`${styles.details} ${styles.withMargin}`}
+                          >
+                            Founded in 2014, White Cloak continues to be the
+                            innovation partner of choice for many major
+                            corporations, leveraging technology to take its
+                            client's business to the next level. This technical
+                            superiority and commitment to our clients have
+                            brought numerous recognition and awards to White
+                            Cloak.
+                          </span>
+
+                          <button
+                            className="secondaryBtn"
+                            onClick={() => window.open("https://whitecloak.com", "_blank")}
+                          >
+                            Learn More
+                            <img alt="" src={assetConstants.arrowV3} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+
               <button onClick={handleClose}>Close</button>
             </div>
           </div>

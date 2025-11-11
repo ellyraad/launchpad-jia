@@ -84,7 +84,7 @@
       }
     }
     &.jobDescription {
-      height: 50%;
+      height: 80%;
       max-width: 620px;
       padding: 0;
       .gradientContainer {
@@ -170,6 +170,41 @@
             align-self: flex-end;
             margin: 0;
             padding: 10px 27.5px;
+          }
+          .footerTitle {
+            font-weight: 700;
+            font-size: 20px;
+            line-height: 30px;
+            color: var(--Text-text-primary, #181d27);
+          }
+          .footerContent {
+            display: flex;
+            gap: 24px;
+            margin: 16px 0 0 0;
+            .companyLogo {
+              $size: 80px;
+              height: $size;
+              width: $size;
+              border: 1px solid #6a6a6a80;
+              border-radius: 10px;
+              box-sizing: border-box;
+              object-fit: cover;
+            }
+            .footerDetails {
+              display: flex;
+              flex-direction: column;
+              .footerCompanyName {
+                font-weight: 700;
+                font-size: 16px;
+                line-height: 24px;
+                color: var(--Text-text-primary, #181d27);
+              }
+              button {
+                width: fit-content;
+                margin: 16px 0 0 0;
+                padding: 8px 28px;
+              }
+            }
           }
         }
       }
