@@ -30,6 +30,12 @@ export default function JobDescription({ formData, setFormData }: Props) {
     }));
   };
 
+  const handleEditNavigation = (step: number) => {
+    if (formData._id) {
+      window.location.href = `/recruiter-dashboard/careers/edit-career?careerId=${formData._id}&step=${step}`;
+    }
+  };
+
   async function deleteCareer() {
     Swal.fire({
       title: "Are you sure?",
@@ -104,6 +110,22 @@ export default function JobDescription({ formData, setFormData }: Props) {
                 />
                 Career Information
               </h2>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div 
+                  className={styles.editIconCircle}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `/recruiter-dashboard/careers/edit-career?careerId=${formData._id}&step=0`;
+                  }}
+                >
+                  <img
+                    src="/iconsV3/edit.svg"
+                    alt="edit"
+                    className={styles.editIcon}
+                  />
+                </div>
+              </div>
             </div>
 
             {!collapsedSections.careerInfo && (
@@ -183,6 +205,22 @@ export default function JobDescription({ formData, setFormData }: Props) {
                 />
                 CV Review & Pre-Screening Questions
               </h2>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div 
+                  className={styles.editIconCircle}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `/recruiter-dashboard/careers/edit-career?careerId=${formData._id}&step=1`;
+                  }}
+                >
+                  <img
+                    src="/iconsV3/edit.svg"
+                    alt="edit"
+                    className={styles.editIcon}
+                  />
+                </div>
+              </div>
             </div>
 
             {!collapsedSections.cvScreening && (
@@ -270,6 +308,22 @@ export default function JobDescription({ formData, setFormData }: Props) {
                 />
                 AI Interview Setup
               </h2>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <div 
+                  className={styles.editIconCircle}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `/recruiter-dashboard/careers/edit-career?careerId=${formData._id}&step=2`;
+                  }}
+                >
+                  <img
+                    src="/iconsV3/edit.svg"
+                    alt="edit"
+                    className={styles.editIcon}
+                  />
+                </div>
+              </div>
             </div>
 
             {!collapsedSections.aiInterview && (
