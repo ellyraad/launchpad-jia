@@ -361,7 +361,7 @@ export default function CareersV2Table() {
                                 if (e.defaultPrevented) return;
                                 e.preventDefault();
                                 setMenuOpen(false);
-                                window.location.href = `/recruiter-dashboard/careers/manage/${item._id}?tab=edit`;
+                                window.location.href = `/recruiter-dashboard/careers/edit-career?careerId=${item._id}`;
                             }}>
                                 <span>Edit Career</span>
                             </div>

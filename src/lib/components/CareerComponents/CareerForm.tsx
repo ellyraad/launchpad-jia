@@ -51,6 +51,8 @@ export type CareerFormProps = {
   formType: string;
   setShowEditModal?(show: boolean): void;
   draftId?: string | null;
+  careerId?: string | null;
+  initialStep?: number;
 };
 
 export default function CareerForm({ career, formType, setShowEditModal }: CareerFormProps) {

@@ -14,14 +14,31 @@ interface CareerFormStep3Props {
   };
   toggleSection(section: 'careerDetails' | 'cvScreening' | 'aiInterview'): void;
   setCurrentStep: (step: number) => void;
+  draftId?: string;
+  formType?: string;
 }
 
 export default function CareerFormStep3({ 
   formState, 
   collapsedSections, 
   toggleSection,
-  setCurrentStep
+  setCurrentStep,
+  draftId,
+  formType
 }: CareerFormStep3Props) {
+  const handleEditNavigation = (step: number) => {
+    if (draftId) {
+      // Different routes for edit vs new career
+      if (formType === "edit") {
+        window.location.href = `/recruiter-dashboard/careers/edit-career?careerId=${draftId}&step=${step}`;
+      } else {
+        window.location.href = `/recruiter-dashboard/careers/new-career?draftId=${draftId}&step=${step}`;
+      }
+    } else {
+      // If no draftId, just change step (shouldn't happen in practice)
+      setCurrentStep(step);
+    }
+  };
   return (
     <div className={styles.subSteps}>
       <SubstepContainer
@@ -30,7 +47,7 @@ export default function CareerFormStep3({
         isCollapsible={true}
         handleHeadingClick={() => toggleSection("careerDetails")}
         isCollapsed={collapsedSections.careerDetails}
-        onEdit={() => setCurrentStep(0)}
+        onEdit={() => handleEditNavigation(0)}
       >
         <div className={styles.reviewField}>
           <div className={styles.fieldLabel}>Job Title</div>
@@ -95,7 +112,7 @@ export default function CareerFormStep3({
         isCollapsible={true}
         handleHeadingClick={() => toggleSection("cvScreening")}
         isCollapsed={collapsedSections.cvScreening}
-        onEdit={() => setCurrentStep(1)}
+        onEdit={() => handleEditNavigation(1)}
       >
         <div className={styles.reviewField}>
           <div className={styles.fieldLabel}>CV Screening</div>
@@ -169,7 +186,7 @@ export default function CareerFormStep3({
         isCollapsible={true}
         handleHeadingClick={() => toggleSection("aiInterview")}
         isCollapsed={collapsedSections.aiInterview}
-        onEdit={() => setCurrentStep(2)}
+        onEdit={() => handleEditNavigation(2)}
       >
         <div className={styles.reviewField}>
           <div className={styles.fieldLabel}>AI Interview Screening</div>
