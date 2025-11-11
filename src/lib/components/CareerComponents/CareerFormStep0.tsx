@@ -16,6 +16,7 @@ import {
 import type { FormReducerAction, FormState } from "@/lib/definitions";
 import { Dispatch, useState, useMemo } from "react";
 import { getCountries, getProvinces, getCitiesByProvince } from "@/lib/utils/locations";
+import FieldErrorMessage from "./FieldErrorMessage";
 
 interface CareerFormStep0Props {
   formState: FormState;
@@ -60,11 +61,7 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
               })}
               className={formState.isValid.step1 && !formState.careerDetails.jobTitle.trim() ? styles.invalid : ""}
             />
-            {formState.isValid.step1 && !formState.careerDetails.jobTitle.trim() && (
-              <span style={{ color: "#F04438", fontSize: "14px", marginTop: "2px" }}>
-                Job title is required
-              </span>
-            )}
+            <FieldErrorMessage isInvalid={formState.isValid.step1 && !formState.careerDetails.jobTitle.trim()} />
           </div>
         </SubstepFieldsGroup>
 
@@ -91,11 +88,7 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
               }}
               invalid={formState.isValid.step1 && !formState.careerDetails.employmentType}
             />
-            {formState.isValid.step1 && !formState.careerDetails.employmentType && (
-              <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
-                Employment type is required
-              </span>
-            )}
+            <FieldErrorMessage isInvalid={formState.isValid.step1 && !formState.careerDetails.employmentType} />
           </div>
 
           <div className={styles.field}>
@@ -120,11 +113,7 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
               }}
               invalid={formState.isValid.step1 && !formState.careerDetails.workArrangement}
             />
-            {formState.isValid.step1 && !formState.careerDetails.workArrangement && (
-              <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
-                Work arrangement is required
-              </span>
-            )}
+            <FieldErrorMessage isInvalid={formState.isValid.step1 && !formState.careerDetails.workArrangement} />
           </div>
         </SubstepFieldsGroup>
 
@@ -172,11 +161,8 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
               }}
               invalid={formState.isValid.step1 && !formState.careerDetails.state}
             />
-            {formState.isValid.step1 && !formState.careerDetails.state && (
-              <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
-                State / Province is required
-              </span>
-            )}
+
+            <FieldErrorMessage isInvalid={formState.isValid.step1 && !formState.careerDetails.state} />
           </div>
 
           <div className={styles.field}>
@@ -201,11 +187,8 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
               }}
               invalid={formState.isValid.step1 && !formState.careerDetails.city}
             />
-            {formState.isValid.step1 && !formState.careerDetails.city && (
-              <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
-                City is required
-              </span>
-            )}
+
+            <FieldErrorMessage isInvalid={formState.isValid.step1 && !formState.careerDetails.city} />
           </div>
         </SubstepFieldsGroup>
 
@@ -249,11 +232,8 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
               })}
               invalid={formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.minSalary.trim()}
             />
-            {formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.minSalary.trim() && (
-              <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
-                Minimum salary is required
-              </span>
-            )}
+
+            <FieldErrorMessage isInvalid={formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.minSalary.trim()} />
           </div>
 
           <div className={styles.field}>
@@ -284,22 +264,23 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
               })}
               invalid={formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.maxSalary.trim()}
             />
-            {formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.maxSalary.trim() && (
-              <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
-                Maximum salary is required
-              </span>
-            )}
-            {formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && formState.careerDetails.minSalary.trim() && formState.careerDetails.maxSalary.trim() && 
-              parseFloat(formState.careerDetails.minSalary.replace(/,/g, '')) > parseFloat(formState.careerDetails.maxSalary.replace(/,/g, '')) && (
-                <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
-                  Maximum salary must be greater than minimum salary
-                </span>
-              )}
+
+            <FieldErrorMessage isInvalid={formState.isValid.step1 && !formState.careerDetails.isSalaryNegotiable && !formState.careerDetails.maxSalary.trim()} />
+
+            <FieldErrorMessage
+              isInvalid={
+                formState.isValid.step1 &&
+                  !formState.careerDetails.isSalaryNegotiable &&
+                  formState.careerDetails.minSalary.trim() &&
+                  formState.careerDetails.maxSalary.trim() &&
+                  parseFloat(formState.careerDetails.minSalary.replace(/,/g, '')) > parseFloat(formState.careerDetails.maxSalary.replace(/,/g, ''))
+              }
+            />
           </div>
         </SubstepFieldsGroup>
       </SubstepContainer>
 
-      <SubstepContainer stepNum={2} title="Job Description">
+      <SubstepContainer stepNum={2} title="Job Description" style={{ gap: "8px" }}>
         <RichTextEditor 
           setText={(value: string) => {
             dispatch({
@@ -318,11 +299,8 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
           text={formState.careerDetails.jobDescription}
           invalid={formState.isValid.step1 && !formState.careerDetails.jobDescription.trim()}
         />
-        {formState.isValid.step1 && !formState.careerDetails.jobDescription.trim() && (
-          <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
-            Job description is required
-          </span>
-        )}
+
+        <FieldErrorMessage isInvalid={formState.isValid.step1 && !formState.careerDetails.jobDescription.trim()} />
       </SubstepContainer>
 
       <SubstepContainer stepNum={3} title="Team Access">

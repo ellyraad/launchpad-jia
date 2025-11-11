@@ -16,7 +16,6 @@ import {
   mapCareerToFormState,
 } from "@/lib/CareerFormUtils";
 import { useAppContext } from "@/lib/context/AppContext";
-import { useRouter } from "next/navigation";
 import StepIndicator from "./StepIndicator";
 import { usePreScreeningQuestions } from "@/lib/hooks/usePreScreeningQuestions";
 import { useCareerFormSubmission } from "@/lib/hooks/useCareerFormSubmission";
