@@ -112,12 +112,16 @@ export async function POST(request: Request) {
     Applicant CV:
       ${parsedCV}${preScreeningSection}
 
+    ${careerData?.cvSecretPrompt ? `
+    IMPORTANT - Priority Evaluation Criteria:
+      ${careerData.cvSecretPrompt}
+      
+      The above criteria MUST be evaluated first and take absolute precedence over all other evaluation criteria below.
+    
+    ` : ''}
     Processing Steps:
       ${cvScreeningPromptText}
-      ${careerData?.cvSecretPrompt ? `
-          Additional Secret Evaluation Criteria (Hidden from Candidate):
-            ${careerData.cvSecretPrompt}
-      ` : ''}
+    
     - Format your response as JSON:
       {
         "result": <Result (No Fit / Bad Fit / Good Fit / Strong Fit / Ineligible CV / Insufficient Data)>,
@@ -127,7 +131,7 @@ export async function POST(request: Request) {
       }
 
     Processing Instructions:
-      - Return only the code JSON, nothing else.
+      - Return only the code JSON, nothing else.${careerData?.cvSecretPrompt ? "\n      - CRITICAL: Apply the Priority Evaluation Criteria above FIRST before any other evaluation." : ""}
       - Carefully analyze the applicant's CV and job description.
       - Be as accurate as possible.
       - Give a detailed reason for the result — be clear, concise, and specific.
