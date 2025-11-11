@@ -301,13 +301,22 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
 
       <SubstepContainer stepNum={2} title="Job Description">
         <RichTextEditor 
-          setText={(value: string) => dispatch({
-            type: "SET",
-            category: "careerDetails",
-            field: "jobDescription",
-            payload: value
-          })} 
-          text={formState.careerDetails.jobDescription} 
+          setText={(value: string) => {
+            dispatch({
+              type: "SET",
+              category: "careerDetails",
+              field: "jobDescription",
+              payload: value
+            });
+            dispatch({
+              type: "SET",
+              category: "isValid",
+              field: "step1",
+              payload: false
+            });
+          }} 
+          text={formState.careerDetails.jobDescription}
+          invalid={formState.isValid.step1 && !formState.careerDetails.jobDescription.trim()}
         />
         {formState.isValid.step1 && !formState.careerDetails.jobDescription.trim() && (
           <span style={{ color: "#F04438", fontSize: "12px", marginTop: "4px" }}>
