@@ -83,12 +83,7 @@ function formReducer(state: FormState, action: FormReducerAction) {
   return state;
 }
 
-export default function CareerFormV2({
-  career,
-  formType,
-  setShowEditModal,
-  draftId: initialDraftId,
-}: CareerFormProps) {
+export default function CareerFormV2({ draftId: initialDraftId }: CareerFormProps) {
   const { user, orgID } = useAppContext();
 
   const [formState, dispatch] = useReducer(formReducer, initFormState);
@@ -96,7 +91,6 @@ export default function CareerFormV2({
 
   const [currentStep, setCurrentStep] = useState<number>(0);
   
-  // Collapsible sections state for Review Center (Step 3)
   const [collapsedSections, setCollapsedSections] = useState<{
     careerDetails: boolean;
     cvScreening: boolean;
@@ -107,7 +101,6 @@ export default function CareerFormV2({
     aiInterview: false,
   });
 
-  // Pre-screening questions hook
   const preScreeningHook = usePreScreeningQuestions(
     formState.cvScreeningDetails.preScreeningQuestions,
     (questions) => {
@@ -120,7 +113,6 @@ export default function CareerFormV2({
     }
   );
 
-  // Auto-save draft hook
   const {
     draftId,
     isSaving: isSavingDraft,
@@ -128,7 +120,6 @@ export default function CareerFormV2({
     clearDraft,
   } = useCareerDraftAutoSave(formState, orgID, user, currentStep, true, initialDraftId);
 
-  // Form submission hook
   const {
     isPublishing,
     isSavingUnpublished,
@@ -136,7 +127,6 @@ export default function CareerFormV2({
     handleSaveAsUnpublished,
   } = useCareerFormSubmission(formState, orgID, user, draftId, clearDraft);
 
-  // Load draft data on mount if draftId is provided
   useEffect(() => {
     const loadDraftData = async () => {
       if (!initialDraftId || !orgID) return;
@@ -151,7 +141,6 @@ export default function CareerFormV2({
         if (response.data) {
           const mappedFormState = mapCareerToFormState(response.data);
           
-          // Update careerDetails
           Object.entries(mappedFormState.careerDetails).forEach(([field, value]) => {
             dispatch({
               type: "SET",
@@ -161,7 +150,6 @@ export default function CareerFormV2({
             });
           });
 
-          // Update cvScreeningDetails
           Object.entries(mappedFormState.cvScreeningDetails).forEach(([field, value]) => {
             dispatch({
               type: "SET",
@@ -171,7 +159,6 @@ export default function CareerFormV2({
             });
           });
 
-          // Update aiScreeningDetails
           Object.entries(mappedFormState.aiScreeningDetails).forEach(([field, value]) => {
             dispatch({
               type: "SET",
@@ -181,7 +168,6 @@ export default function CareerFormV2({
             });
           });
 
-          // Update teamAccessDetails
           Object.entries(mappedFormState.teamAccessDetails).forEach(([field, value]) => {
             dispatch({
               type: "SET",
@@ -191,14 +177,12 @@ export default function CareerFormV2({
             });
           });
 
-          // Set the current step from the draft
           if (response.data.draftStep !== undefined) {
             setCurrentStep(response.data.draftStep);
           }
         }
       } catch (error) {
         console.error("Error loading draft:", error);
-        // Optionally show error toast to user
       } finally {
         setIsLoadingDraft(false);
       }
@@ -280,6 +264,15 @@ export default function CareerFormV2({
     }
   };
 
+  const STEP_COMPONENTS = [
+    CareerFormStep0,
+    CareerFormStep1,
+    CareerFormStep2,
+    CareerFormStep3,
+  ] as const;
+
+  const CurrentStepComponent = STEP_COMPONENTS[currentStep];
+
   return (
     <div className={styles.careerFormContainer}>
       {isLoadingDraft ? (
@@ -293,102 +286,93 @@ export default function CareerFormV2({
         </div>
       ) : (
         <>
-      <div style={{ marginBottom: "35px", display: "flex", justifyContent: "space-between" }}>
-        <div>
-          <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#181D27" }}>
-            {currentStep > 0 ? (
-              <>
-                <span style={{ color: "#717680" }}>[Draft]</span> {formState.careerDetails.jobTitle}
-              </>
-            ) : <>Add new career</>}
-          </h1>
-          {draftId && (
-            <div style={{ fontSize: "12px", color: "#717680", marginTop: "4px" }}>
-              {isSavingDraft ? (
-                <span>Saving draft...</span>
-              ) : lastSaved ? (
-                <span>Last saved: {new Date(lastSaved).toLocaleTimeString()}</span>
-              ) : null}
+          <div style={{ marginBottom: "35px", display: "flex", justifyContent: "space-between" }}>
+            <div>
+              <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#181D27" }}>
+                {currentStep > 0 ? (
+                  <>
+                    <span style={{ color: "#717680" }}>[Draft]</span> {formState.careerDetails.jobTitle}
+                  </>
+                ) : <>Add new career</>}
+              </h1>
+              {draftId && (
+                <div style={{ fontSize: "12px", color: "#717680", marginTop: "4px" }}>
+                  {isSavingDraft ? (
+                    <span>Saving draft...</span>
+                  ) : lastSaved ? (
+                    <span>Last saved: {new Date(lastSaved).toLocaleTimeString()}</span>
+                  ) : null}
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        <div className={styles.buttonContainer}>
-          {currentStep === formSteps.length - 1 ? (
-            <button 
-              className={`${styles.actionButton} ${styles.secondary}`}
-              onClick={handleSaveAsUnpublished}
-              disabled={isSavingUnpublished || isPublishing}
-            >
-              {isSavingUnpublished ? "Saving..." : "Save as Unpublished"}
-            </button>
-          ) : (
-            <button className={`${styles.actionButton} ${styles.secondary} ${styles.disabled}`} disabled>
-              Save as Unpublished
-            </button>
-          )}
+            <div className={styles.buttonContainer}>
+              {currentStep === formSteps.length - 1 ? (
+                <button 
+                  className={`${styles.actionButton} ${styles.secondary}`}
+                  onClick={handleSaveAsUnpublished}
+                  disabled={isSavingUnpublished || isPublishing}
+                >
+                  {isSavingUnpublished ? "Saving..." : "Save as Unpublished"}
+                </button>
+              ) : (
+                <button className={`${styles.actionButton} ${styles.secondary} ${styles.disabled}`} disabled>
+                  Save as Unpublished
+                </button>
+              )}
 
-          {currentStep === formSteps.length - 1 ? (
-            <button 
-              className={styles.actionButton} 
-              onClick={handlePublish}
-              disabled={isPublishing || isSavingUnpublished}
-            >
-              {!isPublishing && <img alt="check" src="/iconsV3/checkV7.svg" style={{ width: "19px", height: "19px" }} />}
-              {isPublishing ? "Publishing..." : "Publish"}
-            </button>
-          ) : (
-            <button className={styles.actionButton} onClick={handleSaveAndContinue}>
-              Save and Continue
-              <img alt="arrow" src={assetConstants.arrow} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.mainContainer}>
-        <StepIndicator currentStep={currentStep} formSteps={formSteps} formState={formState} handleClick={handleStepClick} />
-
-        <div
-          className={styles.subStepsContainer}
-          style={{
-            gridTemplateColumns: currentStep === formSteps.length - 1 ? "86.1%" : "2fr 1fr",
-            justifyContent: currentStep === formSteps.length - 1 ? "center" : "initial"
-          }}
-        >
-          <div className={styles.subStepsCol}>
-            {currentStep === 0 && (
-              <CareerFormStep0 formState={formState} dispatch={dispatch} />
-            )}
-
-            {currentStep === 1 && (
-              <CareerFormStep1 formState={formState} dispatch={dispatch} preScreeningHook={preScreeningHook} />
-            )}
-
-            {currentStep === 2 && (
-              <CareerFormStep2 formState={formState} dispatch={dispatch} />
-            )}
-
-            {currentStep === 3 && (
-              <CareerFormStep3 formState={formState} collapsedSections={collapsedSections} toggleSection={toggleSection} />
-            )}
+              {currentStep === formSteps.length - 1 ? (
+                <button 
+                  className={styles.actionButton} 
+                  onClick={handlePublish}
+                  disabled={isPublishing || isSavingUnpublished}
+                >
+                  {!isPublishing && <img alt="check" src="/iconsV3/checkV7.svg" style={{ width: "19px", height: "19px" }} />}
+                  {isPublishing ? "Publishing..." : "Publish"}
+                </button>
+              ) : (
+                <button className={styles.actionButton} onClick={handleSaveAndContinue}>
+                  Save and Continue
+                  <img alt="arrow" src={assetConstants.arrow} />
+                </button>
+              )}
+            </div>
           </div>
 
-          {currentStep !== formSteps.length - 1 && (
-            <TipsBox tips={formSteps[currentStep].tooltips} />
-          )}
-        </div>
-      </div>
+          <div className={styles.mainContainer}>
+            <StepIndicator currentStep={currentStep} formSteps={formSteps} formState={formState} handleClick={handleStepClick} />
 
-      <Tooltip
-        id="cv-secret-prompt-tooltip"
-        style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
-      />
+            <div
+              className={styles.subStepsContainer}
+              style={{
+                gridTemplateColumns: currentStep === formSteps.length - 1 ? "86.1%" : "2fr 1fr",
+                justifyContent: currentStep === formSteps.length - 1 ? "center" : "initial"
+              }}
+            >
+              <div className={styles.subStepsCol}>
+                <CurrentStepComponent 
+                  formState={formState} 
+                  dispatch={dispatch}
+                  {...(currentStep === 1 && { preScreeningHook })}
+                  {...(currentStep === 3 && { collapsedSections, toggleSection })}
+                />
+              </div>
 
-      <Tooltip
-        id="ai-int-secret-prompt-tooltip"
-        style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
-      />
+              {currentStep !== formSteps.length - 1 && (
+                <TipsBox tips={formSteps[currentStep].tooltips} />
+              )}
+            </div>
+          </div>
+
+          <Tooltip
+            id="cv-secret-prompt-tooltip"
+            style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
+          />
+
+          <Tooltip
+            id="ai-int-secret-prompt-tooltip"
+            style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
+          />
       </>
       )}
     </div>
