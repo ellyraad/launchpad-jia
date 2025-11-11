@@ -290,19 +290,19 @@ export default function CareerFormV2({
   return (
     <div className={styles.careerFormContainer}>
       {isLoadingDraft ? (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
-          <div style={{ textAlign: "center" }}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingContent}>
             <div className="spinner-border text-primary" role="status">
               <span className="sr-only">Loading draft...</span>
             </div>
-            <p style={{ marginTop: "1rem", color: "#717680" }}>Loading draft...</p>
+            <p className={styles.loadingText}>Loading draft...</p>
           </div>
         </div>
       ) : (
         <>
-          <div style={{ marginBottom: "35px", display: "flex", justifyContent: "space-between" }}>
+          <div className={styles.headerContainer}>
             <div>
-              <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#181D27" }}>
+              <h1 className={styles.headerTitle}>
                 {formType === "edit" ? (
                   <>
                     {currentStep > 0 ? (
@@ -313,14 +313,14 @@ export default function CareerFormV2({
                   <>
                     {currentStep > 0 ? (
                       <>
-                        <span style={{ color: "#717680" }}>[Draft]</span> {formState.careerDetails.jobTitle}
+                        <span className={styles.draftLabel}>[Draft]</span> {formState.careerDetails.jobTitle}
                       </>
                     ) : <>Add new career</>}
                   </>
                 )}
               </h1>
               {draftId && formType !== "edit" && (
-                <div style={{ fontSize: "12px", color: "#717680", marginTop: "4px" }}>
+                <div className={styles.draftStatus}>
                   {isSavingDraft ? (
                     <span>Saving draft...</span>
                   ) : lastSaved ? (
@@ -363,7 +363,7 @@ export default function CareerFormV2({
                   onClick={handlePublish}
                   disabled={isPublishing || isSavingUnpublished}
                 >
-                  {!isPublishing && <img alt="check" src="/iconsV3/checkV7.svg" style={{ width: "19px", height: "19px" }} />}
+                  {!isPublishing && <img alt="check" src="/iconsV3/checkV7.svg" className={styles.checkIcon} />}
                   {isPublishing ? (formType === "edit" ? "Saving..." : "Publishing...") : (formType === "edit" ? "Save Changes" : "Publish")}
                 </button>
               ) : (
@@ -408,12 +408,12 @@ export default function CareerFormV2({
 
           <Tooltip
             id="cv-secret-prompt-tooltip"
-            style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
+            className={styles.tooltipStyle}
           />
 
           <Tooltip
             id="ai-int-secret-prompt-tooltip"
-            style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
+            className={styles.tooltipStyle}
           />
       </>
       )}
