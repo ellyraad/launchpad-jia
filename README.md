@@ -8,19 +8,31 @@ Jia is a web application built with Next.js that appears to provide interview as
 
   - Next.js 15.x (with App Router)
   - React 19.x
-  - SASS for styling
+  - SASS/SCSS for styling
   - TypeScript
 
 - **Backend**:
 
   - Next.js API Routes (serverless functions)
-  - MongoDB for database
-  - Firebase for authentication and storage
+  - MongoDB 6.x for database
+  - Firebase 11.x for authentication and storage
+
+- **Key Libraries**:
+
+  - **UI Components**: React Quill (rich text editor), React Tooltip, SweetAlert2
+  - **Data Visualization**: Reaviz, UpsetJS Venn.js
+  - **Forms & Validation**: React Hook Form patterns, custom validation
+  - **File Handling**: React Drag Drop Files, React PDF Renderer
+  - **Utilities**: Axios (HTTP client), Moment.js (dates), Fuse.js (fuzzy search)
+  - **Notifications**: React Toastify, Mailgun, Nodemailer
 
 - **APIs & Services**:
 
-  - OpenAI API integration
+  - OpenAI API integration (v4.x)
   - Socket.io for real-time communication
+  - External Core API for CV processing
+  - AWS S3 for file storage
+  - Google APIs integration
 
 - **DevOps**:
   - Vercel for deployment
@@ -116,35 +128,87 @@ yarn clean
 
 ```
 jia-web-app/
-├── .env                 # Environment variables
-├── .env.example         # Example environment configuration
-├── .gitignore           # Git ignore file
-├── next-env.d.ts        # TypeScript declarations for Next.js
-├── package.json         # Project dependencies and scripts
-├── public/              # Static assets
-├── src/                 # Source code
-│   ├── app/             # Next.js App Router structure
-│   │   ├── api/         # API routes
-│   │   ├── dashboard/   # Dashboard page
-│   │   ├── interview/   # Interview related pages
-│   │   ├── login/       # Authentication pages
-│   │   ├── my-interviews/ # User interviews management
-│   │   ├── applicant/ # Applicant tracking
-│   │   ├── talk/        # Communication features
-│   │   ├── layout.tsx   # Root layout
-│   │   └── page.tsx     # Home page
-│   ├── contexts/        # React contexts
-│   └── lib/             # Shared libraries and utilities
-│       ├── components/  # Reusable UI components
-│       ├── context/     # Context providers
-│       ├── firebase/    # Firebase configuration
-│       ├── mongoDB/     # MongoDB utilities
-│       ├── styles/      # Global styles
-│       ├── Modal/       # Modal components
-│       ├── Loader/      # Loading UI components
-│       ├── PageComponent/ # Page-specific components
-│       └── VoiceAssistant/ # Voice interaction features
-└── tsconfig.json        # TypeScript configuration
+├── .env                                       # Environment variables
+├── .env.example                               # Example env configuration
+├── .gitignore                                 # Git ignore file
+├── next-env.d.ts                              # TS declarations for Next.js
+├── package.json                               # Dependencies and scripts
+├── public/                                    # Static assets
+│   ├── assets/                                # Feature images and icons
+│   ├── css/                                   # Global CSS files
+│   ├── icons/                                 # SVG icons
+│   ├── iconsV3/                               # Latest icon set
+│   └── images/                                # Static images
+├── src/                                       # Source code
+│   ├── app/                                   # Next.js App Router structure
+│   │   ├── api/                               # API routes
+│   │   │   ├── add-career/                    # Create new career
+│   │   │   ├── save-career-draft/             # Save draft careers
+│   │   │   ├── update-career/                 # Update existing careers
+│   │   │   ├── get-careers/                   # Fetch careers
+│   │   │   ├── whitecloak/                    # CV screening APIs
+│   │   │   └── job-portal/                    # Job portal APIs
+│   │   ├── recruiter-dashboard/               # Recruiter interface
+│   │   │   └── careers/
+│   │   │       ├── new-career/                # Create new job posting
+│   │   │       ├── edit-career/               # Edit existing job
+│   │   │       └── manage/                    # Manage job postings
+│   │   ├── job-portal/                        # Job seeker interface
+│   │   ├── applicant/                         # Applicant tracking
+│   │   ├── interview/                         # Interview related pages
+│   │   ├── my-interviews/                     # User interviews management
+│   │   ├── login/                             # Authentication pages
+│   │   ├── talk/                              # Communication features
+│   │   ├── layout.tsx                         # Root layout
+│   │   └── page.tsx                           # Home page
+│   └── lib/                                   # Shared libs and utils
+│       ├── components/                        # Reusable UI components
+│       │   ├── CareerComponents/              # Job posting components
+│       │   │   ├── CareerFormV2.tsx           # New multi-step form
+│       │   │   ├── CareerDetailsStep.tsx      # Step 1: Job details
+│       │   │   ├── CVScreeningStep.tsx        # Step 2: CV screening
+│       │   │   ├── AIInterviewSetupStep.tsx   # Step 3: AI interview
+│       │   │   ├── ReviewStep.tsx             # Step 4: Review
+│       │   │   ├── SalaryInput.tsx            # Salary input field
+│       │   │   ├── AssessmentBadge.tsx        # Assessment badges
+│       │   │   ├── TipsBox.tsx                # Tips component
+│       │   │   ├── StepIndicator.tsx          # Progress indicator
+│       │   │   ├── SubstepContainer.tsx       # Sub-step wrapper
+│       │   │   └── FieldErrorMessage.tsx      # Error messages
+│       │   ├── Dropdown/                      # Dropdown components
+│       │   │   ├── CustomDropdownV2.tsx       # Enhanced dropdown
+│       │   │   └── PreScreeningDropdown.tsx   # Pre-screening dropdown
+│       │   ├── DataTables/                    # Table components
+│       │   └── screens/                       # Screen components
+│       │       └── UploadCV.tsx               # CV upload with pre-screening
+│       ├── hooks/                             # Custom React hooks
+│       │   ├── useCareerFormSubmission.ts     # Form submission
+│       │   ├── useCareerDraftAutoSave.ts      # Auto-save drafts
+│       │   └── usePreScreeningQuestions.ts    # Pre-screening logic
+│       ├── styles/                            # SCSS modules
+│       │   ├── screens/
+│       │   │   ├── careerForm.module.scss     # Career form styles
+│       │   │   ├── salaryInput.module.scss    # Salary input styles
+│       │   │   └── uploadCV.module.scss       # CV upload styles
+│       │   └── commonV2/
+│       │       ├── dropdownV2.module.scss     # Dropdown styles
+│       │       └── richTextEditor.module.scss # Editor styles
+│       ├── utils/                             # Utility functions
+│       │   ├── locations.ts                   # Location utilities
+│       │   ├── currency.ts                    # Currency utilities
+│       │   ├── sanitize.ts                    # HTML sanitization
+│       │   └── constantsV2.ts                 # Constants
+│       ├── context/                           # React contexts
+│       ├── firebase/                          # Firebase configuration
+│       ├── mongoDB/                           # MongoDB utilities
+│       ├── Modal/                             # Modal components
+│       ├── Loader/                            # Loading UI components
+│       ├── PageComponent/                     # Page-specific components
+│       ├── VoiceAssistant/                    # Voice interaction features
+│       ├── CareerFormUtils.tsx                # Career form utilities
+│       ├── Utils.tsx                          # General utilities
+│       └── definitions.ts                     # TypeScript definitions
+└── tsconfig.json                              # TypeScript configuration
 ```
 
 ## Key Features
