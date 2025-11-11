@@ -27,12 +27,12 @@ export type PreScreeningQuestion = {
   title: string;
   question: string;
   questionType: "dropdown" | "range" | "shorttext" | "longtext";
-  options?: DropdownOption[];
-  currency?: string;  // for salary/range questions
-  preferredRange?: { min: number, max: number },
+  options?: DropdownOption[];  // Used for dropdown question type
+  currency?: string;  // Currency for salary/range questions (e.g., "PHP", "USD")
+  preferredRange?: { min: number, max: number };  // Recruiter's preferred range for range-type questions
   answer?:
-    | string
-    | { min: number, max: number };  // for handlng range type
+    | string  // For dropdown, shorttext, longtext question types
+    | { min: number, max: number };  // For range question type - applicant's provided range
 }
 
 export type FormState = {

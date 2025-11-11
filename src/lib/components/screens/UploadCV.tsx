@@ -369,17 +369,53 @@ export default function () {
   function handlePreScreeningSubmit() {
     // Validate all required questions are answered
     const questions = interview.career.preScreeningQuestions;
+    const validationErrors: string[] = [];
+    
     const unanswered = questions.filter((q) => {
       const answer = preScreeningAnswers[q.id];
       if (!answer) return true;
+      
       if (q.questionType === "range") {
-        return !answer.min || !answer.max;
+        // Validate range-type questions
+        const hasMin = answer.min !== undefined && answer.min !== null && answer.min !== "";
+        const hasMax = answer.max !== undefined && answer.max !== null && answer.max !== "";
+        
+        if (!hasMin || !hasMax) {
+          validationErrors.push(`${q.title}: Both minimum and maximum values are required.`);
+          return true;
+        }
+        
+        // Validate that min is less than or equal to max
+        const minVal = Number(answer.min);
+        const maxVal = Number(answer.max);
+        
+        if (isNaN(minVal) || isNaN(maxVal)) {
+          validationErrors.push(`${q.title}: Please enter valid numeric values.`);
+          return true;
+        }
+        
+        if (minVal > maxVal) {
+          validationErrors.push(`${q.title}: Minimum value cannot be greater than maximum value.`);
+          return true;
+        }
+        
+        if (minVal < 0 || maxVal < 0) {
+          validationErrors.push(`${q.title}: Values cannot be negative.`);
+          return true;
+        }
+        
+        return false;
       }
+      
       return !answer || answer.trim() === "";
     });
 
-    if (unanswered.length > 0) {
-      alert("Please answer all pre-screening questions before continuing.");
+    if (unanswered.length > 0 || validationErrors.length > 0) {
+      if (validationErrors.length > 0) {
+        alert("Please fix the following errors:\n\n" + validationErrors.join("\n"));
+      } else {
+        alert("Please answer all pre-screening questions before continuing.");
+      }
       return;
     }
 

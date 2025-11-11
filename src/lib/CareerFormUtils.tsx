@@ -22,7 +22,7 @@ export const flattenNewCareerData = (career: FormState, orgID: string, user: Use
     preScreeningQuestions: career.cvScreeningDetails.preScreeningQuestions,
     salaryNegotiable: career.careerDetails.isSalaryNegotiable,
     minimumSalary: isNaN(Number(career.careerDetails.minSalary)) ? null : Number(career.careerDetails.minSalary),
-    maximumSalary: isNaN(Number(career.careerDetails.maxSalary)) ? null : Number(career.careerDetails.minSalary),
+    maximumSalary: isNaN(Number(career.careerDetails.maxSalary)) ? null : Number(career.careerDetails.maxSalary),
     country: career.careerDetails.country,
     province: career.careerDetails.state,
     location: career.careerDetails.city,

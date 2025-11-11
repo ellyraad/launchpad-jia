@@ -63,8 +63,31 @@ export async function POST(request: Request) {
       const answer = preScreeningAnswers[question.id];
       if (answer) {
         preScreeningSection += `\nQuestion: ${question.title}\n`;
+        preScreeningSection += `Details: ${question.question}\n`;
+        
         if (question.questionType === "range") {
-          preScreeningSection += `Answer: ${answer.min} - ${answer.max}${question.currency ? ` ${question.currency}` : ""}\n`;
+          const answerMin = answer.min || 0;
+          const answerMax = answer.max || 0;
+          preScreeningSection += `Applicant's Answer: ${answerMin} - ${answerMax}${question.currency ? ` ${question.currency}` : ""}\n`;
+          
+          // Include recruiter's preferred range if it exists
+          if (question.preferredRange) {
+            const prefMin = question.preferredRange.min || 0;
+            const prefMax = question.preferredRange.max || 0;
+            preScreeningSection += `Preferred Range (Recruiter): ${prefMin} - ${prefMax}${question.currency ? ` ${question.currency}` : ""}\n`;
+            
+            // Add alignment note for AI
+            const isWithinRange = answerMin >= prefMin && answerMax <= prefMax;
+            const hasOverlap = !(answerMax < prefMin || answerMin > prefMax);
+            
+            if (isWithinRange) {
+              preScreeningSection += `Note: Applicant's range is within the preferred range.\n`;
+            } else if (hasOverlap) {
+              preScreeningSection += `Note: Applicant's range partially overlaps with the preferred range.\n`;
+            } else {
+              preScreeningSection += `Note: Applicant's range is outside the preferred range.\n`;
+            }
+          }
         } else {
           preScreeningSection += `Answer: ${answer}\n`;
         }

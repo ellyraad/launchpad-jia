@@ -216,6 +216,8 @@ export default function CareerFormStep1({
                                   type="number"
                                   placeholder="Enter minimum value"
                                   style={{ padding: "10px 14px" }}
+                                  min="0"
+                                  step="any"
                                   value={psQuestion.preferredRange 
                                     ? psQuestion.preferredRange.min 
                                     : ""}
@@ -233,6 +235,8 @@ export default function CareerFormStep1({
                                   type="number"
                                   placeholder="Enter maximum value"
                                   style={{ padding: "10px 14px" }}
+                                  min="0"
+                                  step="any"
                                   value={psQuestion.preferredRange 
                                     ? psQuestion.preferredRange.max 
                                     : ""}
