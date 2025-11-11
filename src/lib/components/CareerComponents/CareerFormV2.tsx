@@ -130,6 +130,8 @@ export default function CareerFormV2({
     }
   );
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const {
     draftId,
     isSaving: isSavingDraft,
@@ -140,15 +142,15 @@ export default function CareerFormV2({
     orgID, 
     user, 
     currentStep, 
-    formType !== "edit",
+    formType !== "edit" && !isSubmitting,
     initialDraftId
   );
 
   const {
     isPublishing,
     isSavingUnpublished,
-    handlePublish,
-    handleSaveAsUnpublished,
+    handlePublish: originalHandlePublish,
+    handleSaveAsUnpublished: originalHandleSaveAsUnpublished,
   } = useCareerFormSubmission(
     formState, 
     orgID, 
@@ -156,6 +158,16 @@ export default function CareerFormV2({
     formType === "edit" ? initialCareerId : draftId, 
     clearDraft
   );
+
+  const handlePublish = async () => {
+    setIsSubmitting(true);
+    await originalHandlePublish();
+  };
+
+  const handleSaveAsUnpublished = async () => {
+    setIsSubmitting(true);
+    await originalHandleSaveAsUnpublished();
+  };
 
   useEffect(() => {
     const loadFormData = async () => {

@@ -77,6 +77,9 @@ export function useCareerFormSubmission(
           }, 1500);
         }
       }
+      
+      // Reset ref on success
+      savingCareerRef.current = false;
     } catch (error: any) {
       console.error("Error saving career:", error);
       errorToast(
@@ -128,8 +131,6 @@ export function useCareerFormSubmission(
           }, 1500);
         }
       } else {
-        // Create new career if no draft exists
-        // Override status to inactive for unpublished careers
         const unpublishedData = {
           ...flattenedData,
           status: "inactive"
@@ -153,6 +154,8 @@ export function useCareerFormSubmission(
           }, 1500);
         }
       }
+      
+      savingCareerRef.current = false;
     } catch (error: any) {
       console.error("Error saving career:", error);
       errorToast(
