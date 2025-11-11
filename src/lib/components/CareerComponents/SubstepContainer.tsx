@@ -56,7 +56,18 @@ export default function SubstepContainer({
           )}
         </h2>
 
-        {headingBtn}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {isCollapsible && (
+            <div className={styles.editIconCircle}>
+              <img
+                src="/iconsV3/edit.svg"
+                alt="edit"
+                className={styles.editIcon}
+              />
+            </div>
+          )}
+          {headingBtn}
+        </div>
       </div>
 
       {!isCollapsed && (
