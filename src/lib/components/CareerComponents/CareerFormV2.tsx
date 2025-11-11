@@ -69,17 +69,14 @@ const initFormState: FormState = {
 
 function formReducer(state: FormState, action: FormReducerAction) {
   if (action.type === "SET") {
-    const newState = {
+    return {
       ...state,
       [action.category]: {
         ...(state[action.category]),
         [action.field]: action.payload
       }
-    }
-
-    return newState;
+    };
   }
-
   return state;
 }
 
@@ -143,7 +140,7 @@ export default function CareerFormV2({
     orgID, 
     user, 
     currentStep, 
-    formType !== "edit", // Only enable autosave for non-edit mode
+    formType !== "edit",
     initialDraftId
   );
 
@@ -174,20 +171,17 @@ export default function CareerFormV2({
         });
 
         if (response.data) {
-          // Store existing career data for edit mode
           if (formType === "edit") {
             setExistingCareerData(response.data);
           }
 
           const mappedFormState = mapCareerToFormState(response.data);
           
-          // Dispatch all form state updates using helper function
           dispatchFormStateCategory("careerDetails", mappedFormState.careerDetails);
           dispatchFormStateCategory("cvScreeningDetails", mappedFormState.cvScreeningDetails);
           dispatchFormStateCategory("aiScreeningDetails", mappedFormState.aiScreeningDetails);
           dispatchFormStateCategory("teamAccessDetails", mappedFormState.teamAccessDetails);
 
-          // Handle step navigation
           if (initialStep !== undefined) {
             setCurrentStep(initialStep);
           } else if (formType !== "edit" && response.data.draftStep !== undefined) {
@@ -212,41 +206,30 @@ export default function CareerFormV2({
     }));
   };
 
+  const setStepValidation = (step: "step1" | "step3", isInvalid: boolean) => {
+    dispatch({
+      type: "SET",
+      category: "isValid",
+      field: step,
+      payload: isInvalid
+    });
+  };
+
   const handleSaveAndContinue = () => {
     if (currentStep === 0) {
       if (!validateCareerDetails(formState.careerDetails)) {
-        dispatch({
-          type: "SET",
-          category: "isValid",
-          field: "step1",
-          payload: true
-        });
+        setStepValidation("step1", true);
         return;
       }
-      dispatch({
-        type: "SET",
-        category: "isValid",
-        field: "step1",
-        payload: false
-      });
+      setStepValidation("step1", false);
     }
     
     if (currentStep === 2) {
       if (!isValidInterviewQuestionsCount(formState.aiScreeningDetails.interviewQuestions)) {
-        dispatch({
-          type: "SET",
-          category: "isValid",
-          field: "step3",
-          payload: true
-        });
+        setStepValidation("step3", true);
         return;
       }
-      dispatch({
-        type: "SET",
-        category: "isValid",
-        field: "step3",
-        payload: false
-      });
+      setStepValidation("step3", false);
     }
     
     if (currentStep < formSteps.length - 1) {
@@ -260,20 +243,10 @@ export default function CareerFormV2({
 
       // Reset validation when navigating
       if (stepIndex === 0) {
-        dispatch({
-          type: "SET",
-          category: "isValid",
-          field: "step1",
-          payload: false
-        });
+        setStepValidation("step1", false);
       }
       if (stepIndex === 2) {
-        dispatch({
-          type: "SET",
-          category: "isValid",
-          field: "step3",
-          payload: false
-        });
+        setStepValidation("step3", false);
       }
     }
   };
@@ -286,6 +259,24 @@ export default function CareerFormV2({
   ] as const;
 
   const CurrentStepComponent = STEP_COMPONENTS[currentStep];
+
+  const getFormTitle = () => {
+    if (currentStep === 0) {
+      return formType === "edit" ? "Edit career" : "Add new career";
+    }
+    
+    if (formType === "edit") {
+      return formState.careerDetails.jobTitle;
+    }
+    
+    return (
+      <>
+        <span className={styles.draftLabel}>[Draft]</span> {formState.careerDetails.jobTitle}
+      </>
+    );
+  };
+
+  const isLastStep = currentStep === formSteps.length - 1;
 
   return (
     <div className={styles.careerFormContainer}>
@@ -303,21 +294,7 @@ export default function CareerFormV2({
           <div className={styles.headerContainer}>
             <div>
               <h1 className={styles.headerTitle}>
-                {formType === "edit" ? (
-                  <>
-                    {currentStep > 0 ? (
-                      formState.careerDetails.jobTitle
-                    ) : <>Edit career</>}
-                  </>
-                ) : (
-                  <>
-                    {currentStep > 0 ? (
-                      <>
-                        <span className={styles.draftLabel}>[Draft]</span> {formState.careerDetails.jobTitle}
-                      </>
-                    ) : <>Add new career</>}
-                  </>
-                )}
+                {getFormTitle()}
               </h1>
               {draftId && formType !== "edit" && (
                 <div className={styles.draftStatus}>
@@ -331,7 +308,7 @@ export default function CareerFormV2({
             </div>
 
             <div className={styles.buttonContainer}>
-              {currentStep === formSteps.length - 1 ? (
+              {isLastStep ? (
                 <>
                   {formType === "edit" && existingCareerData?.status === "active" ? (
                     <button 
@@ -357,7 +334,7 @@ export default function CareerFormV2({
                 </button>
               )}
 
-              {currentStep === formSteps.length - 1 ? (
+              {isLastStep ? (
                 <button 
                   className={styles.actionButton} 
                   onClick={handlePublish}
@@ -381,8 +358,8 @@ export default function CareerFormV2({
             <div
               className={styles.subStepsContainer}
               style={{
-                gridTemplateColumns: currentStep === formSteps.length - 1 ? "86.1%" : "2fr 1fr",
-                justifyContent: currentStep === formSteps.length - 1 ? "center" : "initial"
+                gridTemplateColumns: isLastStep ? "86.1%" : "2fr 1fr",
+                justifyContent: isLastStep ? "center" : "initial"
               }}
             >
               <div className={styles.subStepsCol}>
@@ -400,7 +377,7 @@ export default function CareerFormV2({
                 />
               </div>
 
-              {currentStep !== formSteps.length - 1 && (
+              {!isLastStep && (
                 <TipsBox tips={formSteps[currentStep].tooltips} />
               )}
             </div>
