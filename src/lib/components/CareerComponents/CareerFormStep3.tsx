@@ -12,7 +12,7 @@ interface CareerFormStep3Props {
     cvScreening: boolean;
     aiInterview: boolean;
   };
-  toggleSection: (section: 'careerDetails' | 'cvScreening' | 'aiInterview') => void;
+  toggleSection(section: 'careerDetails' | 'cvScreening' | 'aiInterview'): void;
 }
 
 export default function CareerFormStep3({ 

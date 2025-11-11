@@ -351,16 +351,17 @@ export default function (props) {
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
               <div style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: 8 }}>
                 <span style={{fontSize: 16, color: "#181D27", fontWeight: 700, padding: "12px"}}>
-                  2. Interview Questions 
+                  2. AI Interview Questions 
                 </span>
                 <div style={{ borderRadius: "50%", width: 30, height: 22, border: "1px solid #D5D9EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, backgroundColor: "#F8F9FC", color: "#181D27", fontWeight: 700 }}>
                   {questions.reduce((acc, group) => acc + group.questions.length, 0)}
                 </div>
               </div>
-              <button style={{ width: "fit-content", background: "black", color: "#fff", border: "1px solid #E9EAEB", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap"}} onClick={() => {
+              <button style={{ width: "fit-content", background: "black", color: "#fff", border: "1px solid #E9EAEB", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "8px"}} onClick={() => {
                 generateAllQuestions();
                   }}>
-                <i className="la la-bolt" style={{ fontSize: 20 }}></i> Generate All Questions
+                <img src="/icons/spark.svg" alt="" style={{ width: "20px", height: "20px", filter: "brightness(0) invert(1)" }} />
+                Generate All Questions
               </button>
           </div>
           
@@ -558,12 +559,13 @@ export default function (props) {
                 >
                   <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                     <button
-                    style={{ width: "fit-content", background: "black", color: "#fff", border: "1px solid #E9EAEB", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap"}}
+                    style={{ width: "fit-content", background: "black", color: "#fff", border: "1px solid #E9EAEB", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "8px"}}
                       onClick={() => {
                         generateQuestions(group.category);
                       }}
                     >
-                      <i className="la la-bolt" style={{ fontSize: 20 }}></i> Generate Questions
+                      <img src="/icons/spark.svg" alt="" style={{ width: "20px", height: "20px", filter: "brightness(0) invert(1)" }} />
+                      Generate Questions
                     </button>
                     <button
                     style={{ width: "fit-content", color: "#414651", background: "#fff", border: "1px solid #D5D7DA", padding: "8px 16px", borderRadius: "60px", cursor: "pointer", whiteSpace: "nowrap" }}
