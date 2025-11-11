@@ -20,10 +20,10 @@ import StepIndicator from "./StepIndicator";
 import { usePreScreeningQuestions } from "@/lib/hooks/usePreScreeningQuestions";
 import { useCareerFormSubmission } from "@/lib/hooks/useCareerFormSubmission";
 import { useCareerDraftAutoSave } from "@/lib/hooks/useCareerDraftAutoSave";
-import CareerFormStep0 from "./CareerFormStep0";
-import CareerFormStep1 from "./CareerFormStep1";
-import CareerFormStep2 from "./CareerFormStep2";
-import CareerFormStep3 from "./CareerFormStep3";
+import CareerDetailsStep from "./CareerDetailsStep";
+import CVScreeningStep from "./CVScreeningStep";
+import AIInterviewSetupStep from "./AIInterviewSetupStep";
+import ReviewStep from "./ReviewStep";
 import axios from "axios";
 
 const initFormState: FormState = {
@@ -252,10 +252,10 @@ export default function CareerFormV2({
   };
 
   const STEP_COMPONENTS = [
-    CareerFormStep0,
-    CareerFormStep1,
-    CareerFormStep2,
-    CareerFormStep3,
+    CareerDetailsStep,
+    CVScreeningStep,
+    AIInterviewSetupStep,
+    ReviewStep,
   ] as const;
 
   const CurrentStepComponent = STEP_COMPONENTS[currentStep];
