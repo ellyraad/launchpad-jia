@@ -96,6 +96,20 @@ export default function CareerFormV2({
   const [existingCareerData, setExistingCareerData] = useState<any>(null);
 
   const [currentStep, setCurrentStep] = useState<number>(initialStep ?? 0);
+
+  const dispatchFormStateCategory = (
+    category: keyof FormState,
+    data: Record<string, any>
+  ) => {
+    Object.entries(data).forEach(([field, value]) => {
+      dispatch({
+        type: "SET",
+        category,
+        field,
+        payload: value,
+      });
+    });
+  };
   
   const [collapsedSections, setCollapsedSections] = useState<{
     careerDetails: boolean;
@@ -146,140 +160,50 @@ export default function CareerFormV2({
     clearDraft
   );
 
-  // Load existing career data for editing
   useEffect(() => {
-    const loadCareerData = async () => {
-      if (!initialCareerId || !orgID || formType !== "edit") return;
+    const loadFormData = async () => {
+      const idToLoad = formType === "edit" ? initialCareerId : initialDraftId;
+      
+      if (!idToLoad || !orgID) return;
 
       setIsLoadingDraft(true);
       try {
         const response = await axios.post("/api/career-data", {
-          id: initialCareerId,
+          id: idToLoad,
           orgID,
         });
 
         if (response.data) {
-          setExistingCareerData(response.data);
-          const mappedFormState = mapCareerToFormState(response.data);
-          
-          Object.entries(mappedFormState.careerDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "careerDetails",
-              field: field as keyof FormState["careerDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.cvScreeningDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "cvScreeningDetails",
-              field: field as keyof FormState["cvScreeningDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.aiScreeningDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "aiScreeningDetails",
-              field: field as keyof FormState["aiScreeningDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.teamAccessDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "teamAccessDetails",
-              field: field as keyof FormState["teamAccessDetails"],
-              payload: value,
-            });
-          });
-
-          // Use initialStep from URL if provided
-          if (initialStep !== undefined) {
-            setCurrentStep(initialStep);
+          // Store existing career data for edit mode
+          if (formType === "edit") {
+            setExistingCareerData(response.data);
           }
-        }
-      } catch (error) {
-        console.error("Error loading career data:", error);
-      } finally {
-        setIsLoadingDraft(false);
-      }
-    };
 
-    loadCareerData();
-  }, [initialCareerId, orgID, formType, initialStep]);
-
-  // Load draft data (for new career flow)
-  useEffect(() => {
-    const loadDraftData = async () => {
-      if (!initialDraftId || !orgID || formType === "edit") return;
-
-      setIsLoadingDraft(true);
-      try {
-        const response = await axios.post("/api/career-data", {
-          id: initialDraftId,
-          orgID,
-        });
-
-        if (response.data) {
           const mappedFormState = mapCareerToFormState(response.data);
           
-          Object.entries(mappedFormState.careerDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "careerDetails",
-              field: field as keyof FormState["careerDetails"],
-              payload: value,
-            });
-          });
+          // Dispatch all form state updates using helper function
+          dispatchFormStateCategory("careerDetails", mappedFormState.careerDetails);
+          dispatchFormStateCategory("cvScreeningDetails", mappedFormState.cvScreeningDetails);
+          dispatchFormStateCategory("aiScreeningDetails", mappedFormState.aiScreeningDetails);
+          dispatchFormStateCategory("teamAccessDetails", mappedFormState.teamAccessDetails);
 
-          Object.entries(mappedFormState.cvScreeningDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "cvScreeningDetails",
-              field: field as keyof FormState["cvScreeningDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.aiScreeningDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "aiScreeningDetails",
-              field: field as keyof FormState["aiScreeningDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.teamAccessDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "teamAccessDetails",
-              field: field as keyof FormState["teamAccessDetails"],
-              payload: value,
-            });
-          });
-
-          // Use initialStep from URL if provided, otherwise use saved draftStep
+          // Handle step navigation
           if (initialStep !== undefined) {
             setCurrentStep(initialStep);
-          } else if (response.data.draftStep !== undefined) {
+          } else if (formType !== "edit" && response.data.draftStep !== undefined) {
+            // Only use saved draftStep for non-edit mode
             setCurrentStep(response.data.draftStep);
           }
         }
       } catch (error) {
-        console.error("Error loading draft:", error);
+        console.error(`Error loading ${formType === "edit" ? "career" : "draft"} data:`, error);
       } finally {
         setIsLoadingDraft(false);
       }
     };
 
-    loadDraftData();
-  }, [initialDraftId, orgID, formType, initialStep]);
+    loadFormData();
+  }, [initialCareerId, initialDraftId, orgID, formType, initialStep]);
 
   const toggleSection = (section: 'careerDetails' | 'cvScreening' | 'aiInterview') => {
     setCollapsedSections(prev => ({
