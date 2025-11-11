@@ -354,7 +354,7 @@ export default function CareerFormV2({ draftId: initialDraftId }: CareerFormProp
                   formState={formState} 
                   dispatch={dispatch}
                   {...(currentStep === 1 && { preScreeningHook })}
-                  {...(currentStep === 3 && { collapsedSections, toggleSection })}
+                  {...(currentStep === 3 && { collapsedSections, toggleSection, setCurrentStep })}
                 />
               </div>
 

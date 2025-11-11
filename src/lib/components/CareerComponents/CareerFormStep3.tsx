@@ -13,12 +13,14 @@ interface CareerFormStep3Props {
     aiInterview: boolean;
   };
   toggleSection(section: 'careerDetails' | 'cvScreening' | 'aiInterview'): void;
+  setCurrentStep: (step: number) => void;
 }
 
 export default function CareerFormStep3({ 
   formState, 
   collapsedSections, 
-  toggleSection 
+  toggleSection,
+  setCurrentStep
 }: CareerFormStep3Props) {
   return (
     <div className={styles.subSteps}>
@@ -28,6 +30,7 @@ export default function CareerFormStep3({
         isCollapsible={true}
         handleHeadingClick={() => toggleSection("careerDetails")}
         isCollapsed={collapsedSections.careerDetails}
+        onEdit={() => setCurrentStep(0)}
       >
         <div className={styles.reviewField}>
           <div className={styles.fieldLabel}>Job Title</div>
@@ -92,6 +95,7 @@ export default function CareerFormStep3({
         isCollapsible={true}
         handleHeadingClick={() => toggleSection("cvScreening")}
         isCollapsed={collapsedSections.cvScreening}
+        onEdit={() => setCurrentStep(1)}
       >
         <div className={styles.reviewField}>
           <div className={styles.fieldLabel}>CV Screening</div>
@@ -165,6 +169,7 @@ export default function CareerFormStep3({
         isCollapsible={true}
         handleHeadingClick={() => toggleSection("aiInterview")}
         isCollapsed={collapsedSections.aiInterview}
+        onEdit={() => setCurrentStep(2)}
       >
         <div className={styles.reviewField}>
           <div className={styles.fieldLabel}>AI Interview Screening</div>

@@ -13,6 +13,7 @@ interface Props {
   isCollapsed?: boolean;
   className?: string;
   children: React.ReactNode;
+  onEdit?: () => void;
 }
 
 export default function SubstepContainer({
@@ -27,6 +28,7 @@ export default function SubstepContainer({
   isCollapsed,
   className,
   children,
+  onEdit,
 }: Props) {
   return (
     <div className={styles.stepFieldsContainer}>
@@ -58,7 +60,13 @@ export default function SubstepContainer({
 
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           {isCollapsible && (
-            <div className={styles.editIconCircle}>
+            <div 
+              className={styles.editIconCircle}
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit?.();
+              }}
+            >
               <img
                 src="/iconsV3/edit.svg"
                 alt="edit"
