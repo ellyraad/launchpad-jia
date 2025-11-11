@@ -75,6 +75,14 @@ export default function SalaryInput({
           disabled={disabled}
         />
 
+        {invalid && (
+          <img 
+            src="/icons/alert-circle.svg" 
+            alt="" 
+            className={styles.errorIcon}
+          />
+        )}
+
         <div className={styles.currencyDropdown} ref={dropdownRef}>
           <button
             type="button"

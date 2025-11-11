@@ -42,25 +42,38 @@ export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0
         <SubstepFieldsGroup title="Basic Information">
           <div className={styles.field}>
             <span className={styles.fieldLabel}>Job Title</span>
-            <input
-              type="text"
-              value={formState.careerDetails.jobTitle}
-              placeholder="Enter job title"
-              style={{ padding: "10px 14px" }}
-              onChange={(e) => dispatch({
-                type: "SET",
-                category: "careerDetails",
-                field: "jobTitle",
-                payload: e.target.value
-              })}
-              onFocus={() => dispatch({
-                type: "SET",
-                category: "isValid",
-                field: "step1",
-                payload: false
-              })}
-              className={formState.isValid.step1 && !formState.careerDetails.jobTitle.trim() ? styles.invalid : ""}
-            />
+            <div style={{ position: "relative" }}>
+              <input
+                type="text"
+                value={formState.careerDetails.jobTitle}
+                placeholder="Enter job title"
+                style={{ 
+                  padding: "10px 14px",
+                  paddingRight: formState.isValid.step1 && !formState.careerDetails.jobTitle.trim() ? "40px" : "14px",
+                  width: "100%"
+                }}
+                onChange={(e) => dispatch({
+                  type: "SET",
+                  category: "careerDetails",
+                  field: "jobTitle",
+                  payload: e.target.value
+                })}
+                onFocus={() => dispatch({
+                  type: "SET",
+                  category: "isValid",
+                  field: "step1",
+                  payload: false
+                })}
+                className={formState.isValid.step1 && !formState.careerDetails.jobTitle.trim() ? styles.invalid : ""}
+              />
+              {formState.isValid.step1 && !formState.careerDetails.jobTitle.trim() && (
+                <img 
+                  src="/icons/alert-circle.svg" 
+                  alt="" 
+                  className={styles.inputErrorIcon}
+                />
+              )}
+            </div>
             <FieldErrorMessage isInvalid={formState.isValid.step1 && !formState.careerDetails.jobTitle.trim()} />
           </div>
         </SubstepFieldsGroup>
