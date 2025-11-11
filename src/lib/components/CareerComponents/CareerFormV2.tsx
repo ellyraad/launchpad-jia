@@ -20,10 +20,10 @@ import StepIndicator from "./StepIndicator";
 import { usePreScreeningQuestions } from "@/lib/hooks/usePreScreeningQuestions";
 import { useCareerFormSubmission } from "@/lib/hooks/useCareerFormSubmission";
 import { useCareerDraftAutoSave } from "@/lib/hooks/useCareerDraftAutoSave";
-import CareerFormStep0 from "./CareerFormStep0";
-import CareerFormStep1 from "./CareerFormStep1";
-import CareerFormStep2 from "./CareerFormStep2";
-import CareerFormStep3 from "./CareerFormStep3";
+import CareerDetailsStep from "./CareerDetailsStep";
+import CVScreeningStep from "./CVScreeningStep";
+import AIInterviewSetupStep from "./AIInterviewSetupStep";
+import ReviewStep from "./ReviewStep";
 import axios from "axios";
 
 const initFormState: FormState = {
@@ -69,17 +69,14 @@ const initFormState: FormState = {
 
 function formReducer(state: FormState, action: FormReducerAction) {
   if (action.type === "SET") {
-    const newState = {
+    return {
       ...state,
       [action.category]: {
         ...(state[action.category]),
         [action.field]: action.payload
       }
-    }
-
-    return newState;
+    };
   }
-
   return state;
 }
 
@@ -96,6 +93,20 @@ export default function CareerFormV2({
   const [existingCareerData, setExistingCareerData] = useState<any>(null);
 
   const [currentStep, setCurrentStep] = useState<number>(initialStep ?? 0);
+
+  const dispatchFormStateCategory = (
+    category: keyof FormState,
+    data: Record<string, any>
+  ) => {
+    Object.entries(data).forEach(([field, value]) => {
+      dispatch({
+        type: "SET",
+        category,
+        field,
+        payload: value,
+      });
+    });
+  };
   
   const [collapsedSections, setCollapsedSections] = useState<{
     careerDetails: boolean;
@@ -129,7 +140,7 @@ export default function CareerFormV2({
     orgID, 
     user, 
     currentStep, 
-    formType !== "edit", // Only enable autosave for non-edit mode
+    formType !== "edit",
     initialDraftId
   );
 
@@ -146,140 +157,47 @@ export default function CareerFormV2({
     clearDraft
   );
 
-  // Load existing career data for editing
   useEffect(() => {
-    const loadCareerData = async () => {
-      if (!initialCareerId || !orgID || formType !== "edit") return;
+    const loadFormData = async () => {
+      const idToLoad = formType === "edit" ? initialCareerId : initialDraftId;
+      
+      if (!idToLoad || !orgID) return;
 
       setIsLoadingDraft(true);
       try {
         const response = await axios.post("/api/career-data", {
-          id: initialCareerId,
+          id: idToLoad,
           orgID,
         });
 
         if (response.data) {
-          setExistingCareerData(response.data);
-          const mappedFormState = mapCareerToFormState(response.data);
-          
-          Object.entries(mappedFormState.careerDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "careerDetails",
-              field: field as keyof FormState["careerDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.cvScreeningDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "cvScreeningDetails",
-              field: field as keyof FormState["cvScreeningDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.aiScreeningDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "aiScreeningDetails",
-              field: field as keyof FormState["aiScreeningDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.teamAccessDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "teamAccessDetails",
-              field: field as keyof FormState["teamAccessDetails"],
-              payload: value,
-            });
-          });
-
-          // Use initialStep from URL if provided
-          if (initialStep !== undefined) {
-            setCurrentStep(initialStep);
+          if (formType === "edit") {
+            setExistingCareerData(response.data);
           }
-        }
-      } catch (error) {
-        console.error("Error loading career data:", error);
-      } finally {
-        setIsLoadingDraft(false);
-      }
-    };
 
-    loadCareerData();
-  }, [initialCareerId, orgID, formType, initialStep]);
-
-  // Load draft data (for new career flow)
-  useEffect(() => {
-    const loadDraftData = async () => {
-      if (!initialDraftId || !orgID || formType === "edit") return;
-
-      setIsLoadingDraft(true);
-      try {
-        const response = await axios.post("/api/career-data", {
-          id: initialDraftId,
-          orgID,
-        });
-
-        if (response.data) {
           const mappedFormState = mapCareerToFormState(response.data);
           
-          Object.entries(mappedFormState.careerDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "careerDetails",
-              field: field as keyof FormState["careerDetails"],
-              payload: value,
-            });
-          });
+          dispatchFormStateCategory("careerDetails", mappedFormState.careerDetails);
+          dispatchFormStateCategory("cvScreeningDetails", mappedFormState.cvScreeningDetails);
+          dispatchFormStateCategory("aiScreeningDetails", mappedFormState.aiScreeningDetails);
+          dispatchFormStateCategory("teamAccessDetails", mappedFormState.teamAccessDetails);
 
-          Object.entries(mappedFormState.cvScreeningDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "cvScreeningDetails",
-              field: field as keyof FormState["cvScreeningDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.aiScreeningDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "aiScreeningDetails",
-              field: field as keyof FormState["aiScreeningDetails"],
-              payload: value,
-            });
-          });
-
-          Object.entries(mappedFormState.teamAccessDetails).forEach(([field, value]) => {
-            dispatch({
-              type: "SET",
-              category: "teamAccessDetails",
-              field: field as keyof FormState["teamAccessDetails"],
-              payload: value,
-            });
-          });
-
-          // Use initialStep from URL if provided, otherwise use saved draftStep
           if (initialStep !== undefined) {
             setCurrentStep(initialStep);
-          } else if (response.data.draftStep !== undefined) {
+          } else if (formType !== "edit" && response.data.draftStep !== undefined) {
+            // Only use saved draftStep for non-edit mode
             setCurrentStep(response.data.draftStep);
           }
         }
       } catch (error) {
-        console.error("Error loading draft:", error);
+        console.error(`Error loading ${formType === "edit" ? "career" : "draft"} data:`, error);
       } finally {
         setIsLoadingDraft(false);
       }
     };
 
-    loadDraftData();
-  }, [initialDraftId, orgID, formType, initialStep]);
+    loadFormData();
+  }, [initialCareerId, initialDraftId, orgID, formType, initialStep]);
 
   const toggleSection = (section: 'careerDetails' | 'cvScreening' | 'aiInterview') => {
     setCollapsedSections(prev => ({
@@ -288,41 +206,30 @@ export default function CareerFormV2({
     }));
   };
 
+  const setStepValidation = (step: "step1" | "step3", isInvalid: boolean) => {
+    dispatch({
+      type: "SET",
+      category: "isValid",
+      field: step,
+      payload: isInvalid
+    });
+  };
+
   const handleSaveAndContinue = () => {
     if (currentStep === 0) {
       if (!validateCareerDetails(formState.careerDetails)) {
-        dispatch({
-          type: "SET",
-          category: "isValid",
-          field: "step1",
-          payload: true
-        });
+        setStepValidation("step1", true);
         return;
       }
-      dispatch({
-        type: "SET",
-        category: "isValid",
-        field: "step1",
-        payload: false
-      });
+      setStepValidation("step1", false);
     }
     
     if (currentStep === 2) {
       if (!isValidInterviewQuestionsCount(formState.aiScreeningDetails.interviewQuestions)) {
-        dispatch({
-          type: "SET",
-          category: "isValid",
-          field: "step3",
-          payload: true
-        });
+        setStepValidation("step3", true);
         return;
       }
-      dispatch({
-        type: "SET",
-        category: "isValid",
-        field: "step3",
-        payload: false
-      });
+      setStepValidation("step3", false);
     }
     
     if (currentStep < formSteps.length - 1) {
@@ -336,67 +243,61 @@ export default function CareerFormV2({
 
       // Reset validation when navigating
       if (stepIndex === 0) {
-        dispatch({
-          type: "SET",
-          category: "isValid",
-          field: "step1",
-          payload: false
-        });
+        setStepValidation("step1", false);
       }
       if (stepIndex === 2) {
-        dispatch({
-          type: "SET",
-          category: "isValid",
-          field: "step3",
-          payload: false
-        });
+        setStepValidation("step3", false);
       }
     }
   };
 
   const STEP_COMPONENTS = [
-    CareerFormStep0,
-    CareerFormStep1,
-    CareerFormStep2,
-    CareerFormStep3,
+    CareerDetailsStep,
+    CVScreeningStep,
+    AIInterviewSetupStep,
+    ReviewStep,
   ] as const;
 
   const CurrentStepComponent = STEP_COMPONENTS[currentStep];
 
+  const getFormTitle = () => {
+    if (currentStep === 0) {
+      return formType === "edit" ? "Edit career" : "Add new career";
+    }
+    
+    if (formType === "edit") {
+      return formState.careerDetails.jobTitle;
+    }
+    
+    return (
+      <>
+        <span className={styles.draftLabel}>[Draft]</span> {formState.careerDetails.jobTitle}
+      </>
+    );
+  };
+
+  const isLastStep = currentStep === formSteps.length - 1;
+
   return (
     <div className={styles.careerFormContainer}>
       {isLoadingDraft ? (
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "400px" }}>
-          <div style={{ textAlign: "center" }}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingContent}>
             <div className="spinner-border text-primary" role="status">
               <span className="sr-only">Loading draft...</span>
             </div>
-            <p style={{ marginTop: "1rem", color: "#717680" }}>Loading draft...</p>
+            <p className={styles.loadingText}>Loading draft...</p>
           </div>
         </div>
       ) : (
         <>
-          <div style={{ marginBottom: "35px", display: "flex", justifyContent: "space-between" }}>
+          <div className={styles.headerContainer}>
             <div>
-              <h1 style={{ fontSize: "24px", fontWeight: 700, color: "#181D27" }}>
-                {formType === "edit" ? (
-                  <>
-                    {currentStep > 0 ? (
-                      formState.careerDetails.jobTitle
-                    ) : <>Edit career</>}
-                  </>
-                ) : (
-                  <>
-                    {currentStep > 0 ? (
-                      <>
-                        <span style={{ color: "#717680" }}>[Draft]</span> {formState.careerDetails.jobTitle}
-                      </>
-                    ) : <>Add new career</>}
-                  </>
-                )}
+              <h1 className={styles.headerTitle}>
+                {getFormTitle()}
               </h1>
               {draftId && formType !== "edit" && (
-                <div style={{ fontSize: "12px", color: "#717680", marginTop: "4px" }}>
+                <div className={styles.draftStatus}>
                   {isSavingDraft ? (
                     <span>Saving draft...</span>
                   ) : lastSaved ? (
@@ -407,7 +308,7 @@ export default function CareerFormV2({
             </div>
 
             <div className={styles.buttonContainer}>
-              {currentStep === formSteps.length - 1 ? (
+              {isLastStep ? (
                 <>
                   {formType === "edit" && existingCareerData?.status === "active" ? (
                     <button 
@@ -433,13 +334,13 @@ export default function CareerFormV2({
                 </button>
               )}
 
-              {currentStep === formSteps.length - 1 ? (
+              {isLastStep ? (
                 <button 
                   className={styles.actionButton} 
                   onClick={handlePublish}
                   disabled={isPublishing || isSavingUnpublished}
                 >
-                  {!isPublishing && <img alt="check" src="/iconsV3/checkV7.svg" style={{ width: "19px", height: "19px" }} />}
+                  {!isPublishing && <img alt="check" src="/iconsV3/checkV7.svg" className={styles.checkIcon} />}
                   {isPublishing ? (formType === "edit" ? "Saving..." : "Publishing...") : (formType === "edit" ? "Save Changes" : "Publish")}
                 </button>
               ) : (
@@ -457,8 +358,8 @@ export default function CareerFormV2({
             <div
               className={styles.subStepsContainer}
               style={{
-                gridTemplateColumns: currentStep === formSteps.length - 1 ? "86.1%" : "2fr 1fr",
-                justifyContent: currentStep === formSteps.length - 1 ? "center" : "initial"
+                gridTemplateColumns: isLastStep ? "86.1%" : "2fr 1fr",
+                justifyContent: isLastStep ? "center" : "initial"
               }}
             >
               <div className={styles.subStepsCol}>
@@ -476,7 +377,7 @@ export default function CareerFormV2({
                 />
               </div>
 
-              {currentStep !== formSteps.length - 1 && (
+              {!isLastStep && (
                 <TipsBox tips={formSteps[currentStep].tooltips} />
               )}
             </div>
@@ -484,12 +385,12 @@ export default function CareerFormV2({
 
           <Tooltip
             id="cv-secret-prompt-tooltip"
-            style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
+            className={styles.tooltipStyle}
           />
 
           <Tooltip
             id="ai-int-secret-prompt-tooltip"
-            style={{ transition: 'opacity 0.2s ease-in-out', borderRadius: "8px", backgroundColor: "#181D27" }}
+            className={styles.tooltipStyle}
           />
       </>
       )}

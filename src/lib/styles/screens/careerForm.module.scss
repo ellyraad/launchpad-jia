@@ -590,6 +590,55 @@
   filter: brightness(0) invert(1);
 }
 
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+
+  .loadingContent {
+    text-align: center;
+
+    .loadingText {
+      margin-top: 1rem;
+      color: var(--Text-text-tertiary, #717680);
+    }
+  }
+}
+
+.headerContainer {
+  margin-bottom: 35px;
+  display: flex;
+  justify-content: space-between;
+
+  .headerTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--Text-text-primary, #181d27);
+
+    .draftLabel {
+      color: var(--Text-text-tertiary, #717680);
+    }
+  }
+
+  .draftStatus {
+    font-size: 12px;
+    color: var(--Text-text-tertiary, #717680);
+    margin-top: 4px;
+  }
+}
+
+.checkIcon {
+  width: 19px;
+  height: 19px;
+}
+
+.tooltipStyle {
+  transition: opacity 0.2s ease-in-out;
+  border-radius: 8px;
+  background-color: var(--Text-text-primary, #181d27);
+}
+
 
 @media (max-width: 768px) {
   .bottomContainer {

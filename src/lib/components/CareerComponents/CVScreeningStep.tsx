@@ -21,7 +21,7 @@ interface CareerFormStep1Props {
   preScreeningHook: PreScreeningQuestionsHook;
 }
 
-export default function CareerFormStep1({ 
+export default function CVScreeningStep({ 
   formState, 
   dispatch, 
   preScreeningHook 

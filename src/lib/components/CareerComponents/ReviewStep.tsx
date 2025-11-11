@@ -18,7 +18,7 @@ interface CareerFormStep3Props {
   formType?: string;
 }
 
-export default function CareerFormStep3({ 
+export default function ReviewStep({ 
   formState, 
   collapsedSections, 
   toggleSection,

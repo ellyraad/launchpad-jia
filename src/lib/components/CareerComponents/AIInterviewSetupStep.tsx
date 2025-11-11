@@ -14,7 +14,7 @@ interface CareerFormStep2Props {
   dispatch: Dispatch<FormReducerAction>;
 }
 
-export default function CareerFormStep2({ formState, dispatch }: CareerFormStep2Props) {
+export default function AIInterviewSetupStep({ formState, dispatch }: CareerFormStep2Props) {
   return (
     <div className={styles.subSteps}>
       <SubstepContainer stepNum={1} title="AI Interview Screening" style={{ gap: "12px" }}>

@@ -26,7 +26,7 @@ export const flattenNewCareerData = (career: FormState, orgID: string, user: Use
     country: career.careerDetails.country,
     province: career.careerDetails.state,
     location: career.careerDetails.city,
-    status: "active", // this should be inactive when the career is saved as unpublished OR drafted
+    status: "active",
     employmentType: career.careerDetails.employmentType,
     orgID,
     draft: isDraft,
@@ -253,10 +253,6 @@ export const validateStepStatus = (
   return "pending";
 }
 
-/**
- * Maps a career object from MongoDB to FormState structure
- * Used when loading draft or existing career data into the form
- */
 export const mapCareerToFormState = (career: any): FormState => {
   return {
     careerDetails: {

@@ -23,7 +23,7 @@ interface CareerFormStep0Props {
   dispatch: Dispatch<FormReducerAction>;
 }
 
-export default function CareerFormStep0({ formState, dispatch }: CareerFormStep0Props) {
+export default function CareerDetailsStep({ formState, dispatch }: CareerFormStep0Props) {
   const [accessRole, setAccessRole] = useState("Job Owner");
 
   // Get location options
