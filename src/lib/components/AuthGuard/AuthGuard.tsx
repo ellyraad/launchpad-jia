@@ -26,12 +26,18 @@ export default function AuthGuard() {
       const orgList = org.data;
       localStorage.orgList = JSON.stringify(orgList);
 
-      if (!orgList.length && !activeOrg) {
+      // Check super admin status first
+      const superAdminResponse = await axios.post("/api/admin/check-super-admin", {
+        email: userData.email,
+      });
+      const isSuperAdmin = superAdminResponse.data.isSuperAdmin;
+      if (!orgList.length && !activeOrg && !isSuperAdmin) {
         errorToast("Invalid Access", 1500);
 
         setTimeout(() => {
           window.location.href = "/";
         }, 1500);
+        return;
       }
 
       const orgIDparams = searchParams.get("orgID");
@@ -43,10 +49,6 @@ export default function AuthGuard() {
         router.replace(`${pathname}?orgID=${activeOrg._id}${existingParams ? `&${existingParams}` : ""}`);
       } else if (orgIDparams) {
         const foundOrg = orgList.find((o: any) => o._id === orgIDparams);
-        const superAdminResponse = await axios.post("/api/admin/check-super-admin", {
-          email: userData.email,
-        });
-        const isSuperAdmin = superAdminResponse.data.isSuperAdmin;
 
         if (!foundOrg && !isSuperAdmin) {
           errorToast("Invalid organization", 1500);
@@ -82,12 +84,12 @@ export default function AuthGuard() {
         }
       }
 
-      if (!activeOrg) {
+      if (!activeOrg && orgList.length > 0) {
         setActiveOrg(orgList[0]);
       }
 
-      if (activeOrg) {
-        if (!userData.email.includes("@whitecloak.com")) {
+      if (activeOrg || isSuperAdmin) {
+        if (!isSuperAdmin && !userData.email.includes("@whitecloak.com")) {
           if (pathname.includes("/settings")) {
             errorToast("You are not authorized to access this page", 1500);
             setTimeout(() => {
@@ -97,7 +99,7 @@ export default function AuthGuard() {
           }
         }
 
-        if (activeOrg.role == "hiring_manager") {
+        if (activeOrg && activeOrg.role == "hiring_manager") {
           const allowedPaths = [
             "/dashboard/careers",
             "/dashboard/feedback",
@@ -117,19 +119,21 @@ export default function AuthGuard() {
           }
         }
 
-        // Check if org is active
-        const orgDetails = await axios.get("/api/admin/get-organization-details", {
-          params: {
-            id: activeOrg._id,
+        // Check if org is active (only if activeOrg exists)
+        if (activeOrg) {
+          const orgDetails = await axios.get("/api/admin/get-organization-details", {
+            params: {
+              id: activeOrg._id,
+            }
+          });
+          if (orgDetails.data.status === "inactive") {
+            clearUserSession();
+            errorToast("Your organization is inactive", 1500);
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 1500);
+            return;
           }
-        });
-        if (orgDetails.data.status === "inactive") {
-          clearUserSession();
-          errorToast("Your organization is inactive", 1500);
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 1500);
-          return;
         }
       }
 
@@ -151,16 +155,13 @@ export default function AuthGuard() {
       try {
         const userData = JSON.parse(localStorage.user);
         const role = localStorage.role;
-
         if (role === "admin") {
           if (window.location.pathname.includes("applicant")) {
             fetchCV(userData.email);
             setBlocked(false);
           }
           if (window.location.pathname.includes("dashboard")) {
-            if (orgID) {
-              fetchOrg();
-            }
+            fetchOrg();
           }
         }
 

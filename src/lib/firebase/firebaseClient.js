@@ -165,7 +165,13 @@ export async function signInWithGoogle(type) {
         user: profile,
       });
 
-      if (orgData.data.length == 0) {
+      // Check if user is super admin
+      const superAdminCheck = await axios.post("/api/admin/check-super-admin", {
+        email: profile.email,
+      });
+      const isSuperAdmin = superAdminCheck.data.isSuperAdmin;
+
+      if (orgData.data.length == 0 && !isSuperAdmin) {
         localStorage.role = "applicant";
         window.location.href = window.location.origin.includes("localhost")
           ? "/job-portal"
@@ -173,21 +179,28 @@ export async function signInWithGoogle(type) {
         return;
       }
 
-      if (orgData.data.length > 0) {
+      if (orgData.data.length > 0 || isSuperAdmin) {
         localStorage.role = "admin";
         const activeOrg = localStorage.activeOrg;
 
-        localStorage.activeOrg = activeOrg
-          ? activeOrg
-          : JSON.stringify(orgData.data[0]);
-        localStorage.orgList = JSON.stringify(orgData.data);
+        // For super admins with no orgs, don't set activeOrg yet
+        if (orgData.data.length > 0) {
+          localStorage.activeOrg = activeOrg
+            ? activeOrg
+            : JSON.stringify(orgData.data[0]);
+          localStorage.orgList = JSON.stringify(orgData.data);
 
-        const parsedActiveOrg = JSON.parse(localStorage.activeOrg);
+          const parsedActiveOrg = JSON.parse(localStorage.activeOrg);
 
-        if (parsedActiveOrg.role == "hiring_manager") {
-          window.location.href = `/recruiter-dashboard/careers?orgID=${parsedActiveOrg._id}`;
-        } else {
-          window.location.href = `/recruiter-dashboard?orgID=${parsedActiveOrg._id}`;
+          if (parsedActiveOrg.role == "hiring_manager") {
+            window.location.href = `/recruiter-dashboard/careers?orgID=${parsedActiveOrg._id}`;
+          } else {
+            window.location.href = `/recruiter-dashboard?orgID=${parsedActiveOrg._id}`;
+          }
+        } else if (isSuperAdmin) {
+          // Super admin with no orgs - redirect to admin portal
+          localStorage.orgList = JSON.stringify([]);
+          window.location.href = "/admin-portal";
         }
       }
     })
